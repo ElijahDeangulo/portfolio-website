@@ -7,6 +7,6 @@
 - 🌱 Passionate about fintech, ML engineering, and data insights
 
 ## 🔗 Connect with me:
-- 💼 [Portfolio Website](https://your-portfolio-url.vercel.app)
+- 💼 [Portfolio Website](https://portfolio-website-lac-two-89.vercel.app/)
 - 💬 [LinkedIn](https://www.linkedin.com/in/elijah-deangulo-a26306175)
 - 📧 ejdeangulo@gmail.com
