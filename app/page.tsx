@@ -163,7 +163,7 @@ export default function Home() {
                   <div className="h-8"></div> {/* space-y-8 gap */}
                   
                   {/* Inselligence segment - substantial content with longer title and 3 bullet points */}
-                  <div className={`h-60 w-full transition-all duration-300 ${activeTimelineItem === 'inselligence' ? 'bg-cyan-400 shadow-lg shadow-cyan-400/20' : 'bg-transparent'}`}></div>
+                  <div className={`h-56 w-full transition-all duration-300 ${activeTimelineItem === 'inselligence' ? 'bg-cyan-400 shadow-lg shadow-cyan-400/20' : 'bg-transparent'}`}></div>
                   <div className="h-8"></div> {/* space-y-8 gap */}
                   
                   {/* Elion segment - solid content with 3 bullet points */}
@@ -248,7 +248,9 @@ export default function Home() {
                         ? 'bg-cyan-400 shadow-lg shadow-cyan-400/30 scale-110' 
                         : 'bg-white'
                     }`}>
-                      <img src="/images/logos/elion.jpg" alt="Elion Partners" className="h-8 w-8 object-contain" />
+                      <a href="https://elionpartners.com/" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-full h-full">
+                        <img src="/images/logos/elion.jpg" alt="Elion Partners" className="h-8 w-8 object-contain hover:scale-110 transition-transform" />
+                      </a>
                     </div>
                     <div className="flex-1 pt-1">
                       <div className="mb-1 text-sm text-muted-foreground">Jun 2023 - Aug 2023</div>
@@ -277,7 +279,9 @@ export default function Home() {
                         ? 'bg-cyan-400 shadow-lg shadow-cyan-400/30 scale-110' 
                         : 'bg-white'
                     }`}>
-                      <img src="/images/logos/elite-endoscopy.jpg" alt="Elite Endoscopy Services" className="h-8 w-8 object-contain" />
+                      <a href="https://www.eliteendoscopyservices.com/index.htm" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-full h-full">
+                        <img src="/images/logos/elite-endoscopy.jpg" alt="Elite Endoscopy Services" className="h-8 w-8 object-contain hover:scale-110 transition-transform" />
+                      </a>
                     </div>
                     <div className="flex-1 pt-1">
                       <div className="mb-1 text-sm text-muted-foreground">Nov 2020 - Mar 2021</div>
