@@ -573,6 +573,198 @@ body {
 }
 
 /* Responsive Design */
+/* Enhanced Professional Custom Cursor Styles */
+*,
+*:before,
+*:after {
+  cursor: none !important;
+}
+
+body * {
+  cursor: none !important;
+}
+
+.custom-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 24px;
+  height: 24px;
+  background: rgba(34, 211, 238, 0.2);
+  border: 3px solid rgb(34, 211, 238);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 99999;
+  transition: width 0.1s cubic-bezier(0.25, 0.46, 0.45, 0.94), height 0.1s cubic-bezier(0.25, 0.46, 0.45, 0.94), background 0.1s ease, border 0.1s ease;
+  transform: translate(-50%, -50%);
+  mix-blend-mode: normal;
+  opacity: 1;
+  will-change: transform;
+}
+
+.custom-cursor-dot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 6px;
+  height: 6px;
+  background: rgb(34, 211, 238);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 100000;
+  transform: translate(-50%, -50%);
+  transition: width 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94), height 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94), background 0.15s ease;
+  opacity: 1;
+  will-change: transform;
+  /* Ensure pixel-perfect centering */
+  transform-origin: center center;
+}
+
+.custom-cursor-trail {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 32px;
+  height: 32px;
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.05) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9998;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.3s ease;
+  will-change: transform;
+}
+
+/* Default cursor state */
+.custom-cursor--default {
+  width: 20px;
+  height: 20px;
+  background: rgba(0, 0, 0, 0.05);
+  border: 2px solid hsl(var(--foreground));
+}
+
+/* Button hover state */
+.custom-cursor--button {
+  width: 32px;
+  height: 32px;
+  background: rgba(34, 211, 238, 0.1);
+  border: 2px solid rgb(34, 211, 238);
+}
+
+.custom-cursor-dot--button {
+  width: 6px;
+  height: 6px;
+  background: rgb(34, 211, 238);
+}
+
+/* Link hover state */
+.custom-cursor--link {
+  width: 28px;
+  height: 28px;
+  background: rgba(16, 185, 129, 0.1);
+  border: 2px solid rgb(16, 185, 129);
+}
+
+.custom-cursor-dot--link {
+  width: 5px;
+  height: 5px;
+  background: rgb(16, 185, 129);
+}
+
+/* Input hover state */
+.custom-cursor--input {
+  width: 2px;
+  height: 20px;
+  background: hsl(var(--foreground));
+  border: none;
+  border-radius: 1px;
+}
+
+.custom-cursor-dot--input {
+  opacity: 0;
+}
+
+/* Generic hover state */
+.custom-cursor--hover {
+  width: 24px;
+  height: 24px;
+  background: rgba(0, 0, 0, 0.08);
+  border: 2px solid hsl(var(--foreground));
+}
+
+/* Pressed state */
+.custom-cursor--pressed {
+  transform: translate(-50%, -50%) scale(0.9);
+}
+
+.custom-cursor-dot--pressed {
+  transform: translate(-50%, -50%) scale(1.2);
+}
+
+/* Dark mode adjustments */
+.dark .custom-cursor {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: hsl(var(--foreground));
+}
+
+.dark .custom-cursor-trail {
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
+}
+
+.dark .custom-cursor--default {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.dark .custom-cursor--button {
+  background: rgba(34, 211, 238, 0.15);
+  border-color: rgb(34, 211, 238);
+}
+
+.dark .custom-cursor-dot--button {
+  background: rgb(34, 211, 238);
+}
+
+.dark .custom-cursor--link {
+  background: rgba(34, 197, 94, 0.15);
+  border-color: rgb(34, 197, 94);
+}
+
+.dark .custom-cursor-dot--link {
+  background: rgb(34, 197, 94);
+}
+
+.dark .custom-cursor--hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Mobile - hide custom cursor */
+@media (max-width: 768px) {
+  .custom-cursor,
+  .custom-cursor-dot,
+  .custom-cursor-trail {
+    display: none;
+  }
+  
+  * {
+    cursor: auto !important;
+  }
+}
+
+/* Typing animation styles */
+.typing-cursor {
+  animation: blink 1s infinite;
+  color: hsl(var(--foreground));
+}
+
+@keyframes blink {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0;
+  }
+}
+
 @media (max-width: 768px) {
   .container {
     padding: 0 var(--space-6) !important;
