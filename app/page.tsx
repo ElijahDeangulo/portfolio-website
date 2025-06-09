@@ -190,7 +190,9 @@ export default function Home() {
                         ? 'bg-cyan-400 shadow-lg shadow-cyan-400/30 scale-110' 
                         : 'bg-white'
                     }`}>
-                      <img src="/images/logos/palantir.jpg" alt="Palantir" className="h-8 w-8 object-contain" />
+                      <a href="https://www.palantir.com/" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-full h-full">
+                        <img src="/images/logos/palantir.jpg" alt="Palantir" className="h-8 w-8 object-contain hover:scale-110 transition-transform" />
+                      </a>
                     </div>
                     <div className="flex-1 pt-1">
                       <div className="mb-1 text-sm text-muted-foreground">Jan 2025 - Present</div>
@@ -219,7 +221,9 @@ export default function Home() {
                         ? 'bg-cyan-400 shadow-lg shadow-cyan-400/30 scale-110' 
                         : 'bg-gray-900'
                     }`}>
-                      <img src="/images/logos/inselligence.jpg" alt="Inselligence" className="h-8 w-8 object-contain" />
+                      <a href="https://inselligence.com/" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-full h-full">
+                        <img src="/images/logos/inselligence.jpg" alt="Inselligence" className="h-8 w-8 object-contain hover:scale-110 transition-transform" />
+                      </a>
                     </div>
                     <div className="flex-1 pt-1">
                       <div className="mb-1 text-sm text-muted-foreground">May 2024 - Aug 2024</div>
@@ -332,7 +336,9 @@ export default function Home() {
                         ? 'bg-cyan-400 shadow-lg shadow-cyan-400/30 scale-110' 
                         : 'bg-white'
                     }`}>
-                      <img src="/images/logos/uf.jpg" alt="University of Florida" className="h-8 w-8 object-contain" />
+                      <a href="https://warrington.ufl.edu/master-business-analytics/" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-full h-full">
+                        <img src="/images/logos/uf.jpg" alt="University of Florida" className="h-8 w-8 object-contain hover:scale-110 transition-transform" />
+                      </a>
                     </div>
                     <div className="flex-1 pt-1">
                       <div className="mb-1 text-sm text-muted-foreground">Expected Graduation: Dec 2025</div>
@@ -361,7 +367,9 @@ export default function Home() {
                         ? 'bg-cyan-400 shadow-lg shadow-cyan-400/30 scale-110' 
                         : 'bg-white'
                     }`}>
-                      <img src="/images/logos/uf-warrington.jpg" alt="UF Warrington College" className="h-8 w-8 object-contain" />
+                      <a href="https://warrington.ufl.edu/undergraduate-academics/information-systems/" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-full h-full">
+                        <img src="/images/logos/uf-warrington.jpg" alt="UF Warrington College" className="h-8 w-8 object-contain hover:scale-110 transition-transform" />
+                      </a>
                     </div>
                     <div className="flex-1 pt-1">
                       <div className="mb-1 text-sm text-muted-foreground">Graduated: May 2024</div>
@@ -416,7 +424,9 @@ export default function Home() {
                         ? 'bg-cyan-400 shadow-lg shadow-cyan-400/30 scale-110' 
                         : 'bg-white'
                     }`}>
-                      <img src="/images/logos/asm.jpg" alt="A Special Miracle" className="h-8 w-8 object-contain" />
+                      <a href="https://aspecialmiracle.org/" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-full h-full">
+                        <img src="/images/logos/asm.jpg" alt="A Special Miracle" className="h-8 w-8 object-contain hover:scale-110 transition-transform" />
+                      </a>
                     </div>
                     <div className="flex-1 pt-1">
                       <div className="mb-1 text-sm text-muted-foreground">May 2017 - Present · 8 yrs 2 mos</div>
@@ -430,12 +440,12 @@ export default function Home() {
                         <li>• Sponsored carefully chosen candidates in special needs pageants, strategically raising funds through advertising at prominent events</li>
                       </ul>
                       <div className="mt-3">
-                        <a href="https://www.aspecialmiracle.org/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 transition-colors">
+                        <a href="https://aspecialmiracle.org/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 transition-colors">
                           🌐 Non-profit webpage
                         </a>
-            </div>
-          </div>
-            </div>
+                      </div>
+                    </div>
+                  </div>
 
                   {/* Bread of the Mighty Food Bank */}
                   <div 
@@ -452,8 +462,10 @@ export default function Home() {
                         ? 'bg-cyan-400 shadow-lg shadow-cyan-400/30 scale-110' 
                         : 'bg-white'
                     }`}>
-                      <img src="/images/logos/food-bank.jpg" alt="Bread of the Mighty Food Bank" className="h-8 w-8 object-contain" />
-          </div>
+                      <a href="https://breadofthemighty.org/" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-full h-full">
+                        <img src="/images/logos/food-bank.jpg" alt="Bread of the Mighty Food Bank" className="h-8 w-8 object-contain hover:scale-110 transition-transform" />
+                      </a>
+                    </div>
                     <div className="flex-1 pt-1">
                       <div className="mb-1 text-sm text-muted-foreground">Dec 2022 - Mar 2023 · 4 mos</div>
                       <h3 className="mb-1 text-lg font-semibold text-foreground">Bread of the Mighty Food Bank</h3>
@@ -463,15 +475,15 @@ export default function Home() {
                         <li>• Oversaw the planning and execution of food drives, including logistics and resource allocation. My efforts ensured successful food collection and distribution to those in need</li>
                         <li>• Actively participated in volunteer activities, fostering a collaborative and inclusive environment. This hands-on approach allowed me to build strong relationships with volunteers and ensure the smooth execution of daily operations</li>
                       </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-            </div>
-          </div>
-        </div>
           )}
-      </section>
+        </section>
 
-      {/* Featured Projects */}
+        {/* Featured Projects */}
         <section className="py-12">
           <div className="mb-8 flex items-center justify-between">
             <h2 className="text-2xl font-bold text-foreground">featured projects</h2>
