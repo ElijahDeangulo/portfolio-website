@@ -369,6 +369,26 @@ const FloatingElements = ({ section }: { section: string }) => {
 }
 
 export default function Home() {
+  // Add gradient animation styles
+  React.useEffect(() => {
+    const style = document.createElement('style')
+    style.textContent = `
+      @keyframes gradient-shift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+      
+      @keyframes sparkle {
+        0%, 100% { opacity: 0; transform: scale(0) rotate(0deg); }
+        50% { opacity: 1; transform: scale(1) rotate(180deg); }
+      }
+    `
+    document.head.appendChild(style)
+    return () => {
+      document.head.removeChild(style)
+    }
+  }, [])
   const [activeSection, setActiveSection] = useState('home')
   const [activeTab, setActiveTab] = useState('work')
   const [activeTimelineItem, setActiveTimelineItem] = useState<string | null>('palantir')
@@ -511,10 +531,10 @@ export default function Home() {
         <div className="mx-auto flex max-w-3xl flex-col px-8">
           <nav className="flex items-center justify-between py-6">
             <ul className="flex items-center space-x-8">
-              <li><button onClick={() => setActiveSection('home')} className={`text-sm transition-colors hover:text-foreground/80 ${activeSection === 'home' ? 'text-foreground' : 'text-muted-foreground'}`}>home</button></li>
-              <li><button onClick={() => setActiveSection('projects')} className={`text-sm transition-colors hover:text-foreground ${activeSection === 'projects' ? 'text-foreground' : 'text-muted-foreground'}`}>projects</button></li>
-              <li><button onClick={() => setActiveSection('blog')} className={`text-sm transition-colors hover:text-foreground ${activeSection === 'blog' ? 'text-foreground' : 'text-muted-foreground'}`}>blog</button></li>
-              <li><button onClick={() => setActiveSection('contact')} className={`text-sm transition-colors hover:text-foreground ${activeSection === 'contact' ? 'text-foreground' : 'text-muted-foreground'}`}>contact</button></li>
+              <li><button onClick={() => setActiveSection('home')} className={`text-sm transition-colors hover:text-foreground/80 ${activeSection === 'home' ? 'text-foreground' : 'text-muted-foreground'}`}>Home</button></li>
+              <li><button onClick={() => setActiveSection('projects')} className={`text-sm transition-colors hover:text-foreground ${activeSection === 'projects' ? 'text-foreground' : 'text-muted-foreground'}`}>Projects</button></li>
+              <li><button onClick={() => setActiveSection('blog')} className={`text-sm transition-colors hover:text-foreground ${activeSection === 'blog' ? 'text-foreground' : 'text-muted-foreground'}`}>Blog</button></li>
+              <li><button onClick={() => setActiveSection('contact')} className={`text-sm transition-colors hover:text-foreground ${activeSection === 'contact' ? 'text-foreground' : 'text-muted-foreground'}`}>Contact</button></li>
         </ul>
             <div className="flex items-center space-x-3">
               <button
@@ -585,13 +605,16 @@ export default function Home() {
                   <div className="relative z-10">
                     <div className="mb-4 flex items-center gap-3">
                       <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                      <span className="text-sm text-muted-foreground">Actively looking for Internships Fall 25</span>
+                      <span className="text-sm text-muted-foreground">Actively looking for internships for Fall 2025</span>
                     </div>
-                    <h1 className="mb-3 text-2xl font-bold tracking-tight text-foreground lg:text-4xl">
-                      <span className="block">hi, i'm</span>
-                      <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                        elijah
-                      </span>
+                                        <h1 
+                      className="mb-3 text-2xl font-bold tracking-tight lg:text-4xl bg-gradient-to-r from-slate-500 via-cyan-300 via-cyan-500 via-blue-400 to-slate-600 bg-clip-text text-transparent"
+                      style={{
+                        backgroundSize: '300% 300%',
+                        animation: 'gradient-shift 4s ease infinite'
+                      }}
+                    >
+                      Hi, I'm Elijah Deangulo
                     </h1>
                     <div className="mb-3 text-base text-muted-foreground">
                       <TypingAnimation 
@@ -630,9 +653,9 @@ export default function Home() {
                       transform: `translate3d(${mousePosition.x * 0.015}px, ${mousePosition.y * 0.015}px, 0)`
                     }}
                   >
-                    <div className="text-lg font-bold text-primary mb-1">$10M+</div>
-                    <div className="text-xs text-muted-foreground">Revenue Impact</div>
-                    <div className="absolute top-1 right-1 text-lg opacity-50">💰</div>
+                    <div className="text-lg font-bold text-primary mb-1">Florida</div>
+                    <div className="text-xs text-muted-foreground">Ft. Lauderdale</div>
+                    <div className="absolute top-1 right-1 text-lg opacity-50">🌴</div>
                   </div>
                   
                   <div 
@@ -641,7 +664,7 @@ export default function Home() {
                       transform: `translate3d(${mousePosition.x * 0.008}px, ${mousePosition.y * 0.008}px, 0)`
                     }}
                   >
-                    <div className="text-lg font-bold text-primary mb-1">7+</div>
+                    <div className="text-lg font-bold text-primary mb-1">4+</div>
                     <div className="text-xs text-muted-foreground">Years Experience</div>
                     <div className="absolute top-1 right-1 text-lg opacity-50">⚡</div>
                   </div>
@@ -660,8 +683,8 @@ export default function Home() {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-                  <div className="flex gap-3">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
+                  <div className="flex gap-4">
                     <button 
                       onClick={handleDownloadClick}
                       disabled={isDownloading}
@@ -699,18 +722,18 @@ export default function Home() {
                   
                   {/* Social Links */}
                   <div className="flex items-center gap-3">
-                    <a href="https://www.linkedin.com/in/elijah-deangulo-a26306175" target="_blank" rel="noopener noreferrer" className="group flex items-center justify-center w-8 h-8 rounded-lg border border-border bg-background transition-all duration-300 hover:bg-blue-500 hover:border-blue-500 hover:scale-110 hover:shadow-lg hover:shadow-blue-500/25">
-                      <svg className="h-3 w-3 text-blue-600 group-hover:text-white transition-colors" fill="currentColor" viewBox="0 0 24 24">
+                    <a href="https://www.linkedin.com/in/elijah-deangulo-a26306175" target="_blank" rel="noopener noreferrer" className="group flex items-center justify-center px-5 py-2.5 rounded-lg border border-border bg-background transition-all duration-300 hover:bg-blue-500 hover:border-blue-500 hover:scale-110 hover:shadow-lg hover:shadow-blue-500/25">
+                      <svg className="h-4 w-4 text-blue-600 group-hover:text-white transition-colors" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
                       </svg>
                     </a>
-                    <a href="https://github.com/ElijahDeangulo" target="_blank" rel="noopener noreferrer" className="group flex items-center justify-center w-8 h-8 rounded-lg border border-border bg-background transition-all duration-300 hover:bg-gray-900 hover:border-gray-900 hover:scale-110 hover:shadow-lg hover:shadow-gray-900/25">
-                      <svg className="h-3 w-3 text-gray-700 group-hover:text-white transition-colors" fill="currentColor" viewBox="0 0 24 24">
+                    <a href="https://github.com/ElijahDeangulo" target="_blank" rel="noopener noreferrer" className="group flex items-center justify-center px-5 py-2.5 rounded-lg border border-border bg-background transition-all duration-300 hover:bg-gray-900 hover:border-gray-900 hover:scale-110 hover:shadow-lg hover:shadow-gray-900/25">
+                      <svg className="h-4 w-4 text-gray-700 group-hover:text-white transition-colors" fill="currentColor" viewBox="0 0 24 24">
                         <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd"/>
                       </svg>
                     </a>
-                    <a href="mailto:ejdeangulo@gmail.com" className="group flex items-center justify-center w-8 h-8 rounded-lg border border-border bg-background transition-all duration-300 hover:bg-red-500 hover:border-red-500 hover:scale-110 hover:shadow-lg hover:shadow-red-500/25">
-                      <svg className="h-3 w-3 text-red-600 group-hover:text-white transition-colors" fill="currentColor" viewBox="0 0 24 24">
+                    <a href="mailto:ejdeangulo@gmail.com" className="group flex items-center justify-center px-5 py-2.5 rounded-lg border border-border bg-background transition-all duration-300 hover:bg-red-500 hover:border-red-500 hover:scale-110 hover:shadow-lg hover:shadow-red-500/25">
+                      <svg className="h-4 w-4 text-red-600 group-hover:text-white transition-colors" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-.904.732-1.636 1.636-1.636h.075L12 13.267 22.289 3.821h.075A1.636 1.636 0 0 1 24 5.457z"/>
                       </svg>
                     </a>
@@ -723,10 +746,7 @@ export default function Home() {
                 
                 {/* Profile Image Card */}
                 <div 
-                  className="group relative overflow-hidden rounded bg-card/30 backdrop-blur-sm border border-border/50 p-0.5 transition-all duration-700 hover:scale-105"
-                  style={{
-                    transform: `translate3d(${mousePosition.x * 0.1}px, ${mousePosition.y * 0.1 + scrollY * -0.03}px, 0) rotateY(${mousePosition.x * 0.01}deg) rotateX(${-mousePosition.y * 0.01}deg)`
-                  }}
+                  className="group relative overflow-hidden rounded bg-card/30 backdrop-blur-sm border border-border/50 p-0.5 transition-all duration-300"
                 >
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-secondary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   <div className="relative z-10">
@@ -734,7 +754,7 @@ export default function Home() {
                       src="/images/profile.jpg" 
                       alt="Elijah DeAngulo" 
                       className="w-full rounded-md object-cover shadow-sm transition-transform duration-500 group-hover:scale-105"
-                      style={{ aspectRatio: '2/3', objectPosition: 'center 15%', height: '320px', overflow: 'hidden' }}
+                      style={{ aspectRatio: '2/3', objectPosition: 'center 13%', height: '320px', overflow: 'hidden', transform: 'scale(0.85)' }}
                       onError={(e) => {
                         e.currentTarget.src = "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=320&h=400&fit=crop&crop=face"
                       }}
@@ -1269,9 +1289,9 @@ export default function Home() {
         >
           <FloatingElements section="projects" />
           <div className="mb-6 flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-foreground">featured projects</h2>
+            <h2 className="text-2xl font-bold text-foreground">Featured Projects</h2>
             <a href="#" className="group flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground">
-              <span>view more</span>
+              <span>View more</span>
               <span className="relative transition-transform group-hover:scale-110">
                 <svg className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" viewBox="0 0 24 24" fill="currentColor">
                   {/* Top jaw - rotates down on hover */}
@@ -1304,7 +1324,7 @@ export default function Home() {
               <div className="mb-3 text-3xl">🤖</div>
               <h3 className="mb-2 text-lg font-semibold text-foreground">AR Automation Platform</h3>
               <p className="mb-3 text-sm text-muted-foreground">
-                End-to-end accounts receivable automation using multi-agent LLM orchestration, RAG techniques, and real-time payment processing
+                End-to-end accounts receivable automation using multi-agent LLM orchestration, RAG techniques, and real-time payment processing.
               </p>
               <div className="mb-3 flex flex-wrap gap-2">
                 <span className="rounded-md bg-secondary px-2 py-1 text-xs text-secondary-foreground">PySpark</span>
@@ -1324,7 +1344,7 @@ export default function Home() {
               <div className="mb-3 text-3xl">📈</div>
               <h3 className="mb-2 text-lg font-semibold text-foreground">Pricing Intelligence Platform</h3>
               <p className="mb-3 text-sm text-muted-foreground">
-                Bayesian optimization models with demand curve simulation and real-time anomaly detection driving $10M+ revenue impact
+                Bayesian optimization models with demand curve simulation and real-time anomaly detection driving $10M+ revenue impact.
               </p>
               <div className="mb-3 flex flex-wrap gap-2">
                 <span className="rounded-md bg-secondary px-2 py-1 text-xs text-secondary-foreground">Bayesian Optimization</span>
@@ -1343,7 +1363,7 @@ export default function Home() {
               <div className="mb-3 text-3xl">🏆</div>
               <h3 className="mb-2 text-lg font-semibold text-foreground">A Special Miracle</h3>
               <p className="mb-3 text-sm text-muted-foreground">
-                Founded a non-profit organization focused on community impact and social good initiatives
+                Founded a non-profit organization focused on community impact and social good initiatives.
               </p>
               <div className="mb-3 flex flex-wrap gap-2">
                 <span className="rounded-md bg-secondary px-2 py-1 text-xs text-secondary-foreground">Leadership</span>
@@ -1366,7 +1386,7 @@ export default function Home() {
               <div className="mb-3 text-3xl">💼</div>
               <h3 className="mb-2 text-lg font-semibold text-foreground">Revenue Intelligence Suite</h3>
               <p className="mb-3 text-sm text-muted-foreground">
-                ML-driven sales forecasting and CRM optimization platform improving pipeline hygiene and customer engagement
+                ML-driven sales forecasting and CRM optimization platform improving pipeline hygiene and customer engagement.
               </p>
               <div className="flex flex-wrap gap-2">
                 <span className="rounded-md bg-secondary px-2 py-1 text-xs text-secondary-foreground">ML Forecasting</span>
@@ -1384,9 +1404,9 @@ export default function Home() {
           style={{ transform: getSectionTransform(0.005) }}
         >
           <div className="mb-6 flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-foreground">recent posts</h2>
+            <h2 className="text-2xl font-bold text-foreground">Recent Posts</h2>
             <a href="#" className="group flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground">
-              <span>view more</span>
+              <span>View more</span>
               <span className="relative transition-transform group-hover:scale-110">
                 <svg className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" viewBox="0 0 24 24" fill="currentColor">
                   {/* Top jaw - rotates down on hover */}
@@ -1442,7 +1462,7 @@ export default function Home() {
         {activeSection === 'projects' && (
           <div className="py-8">
             <div className="mb-6">
-              <h2 className="text-2xl font-bold text-foreground mb-4">my projects</h2>
+              <h2 className="text-2xl font-bold text-foreground mb-4">My Projects</h2>
               <p className="text-muted-foreground">
                 A collection of projects I've worked on, from AI-powered solutions to enterprise platforms.
               </p>
@@ -1517,7 +1537,7 @@ export default function Home() {
         {activeSection === 'blog' && (
           <div className="py-8">
             <div className="mb-6">
-              <h2 className="text-2xl font-bold text-foreground mb-4">recent posts</h2>
+              <h2 className="text-2xl font-bold text-foreground mb-4">Recent Posts</h2>
               <p className="text-muted-foreground">
                 Thoughts on AI, data science, and building products that matter.
               </p>
@@ -1588,9 +1608,9 @@ export default function Home() {
             >
               <FloatingElements section="contact" />
               <div className="flex-1">
-                <h1 className="mb-4 text-4xl font-bold tracking-tight text-foreground lg:text-5xl">
-                  get in touch 📧
-                </h1>
+                            <h1 className="mb-4 text-4xl font-bold tracking-tight text-foreground lg:text-5xl">
+              Get in Touch 📧
+            </h1>
                 <p className="mb-6 text-xl text-muted-foreground">
                   Interested in collaborating or have a question? I'd love to hear from you.
                 </p>
@@ -1754,7 +1774,7 @@ export default function Home() {
         <footer className="border-t border-border py-8">
           <div className="text-center">
             <div className="text-sm text-muted-foreground">
-              © 2025 ejdeangulo.com | <a href="#" className="hover:text-foreground">privacy?</a>
+              © 2025 ejdeangulo.com | <a href="#" className="hover:text-foreground">Privacy</a>
             </div>
           </div>
         </footer>
