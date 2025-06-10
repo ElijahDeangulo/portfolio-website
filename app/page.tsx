@@ -2,6 +2,415 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 
+// Modern Theme Toggle Component
+const ModernThemeToggle = ({ isDark, toggleDarkMode, isClient, isSpotifyExpanded }: { 
+  isDark: boolean
+  toggleDarkMode: () => void
+  isClient: boolean 
+  isSpotifyExpanded: boolean
+}) => {
+  if (!isClient) return null
+
+  return (
+    <div 
+      className="fixed bottom-6 right-6 z-[100] transition-all duration-300"
+    >
+      <button 
+        onClick={toggleDarkMode}
+        className="flex items-center justify-center w-11 h-11 bg-background/90 border border-border/20 rounded-full shadow-lg transition-all duration-300 hover:bg-background hover:shadow-xl hover:scale-105 text-foreground/80 hover:text-foreground group"
+        title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+        style={{ backdropFilter: 'none', filter: 'none' }}
+      >
+        <div className="relative w-5 h-5 overflow-hidden">
+          {/* Sun Icon */}
+          <svg 
+            className={`absolute inset-0 w-5 h-5 transition-all duration-500 ${
+              isDark ? 'opacity-0 rotate-90 scale-0' : 'opacity-100 rotate-0 scale-100'
+            }`} 
+            fill="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.59a.75.75 0 001.06 1.061l1.591-1.59zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.697 7.757a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 00-1.061 1.06l1.59 1.591z"/>
+          </svg>
+          
+          {/* Moon Icon */}
+          <svg 
+            className={`absolute inset-0 w-5 h-5 transition-all duration-500 ${
+              isDark ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 -rotate-90 scale-0'
+            }`} 
+            fill="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path fillRule="evenodd" d="M9.528 1.718a.75.75 0 01.162.819A8.97 8.97 0 009 6a9 9 0 009 9 8.97 8.97 0 003.463-.69.75.75 0 01.981.98 10.503 10.503 0 01-9.694 6.46c-5.799 0-10.5-4.701-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 01.818.162z" clipRule="evenodd"/>
+          </svg>
+        </div>
+      </button>
+    </div>
+  )
+}
+
+// Hybrid Music Player Component
+const HybridMusicPlayer = ({ 
+  playlistId = "37i9dQZF1DZ06evO3qQrNm",
+  youtubeVideoId = "5i8W1z9zkE0", // Your specific YouTube video
+  youtubeStartTime = "5448", // Start at 1:31:48
+  onExpandedChange
+}: { 
+  playlistId?: string
+  youtubeVideoId?: string
+  youtubeStartTime?: string
+  onExpandedChange?: (expanded: boolean) => void
+}) => {
+  const [isVisible, setIsVisible] = useState(true)
+  const [isExpanded, setIsExpanded] = useState(false)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [volume, setVolume] = useState(0.3)
+  const [hasUserInteracted, setHasUserInteracted] = useState(false)
+  const [showAutoplayTip, setShowAutoplayTip] = useState(true)
+  const [currentPlayer, setCurrentPlayer] = useState<'spotify' | 'youtube'>('youtube')
+
+  // Handle user interaction for autoplay
+  useEffect(() => {
+    const handleFirstInteraction = () => {
+      setHasUserInteracted(true)
+      setShowAutoplayTip(false)
+      // Try to trigger autoplay after user interaction
+      const spotifyIframes = document.querySelectorAll('iframe[src*="spotify"]') as NodeListOf<HTMLIFrameElement>
+      spotifyIframes.forEach((iframe) => {
+        // Reload iframe with autoplay after user interaction  
+        const src = iframe.src
+        if (src.includes('autoplay=1')) {
+          iframe.src = src // Trigger reload
+        }
+      })
+    }
+
+    if (!hasUserInteracted) {
+      document.addEventListener('click', handleFirstInteraction, { once: true })
+      document.addEventListener('keydown', handleFirstInteraction, { once: true })
+      document.addEventListener('touchstart', handleFirstInteraction, { once: true })
+    }
+
+    return () => {
+      document.removeEventListener('click', handleFirstInteraction)
+      document.removeEventListener('keydown', handleFirstInteraction)
+      document.removeEventListener('touchstart', handleFirstInteraction)
+    }
+  }, [hasUserInteracted])
+
+  // Auto-hide autoplay tip after 10 seconds
+  useEffect(() => {
+    if (showAutoplayTip) {
+      const timer = setTimeout(() => {
+        setShowAutoplayTip(false)
+      }, 10000)
+      return () => clearTimeout(timer)
+    }
+  }, [showAutoplayTip])
+
+  // Notify parent when expanded state changes
+  const handleExpandedChange = (expanded: boolean) => {
+    setIsExpanded(expanded)
+    onExpandedChange?.(expanded)
+  }
+
+  // Toggle between Spotify and YouTube
+  const togglePlayer = () => {
+    setCurrentPlayer(prev => {
+      const newPlayer = prev === 'spotify' ? 'youtube' : 'spotify'
+      // Auto-collapse when switching to YouTube (since YouTube can't expand)
+      if (newPlayer === 'youtube' && isExpanded) {
+        setIsExpanded(false)
+        onExpandedChange?.(false)
+      }
+      return newPlayer
+    })
+  }
+
+  // Mock controls for compact view
+  const togglePlay = () => {
+    setIsPlaying(!isPlaying)
+  }
+
+  if (!isVisible) {
+    return (
+      <button
+        onClick={() => setIsVisible(true)}
+        className="fixed bottom-6 right-20 z-[100] w-11 h-11 bg-background border border-border rounded-full flex items-center justify-center text-foreground/80 hover:text-foreground hover:bg-accent transition-all duration-300 shadow-lg"
+        title="Show Music Player"
+      >
+        ♪
+      </button>
+    )
+  }
+
+  return (
+    <div className="fixed bottom-6 right-20 z-[100] group">
+      {/* Autoplay Tip */}
+      {showAutoplayTip && !hasUserInteracted && (
+        <div className="absolute -top-16 -right-4 w-64 bg-background border border-border rounded-lg p-3 shadow-xl text-xs text-muted-foreground animate-pulse">
+          <div className="flex items-center gap-2 mb-1">
+            <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse" />
+            <span className="font-medium">Music Ready</span>
+          </div>
+          <p>Click anywhere to enable autoplay 🎵</p>
+          <div className="absolute bottom-0 left-8 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-border transform translate-y-full"></div>
+        </div>
+      )}
+
+      {/* Always-present Music Embed (hidden when compact) */}
+      <div className={`${isExpanded ? 'block' : 'hidden'} relative`}>
+        {/* Control Buttons for Expanded View */}
+        <div className="absolute -top-2 -right-2 flex gap-1 z-10">
+          <button
+            onClick={togglePlayer}
+            className="w-6 h-6 bg-background border border-border rounded-full flex items-center justify-center text-xs hover:bg-accent transition-colors"
+            title={`Switch to ${currentPlayer === 'spotify' ? 'YouTube' : 'Spotify'}`}
+          >
+            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M7.5 5.6L5 7l1.4-2.5L5 2l2.5 1.4L10 2 8.6 4.5 10 7 7.5 5.6zm4.6 4.6L10.7 8l1.4-2.5L10.7 3l2.5 1.4L16.2 3l-1.4 2.5L16.2 8l-2.5-1.4-1.4 1.4zm-4.6 4.6L5 16l1.4-2.5L5 11l2.5 1.4L10 11l-1.4 2.5L10 16l-2.5-1.4zm7.5 0L12.7 16l1.4-2.5L12.7 11l2.5 1.4L18.2 11l-1.4 2.5L18.2 16l-2.5-1.4z"/>
+            </svg>
+          </button>
+          <button
+            onClick={() => handleExpandedChange(false)}
+            className="w-6 h-6 bg-background border border-border rounded-full flex items-center justify-center text-xs hover:bg-accent transition-colors"
+            title="Compact View"
+          >
+            ⤡
+          </button>
+          <button
+            onClick={() => setIsVisible(false)}
+            className="w-6 h-6 bg-background border border-border rounded-full flex items-center justify-center text-xs hover:bg-accent transition-colors"
+            title="Hide Player"
+          >
+            −
+          </button>
+        </div>
+
+        {/* Music Player Embed - Only Spotify can expand */}
+        {currentPlayer === 'spotify' && (
+          <div className="bg-background border border-border rounded-lg overflow-hidden shadow-xl">
+            <iframe
+              src={`https://open.spotify.com/embed/playlist/${playlistId}?utm_source=generator&theme=0${hasUserInteracted ? '&autoplay=1' : ''}`}
+              width="300"
+              height="152"
+              frameBorder="0"
+              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+              loading="lazy"
+              className="rounded-lg"
+              style={{ filter: 'none', backdropFilter: 'none', borderRadius: '12px' }}
+            />
+          </div>
+        )}
+      </div>
+
+      {/* Hidden Mini Embed for Background Playback */}
+      <div className={`${isExpanded ? 'hidden' : 'block'} absolute top-0 left-0 opacity-0 pointer-events-none w-0 h-0 overflow-hidden`}>
+        {currentPlayer === 'spotify' ? (
+          <iframe
+            src={`https://open.spotify.com/embed/playlist/${playlistId}?utm_source=generator&theme=0${hasUserInteracted ? '&autoplay=1' : ''}`}
+            width="1"
+            height="1"
+            frameBorder="0"
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+            loading="lazy"
+            style={{ filter: 'none', backdropFilter: 'none' }}
+          />
+        ) : (
+          <iframe
+            key="youtube-background"
+            src={`https://www.youtube.com/embed/${youtubeVideoId}?start=${youtubeStartTime}&autoplay=${hasUserInteracted ? '1' : '0'}&loop=1&controls=0&modestbranding=1&rel=0`}
+            width="1"
+            height="1"
+            frameBorder="0"
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+            loading="lazy"
+            style={{ filter: 'none', backdropFilter: 'none' }}
+          />
+        )}
+      </div>
+
+      {/* Compact Controls Overlay */}
+      <div className={`${isExpanded ? 'hidden' : 'flex'} items-center gap-3 bg-background border border-border/20 rounded-full px-4 py-2 shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105`} style={{ backdropFilter: 'none', filter: 'none' }}>
+        
+        {/* Platform Logo & Label */}
+        <div className="flex items-center gap-2">
+          {currentPlayer === 'spotify' ? (
+            <>
+              <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.84-.179-.959-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.361 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.32 11.28-1.02 15.721 1.621.539.3.719 1.02.42 1.56-.299.421-1.02.599-1.559.3z"/>
+              </svg>
+              <span className="text-xs text-muted-foreground font-medium">Spotify</span>
+            </>
+          ) : (
+            <>
+              <svg className="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+              </svg>
+              <span className="text-xs text-muted-foreground font-medium">YouTube</span>
+            </>
+          )}
+          {hasUserInteracted ? (
+            <div className="w-1 h-1 rounded-full bg-green-400 animate-pulse" />
+          ) : (
+            <div className="w-1 h-1 rounded-full bg-yellow-400 animate-pulse" title="Click to enable autoplay" />
+          )}
+        </div>
+
+        {/* Toggle Platform Button */}
+        <button
+          onClick={togglePlayer}
+          className="flex items-center justify-center w-7 h-7 rounded-full hover:bg-accent transition-all duration-200 text-foreground/60 hover:text-foreground group-hover:scale-110"
+          title={`Switch to ${currentPlayer === 'spotify' ? 'YouTube' : 'Spotify'}`}
+        >
+          <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M7.5 5.6L5 7l1.4-2.5L5 2l2.5 1.4L10 2 8.6 4.5 10 7 7.5 5.6zm4.6 4.6L10.7 8l1.4-2.5L10.7 3l2.5 1.4L16.2 3l-1.4 2.5L16.2 8l-2.5-1.4-1.4 1.4zm-4.6 4.6L5 16l1.4-2.5L5 11l2.5 1.4L10 11l-1.4 2.5L10 16l-2.5-1.4zm7.5 0L12.7 16l1.4-2.5L12.7 11l2.5 1.4L18.2 11l-1.4 2.5L18.2 16l-2.5-1.4z"/>
+          </svg>
+        </button>
+
+        {/* Primary Action: Expand Player - Only for Spotify */}
+        {currentPlayer === 'spotify' && (
+          <button
+            onClick={() => handleExpandedChange(true)}
+            className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 hover:bg-primary/20 text-primary transition-all duration-200 hover:scale-110"
+            title={hasUserInteracted ? "Open Spotify Player" : "Open Spotify Player (Click to enable autoplay)"}
+          >
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+            </svg>
+          </button>
+        )}
+
+        {/* Hide Button */}
+        <button
+          onClick={() => setIsVisible(false)}
+          className="flex items-center justify-center w-7 h-7 rounded-full hover:bg-accent transition-all duration-200 text-foreground/60 hover:text-foreground group-hover:scale-110"
+          title="Hide Music Player"
+        >
+          <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// Original Music Player Component (Alternative)
+const LocalMusicPlayer = () => {
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [isMuted, setIsMuted] = useState(true) // Start muted for better UX
+  const [volume, setVolume] = useState(0.3) // Low volume for ambient effect
+  const audioRef = useRef<HTMLAudioElement>(null)
+
+  useEffect(() => {
+    const audio = audioRef.current
+    if (!audio) return
+
+    // Set initial volume and muted state
+    audio.volume = volume
+    audio.muted = isMuted
+    audio.loop = true
+
+    // Handle play/pause
+    if (isPlaying && !isMuted) {
+      audio.play().catch(() => {
+        // Autoplay failed, user interaction required
+        setIsPlaying(false)
+      })
+    } else {
+      audio.pause()
+    }
+  }, [isPlaying, isMuted, volume])
+
+  const togglePlay = () => {
+    setIsPlaying(!isPlaying)
+    if (!isPlaying && isMuted) {
+      setIsMuted(false) // Unmute when starting to play
+    }
+  }
+
+  const toggleMute = () => {
+    setIsMuted(!isMuted)
+    if (isMuted && !isPlaying) {
+      setIsPlaying(true) // Start playing when unmuting
+    }
+  }
+
+  return (
+    <div className="fixed bottom-6 right-6 z-[100] group">
+      {/* Hidden audio element */}
+      <audio 
+        ref={audioRef}
+        preload="none"
+      >
+        {/* You'll need to add your music file to the public folder */}
+        <source src="/music/lofi-ambient.mp3" type="audio/mpeg" />
+        <source src="/music/lofi-ambient.ogg" type="audio/ogg" />
+      </audio>
+
+      {/* Compact Music Player */}
+      <div className="flex items-center gap-2 bg-background/90 border border-border/20 rounded-full px-3 py-2 shadow-lg transition-all duration-300 hover:bg-background hover:shadow-xl hover:scale-105" style={{ backdropFilter: 'none', filter: 'none' }}>
+        
+        {/* Status Indicator */}
+        <div className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
+          isPlaying && !isMuted ? 'bg-green-400 shadow-sm shadow-green-400/50' : 'bg-muted-foreground/40'
+        }`} />
+
+        {/* Play/Pause Button */}
+        <button
+          onClick={togglePlay}
+          className="flex items-center justify-center w-7 h-7 rounded-full hover:bg-accent transition-all duration-200 text-foreground/80 hover:text-foreground group-hover:scale-110"
+          title={isPlaying ? 'Pause' : 'Play'}
+        >
+          {isPlaying ? (
+            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
+            </svg>
+          ) : (
+            <svg className="w-3 h-3 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+          )}
+        </button>
+
+        {/* Mute/Unmute Button */}
+        <button
+          onClick={toggleMute}
+          className="flex items-center justify-center w-7 h-7 rounded-full hover:bg-accent transition-all duration-200 text-foreground/80 hover:text-foreground group-hover:scale-110"
+          title={isMuted ? 'Unmute' : 'Mute'}
+        >
+          {isMuted ? (
+            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M3.63 3.63a.996.996 0 000 1.41L7.29 8.7 7 9H4a1 1 0 00-1 1v4a1 1 0 001 1h3l3.29 3.29c.63.63 1.71.18 1.71-.71v-4.17l4.18 4.18c-.49.37-1.02.68-1.6.91-.36.15-.58.53-.58.92 0 .72.73 1.18 1.39.91.8-.33 1.55-.77 2.22-1.31l1.34 1.34a.996.996 0 101.41-1.41L5.05 3.63c-.39-.39-1.02-.39-1.42 0zM19 12c0 .82-.15 1.61-.41 2.34l1.53 1.53c.56-1.17.88-2.48.88-3.87 0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zm-7-8L9.91 6.09 12 8.18V4z"/>
+            </svg>
+          ) : (
+            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M3 9v6h4l5 5V4L7 9H3zm7-.17v6.34L7.83 13H5v-2h2.83L10 8.83z"/>
+            </svg>
+          )}
+        </button>
+
+        {/* Volume Slider - Only on Desktop */}
+        <div className="hidden lg:flex items-center ml-1">
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.05"
+            value={volume}
+            onChange={(e) => setVolume(parseFloat(e.target.value))}
+            className="w-12 h-1 rounded-full appearance-none cursor-pointer opacity-70 hover:opacity-100 transition-opacity [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-2.5 [&::-webkit-slider-thumb]:h-2.5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-foreground [&::-webkit-slider-thumb]:cursor-pointer [&::-moz-range-thumb]:w-2.5 [&::-moz-range-thumb]:h-2.5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-foreground [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:border-none"
+            style={{
+              background: `linear-gradient(to right, hsl(var(--foreground)) 0%, hsl(var(--foreground)) ${volume * 100}%, hsl(var(--muted-foreground)) ${volume * 100}%, hsl(var(--muted-foreground)) 100%)`
+            }}
+          />
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // Enhanced Professional Custom Cursor Component
 const CustomCursor = () => {
   const [cursorType, setCursorType] = useState('default')
@@ -528,6 +937,7 @@ export default function Home() {
   const [activeSection, setActiveSection] = useState('home')
   const [activeTab, setActiveTab] = useState('work')
   const [activeTimelineItem, setActiveTimelineItem] = useState<string | null>('palantir')
+  const [isSpotifyExpanded, setIsSpotifyExpanded] = useState(false)
 
   const { isDark, toggleDarkMode, isClient } = useDarkMode()
   const { 
@@ -671,6 +1081,8 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background font-sans antialiased">
       <CustomCursor />
+      <HybridMusicPlayer onExpandedChange={setIsSpotifyExpanded} />
+      <ModernThemeToggle isDark={isDark} toggleDarkMode={toggleDarkMode} isClient={isClient} isSpotifyExpanded={isSpotifyExpanded} />
       {/* Navigation */}
       <header className="sticky top-0 z-50 bg-background/75 backdrop-blur-sm">
         <div className="mx-auto flex max-w-3xl flex-col px-8">
@@ -682,36 +1094,6 @@ export default function Home() {
               <li><button onClick={() => setActiveSection('contact')} className={`text-sm transition-colors hover:text-foreground ${activeSection === 'contact' ? 'text-foreground' : 'text-muted-foreground'}`}>Contact</button></li>
         </ul>
             <div className="flex items-center space-x-3">
-              <button
-                onClick={handleDownloadClick}
-                disabled={isDownloading}
-                className={`inline-flex items-center justify-center rounded-md px-3 py-2 text-sm font-medium transition-all duration-300 ${
-                  downloadComplete 
-                    ? 'bg-green-500 text-white' 
-                    : isDownloading 
-                      ? 'bg-primary/70 text-primary-foreground cursor-not-allowed' 
-                      : 'bg-primary text-primary-foreground hover:bg-primary/90'
-                }`}
-              >
-                {downloadComplete ? (
-                  <>✅</>
-                ) : isDownloading ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  </>
-                ) : (
-                  <>📄</>
-                )}
-              </button>
-              {isClient && (
-                <button 
-                  onClick={toggleDarkMode}
-                  className="rounded-md border border-border bg-background p-2 text-sm transition-all duration-300 hover:bg-accent hover:text-accent-foreground"
-                  title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-                >
-                  {isDark ? '☀️' : '🌙'}
-                </button>
-              )}
             </div>
           </nav>
         </div>
