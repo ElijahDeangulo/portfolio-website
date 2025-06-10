@@ -257,12 +257,15 @@ const useDarkMode = () => {
   return { isDark, toggleDarkMode, isClient }
 }
 
-// Parallax Hook
+// Enhanced Parallax Hook with Modern Scroll Animations
 const useParallax = () => {
   const [scrollY, setScrollY] = useState(0)
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
+  const [viewportHeight, setViewportHeight] = useState(0)
 
   useEffect(() => {
+    setViewportHeight(window.innerHeight)
+    
     const handleScroll = () => {
       setScrollY(window.scrollY)
     }
@@ -273,12 +276,18 @@ const useParallax = () => {
       setMousePosition({ x, y })
     }
 
+    const handleResize = () => {
+      setViewportHeight(window.innerHeight)
+    }
+
     window.addEventListener('scroll', handleScroll, { passive: true })
     window.addEventListener('mousemove', handleMouseMove, { passive: true })
+    window.addEventListener('resize', handleResize, { passive: true })
 
     return () => {
       window.removeEventListener('scroll', handleScroll)
       window.removeEventListener('mousemove', handleMouseMove)
+      window.removeEventListener('resize', handleResize)
     }
   }, [])
 
@@ -294,7 +303,85 @@ const useParallax = () => {
     return `translate3d(${mouseX}px, ${-scrollOffset + mouseY}px, 0)`
   }
 
-  return { scrollY, mousePosition, getSectionTransform, getElementTransform }
+  // Elegant scroll-based animations
+  const getHeroElementTransform = (direction: 'left' | 'right' | 'up' | 'down' = 'up', speed: number = 1) => {
+    const progress = Math.min(scrollY / (viewportHeight * 0.4), 1) // Slightly slower for elegance
+    const easeOut = 1 - Math.pow(1 - progress, 4) // Smooth quartic easing for elegant movement
+    
+    let translateX = 0
+    let translateY = 0
+    let opacity = Math.max(1 - (easeOut * 1.2), 0) // Gentler fade
+    let rotate = 0
+    let scale = 1 - (easeOut * 0.05) // Subtle scale for elegance
+
+    switch (direction) {
+      case 'left':
+        translateX = -easeOut * 250 * speed // More controlled movement
+        rotate = -easeOut * 3 // Very subtle rotation
+        translateY = easeOut * 20 * speed // Slight downward drift
+        break
+      case 'right':
+        translateX = easeOut * 250 * speed // More controlled movement
+        rotate = easeOut * 3 // Very subtle rotation
+        translateY = easeOut * 20 * speed // Slight downward drift
+        break
+      case 'up':
+        translateY = -easeOut * 200 * speed // Gentler upward movement
+        break
+      case 'down':
+        translateY = easeOut * 180 * speed // Gentler downward movement
+        break
+    }
+
+    return {
+      transform: `translate3d(${translateX}px, ${translateY}px, 0) rotate(${rotate}deg) scale(${scale})`,
+      opacity,
+      filter: `blur(${easeOut * 3}px)`, // Reduced blur for cleaner look
+      transition: 'transform 0.1s ease-out' // Micro-smoothing
+    }
+  }
+
+  const getExperienceElementTransform = (index: number, delay: number = 0): React.CSSProperties => {
+    const startPoint = viewportHeight * 0.07 // LIGHTNING FAST - starts at 7% scroll
+    const progress = Math.max(0, Math.min((scrollY - startPoint) / (viewportHeight * 0.08), 1)) // SUPER fast animation window - fully visible by 15%
+    const adjustedProgress = Math.max(0, progress - (delay * 0.01)) // Minimal stagger delay for rapid sequence
+    const easeOut = adjustedProgress < 0 ? 0 : 1 - Math.pow(1 - adjustedProgress, 1.5) // Lightning fast easing
+    
+    // Only apply entrance animation if not fully loaded yet
+    if (easeOut >= 0.98) {
+      return {} // Return empty object to not interfere with existing hover effects
+    }
+    
+    return {
+      transform: `translate3d(0, ${30 - (easeOut * 30)}px, 0)`, // No scaling, just Y movement
+      opacity: easeOut < 0.1 ? 0 : easeOut, // Prevent flash
+      filter: `blur(${(1 - easeOut) * 4}px)`, // Reduced blur
+      pointerEvents: (easeOut < 0.5 ? 'none' : 'auto') as 'none' | 'auto'
+    }
+  }
+
+  // New function for the push-up parallax effect
+  const getExperienceSectionPushTransform = () => {
+    const heroExitProgress = Math.min(scrollY / (viewportHeight * 0.35), 1) // Much earlier trigger - starts at 35% instead of 60%
+    const pushUpAmount = heroExitProgress * viewportHeight * 0.5 // Push up by 50% of viewport height for more dramatic effect
+    const easeOut = 1 - Math.pow(1 - heroExitProgress, 2.5) // Faster easing for quicker push
+    
+    return {
+      transform: `translate3d(0, ${-pushUpAmount}px, 0)`,
+      zIndex: heroExitProgress > 0.2 ? 10 : 'auto' // Bring to front earlier
+    }
+  }
+
+  return { 
+    scrollY, 
+    mousePosition, 
+    viewportHeight,
+    getSectionTransform, 
+    getElementTransform,
+    getHeroElementTransform,
+    getExperienceElementTransform,
+    getExperienceSectionPushTransform
+  }
 }
 
 // Floating Background Elements Component
@@ -369,7 +456,7 @@ const FloatingElements = ({ section }: { section: string }) => {
 }
 
 export default function Home() {
-  // Add gradient animation styles
+  // Add gradient animation styles and scroll effects
   React.useEffect(() => {
     const style = document.createElement('style')
     style.textContent = `
@@ -383,6 +470,55 @@ export default function Home() {
         0%, 100% { opacity: 0; transform: scale(0) rotate(0deg); }
         50% { opacity: 1; transform: scale(1) rotate(180deg); }
       }
+
+      @keyframes slideInFromBottom {
+        0% {
+          opacity: 0;
+          transform: translateY(50px) scale(0.95);
+          filter: blur(10px);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+          filter: blur(0);
+        }
+      }
+
+      @keyframes slideOutToSide {
+        0% {
+          opacity: 1;
+          transform: translateX(0) scale(1) rotate(0deg);
+          filter: blur(0);
+        }
+        100% {
+          opacity: 0;
+          transform: translateX(-100px) scale(0.9) rotate(-5deg);
+          filter: blur(8px);
+        }
+      }
+
+      /* Smooth scroll behavior */
+      html {
+        scroll-behavior: smooth;
+      }
+
+      /* Custom scrollbar for modern look */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.1);
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: linear-gradient(180deg, #3b82f6, #1e40af);
+        border-radius: 4px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(180deg, #1e40af, #1e3a8a);
+      }
     `
     document.head.appendChild(style)
     return () => {
@@ -394,7 +530,16 @@ export default function Home() {
   const [activeTimelineItem, setActiveTimelineItem] = useState<string | null>('palantir')
 
   const { isDark, toggleDarkMode, isClient } = useDarkMode()
-  const { scrollY, mousePosition, getSectionTransform, getElementTransform } = useParallax()
+  const { 
+    scrollY, 
+    mousePosition, 
+    viewportHeight,
+    getSectionTransform, 
+    getElementTransform,
+    getHeroElementTransform,
+    getExperienceElementTransform,
+    getExperienceSectionPushTransform
+  } = useParallax()
   const [isDownloading, setIsDownloading] = useState(false)
   const [downloadComplete, setDownloadComplete] = useState(false)
   const [showDownloadConfirm, setShowDownloadConfirm] = useState(false)
@@ -579,17 +724,47 @@ export default function Home() {
           <div>
         {/* Hero Section */}
         <section 
-          className="relative py-6 overflow-hidden"
-          style={{ transform: getSectionTransform(-0.02) }}
+          className="relative py-6 overflow-hidden transition-all duration-300"
+                      style={{ 
+            transform: getSectionTransform(-0.02),
+            opacity: Math.max(1 - (scrollY / (viewportHeight * 0.4)) * 1.2, 0), // Gentler hero section fade
+            filter: `blur(${Math.min((scrollY / (viewportHeight * 0.4)) * 2.5, 6)}px)`, // Gentler progressive blur
+            transition: 'opacity 0.3s ease-out, filter 0.3s ease-out' // Smooth transitions
+          }}
         >
           <FloatingElements section="hero" />
           
-          {/* Background Grid Pattern */}
-          <div className="absolute inset-0 opacity-30">
+          {/* Enhanced Background Grid Pattern with Parallax */}
+          <div 
+            className="absolute inset-0 opacity-30 transition-all duration-1000"
+            style={{
+              transform: `translateY(${-scrollY * 0.08}px) scale(${1 + (scrollY / (viewportHeight * 0.4)) * 0.15})`, // Gentler movement and scaling
+              opacity: Math.max(1 - (scrollY / (viewportHeight * 0.4)) * 1.8, 0), // Smoother dissipation
+              filter: `blur(${(scrollY / (viewportHeight * 0.4)) * 12}px)`, // Gentler progressive blur
+              transition: 'transform 0.2s ease-out, opacity 0.2s ease-out' // Smooth transitions
+            }}
+          >
             <div className="absolute inset-0" style={{
-              backgroundImage: `radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
-                               radial-gradient(circle at 75% 75%, rgba(168, 85, 247, 0.1) 0%, transparent 50%)`,
+              backgroundImage: `
+                radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(168, 85, 247, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(34, 197, 94, 0.08) 0%, transparent 60%)
+              `,
             }} />
+            
+            {/* Animated Particles */}
+            <div 
+              className="absolute inset-0"
+              style={{
+                backgroundImage: `
+                  radial-gradient(1px 1px at 20% 30%, rgba(59, 130, 246, 0.4), transparent),
+                  radial-gradient(1px 1px at 40% 70%, rgba(168, 85, 247, 0.3), transparent),
+                  radial-gradient(1px 1px at 80% 20%, rgba(34, 197, 94, 0.3), transparent)
+                `,
+                backgroundSize: '200px 200px, 150px 150px, 100px 100px',
+                animation: 'gradient-shift 8s ease-in-out infinite'
+              }}
+            />
           </div>
 
           <div className="relative z-10">
@@ -600,7 +775,10 @@ export default function Home() {
               <div className="lg:col-span-7 space-y-4">
                 
                 {/* Intro Card */}
-                <div className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-card/50 to-card/30 backdrop-blur-sm border border-border/50 p-4 transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl hover:shadow-primary/10">
+                <div 
+                  className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-card/50 to-card/30 backdrop-blur-sm border border-border/50 p-4 transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl hover:shadow-primary/10"
+                  style={getHeroElementTransform('left', 1)}
+                >
                   <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   <div className="relative z-10">
                     <div className="mb-4 flex items-center gap-3">
@@ -633,12 +811,12 @@ export default function Home() {
                 </div>
 
                 {/* Stats Cards */}
-                <div className="grid gap-4 sm:grid-cols-3">
+                <div 
+                  className="grid gap-4 sm:grid-cols-3"
+                  style={getHeroElementTransform('up', 0.8)}
+                >
                   <div 
                     className="group relative overflow-hidden rounded-lg bg-card/60 backdrop-blur-sm border border-border/50 p-3 transition-all duration-300 hover:scale-105 hover:bg-accent/20"
-                    style={{
-                      transform: `translate3d(${mousePosition.x * 0.01}px, ${mousePosition.y * 0.01}px, 0)`
-                    }}
                   >
                     <div className="text-lg font-bold text-primary mb-1">4.0</div>
                     <div className="text-xs text-muted-foreground">Current Grad GPA</div>
@@ -649,9 +827,6 @@ export default function Home() {
                   
                   <div 
                     className="group relative overflow-hidden rounded-lg bg-card/60 backdrop-blur-sm border border-border/50 p-3 transition-all duration-300 hover:scale-105 hover:bg-accent/20"
-                    style={{
-                      transform: `translate3d(${mousePosition.x * 0.015}px, ${mousePosition.y * 0.015}px, 0)`
-                    }}
                   >
                     <div className="text-lg font-bold text-primary mb-1">Florida</div>
                     <div className="text-xs text-muted-foreground">Ft. Lauderdale</div>
@@ -660,9 +835,6 @@ export default function Home() {
                   
                   <div 
                     className="group relative overflow-hidden rounded-lg bg-card/60 backdrop-blur-sm border border-border/50 p-3 transition-all duration-300 hover:scale-105 hover:bg-accent/20"
-                    style={{
-                      transform: `translate3d(${mousePosition.x * 0.008}px, ${mousePosition.y * 0.008}px, 0)`
-                    }}
                   >
                     <div className="text-lg font-bold text-primary mb-1">4+</div>
                     <div className="text-xs text-muted-foreground">Years Experience</div>
@@ -671,7 +843,10 @@ export default function Home() {
                 </div>
 
                 {/* Description Card */}
-                <div className="rounded-lg bg-card/30 backdrop-blur-sm border border-border/50 p-3">
+                <div 
+                  className="rounded-lg bg-card/30 backdrop-blur-sm border border-border/50 p-3"
+                  style={getHeroElementTransform('down', 0.6)}
+                >
                   <div className="space-y-4 text-muted-foreground">
                     <p className="leading-relaxed">
                       Currently pursuing my <strong className="text-foreground">MS in Business Analytics at UF</strong> while interning as a <strong className="text-foreground">Deployment Strategist at Palantir</strong>. I specialize in building AI-powered solutions that drive measurable business impact.
@@ -683,7 +858,10 @@ export default function Home() {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
+                <div 
+                  className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6"
+                  style={getHeroElementTransform('left', 0.7)}
+                >
                   <div className="flex gap-4">
                     <button 
                       onClick={handleDownloadClick}
@@ -747,6 +925,7 @@ export default function Home() {
                 {/* Profile Image Card */}
                 <div 
                   className="group relative overflow-hidden rounded bg-card/30 backdrop-blur-sm border border-border/50 p-0.5 transition-all duration-300"
+                  style={getHeroElementTransform('right', 1.2)}
                 >
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-secondary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   <div className="relative z-10">
@@ -764,7 +943,10 @@ export default function Home() {
                 </div>
 
                 {/* Current Status Card */}
-                <div className="rounded-lg bg-card/50 backdrop-blur-sm border border-border/50 p-3">
+                <div 
+                  className="rounded-lg bg-card/50 backdrop-blur-sm border border-border/50 p-3"
+                  style={getHeroElementTransform('right', 0.8)}
+                >
                                     <div className="flex items-center gap-3 mb-3">
                     <div className="h-3 w-3 rounded-full bg-blue-500 animate-pulse" />
                     <span className="text-sm font-medium text-foreground">Currently at</span>
@@ -781,7 +963,10 @@ export default function Home() {
                 </div>
 
                                  {/* Tech Stack Preview */}
-                 <div className="rounded-lg bg-card/50 backdrop-blur-sm border border-border/50 p-3">
+                 <div 
+                   className="rounded-lg bg-card/50 backdrop-blur-sm border border-border/50 p-3"
+                   style={getHeroElementTransform('right', 0.6)}
+                 >
                    <h3 className="text-sm font-medium text-foreground mb-3">Core Technologies</h3>
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  <div className="grid grid-cols-4 gap-3">
                      {[
@@ -854,8 +1039,7 @@ export default function Home() {
                          key={tech.name}
                          className="group flex flex-col items-center gap-2 p-2 rounded-lg bg-background/50 border border-border/50 transition-all duration-300 hover:scale-110 hover:bg-accent/20"
                          style={{
-                           animationDelay: `${index * 100}ms`,
-                           transform: `translate3d(${mousePosition.x * 0.005}px, ${mousePosition.y * 0.005}px, 0)`
+                           animationDelay: `${index * 100}ms`
                          }}
                        >
                          <div className="text-muted-foreground group-hover:text-primary transition-colors">
@@ -871,14 +1055,58 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Dynamic Transition Zone - Creates Push Effect */}
+        <div 
+          className="relative overflow-hidden transition-all duration-500"
+          style={{
+            height: `${Math.max(24 - (scrollY / (viewportHeight * 0.6)) * 100, 0)}px`, // Shrinks as experience pushes up
+            background: `linear-gradient(to bottom, 
+              hsl(var(--background))/80 0%, 
+              rgba(var(--background-rgb), 0.4) 50%, 
+              hsl(var(--card))/90 100%)`,
+            opacity: Math.max(1 - (scrollY / (viewportHeight * 0.4)) * 2, 0) // Fades as push happens
+          }}
+        >
+          {/* Particle effect that gets pushed up */}
+          <div 
+            className="absolute inset-0"
+            style={{
+              background: `radial-gradient(ellipse at center, 
+                rgba(59, 130, 246, ${0.2 - (scrollY / (viewportHeight * 0.6)) * 0.2}) 0%, 
+                transparent 70%)`,
+              transform: `translateY(${-(scrollY / (viewportHeight * 0.6)) * 50}px) scale(${1 + (scrollY / (viewportHeight * 0.6)) * 0.5})`
+            }}
+          />
+          
+          {/* Shimmer effect during transition */}
+          <div 
+            className="absolute inset-0"
+            style={{
+              background: `linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(255, 255, 255, ${(scrollY / (viewportHeight * 0.4)) * 0.1}) 50%, 
+                transparent 100%)`,
+              transform: `translateX(${(scrollY / (viewportHeight * 0.6)) * 200 - 100}%)`
+            }}
+          />
+        </div>
+
               {/* Work/Education Tabs */}
         <section 
           className="relative py-8"
-          style={{ transform: getSectionTransform(0.01) }}
+          style={{ 
+            ...getExperienceSectionPushTransform(),
+            background: `linear-gradient(135deg, 
+              hsl(var(--card))/80 0%, 
+              hsl(var(--background))/90 100%)`
+          }}
         >
           <FloatingElements section="experience" />
           <div className="max-w-2xl mx-auto">
-          <div className="mb-6 rounded-lg border border-border bg-card">
+          <div 
+            className="mb-6 rounded-lg border border-border bg-card"
+            style={getExperienceElementTransform(0, 0)}
+          >
             <div className="flex">
             <button 
                 className={`flex-1 rounded-l-lg px-6 py-3 text-sm font-medium transition-colors ${
@@ -924,7 +1152,10 @@ export default function Home() {
 
           {/* Work Experience */}
           {activeTab === 'work' && (
-            <div className="rounded-lg border border-border bg-card p-6">
+            <div 
+              className="rounded-lg border border-border bg-card p-6"
+              style={getExperienceElementTransform(1, 1)}
+            >
               <div className="relative">
                 {/* Timeline line - base line always visible */}
                 <div className="absolute left-6 top-6 bottom-6 w-0.5 bg-border"></div>
@@ -957,6 +1188,7 @@ export default function Home() {
                         ? 'opacity-40 scale-95 blur-[1px]' 
                         : 'opacity-100 scale-100 blur-0'
                     } ${activeTimelineItem === 'palantir' ? 'bg-accent/10' : ''}`}
+                    style={getExperienceElementTransform(2, 1)}
                   >
                     <div className={`relative z-10 flex h-12 w-12 items-center justify-center rounded-lg border-4 border-background overflow-hidden transition-all duration-300 transform ${
                       activeTimelineItem === 'palantir' 
@@ -992,6 +1224,7 @@ export default function Home() {
                         ? 'opacity-40 scale-95 blur-[1px]' 
                         : 'opacity-100 scale-100 blur-0'
                     } ${activeTimelineItem === 'inselligence' ? 'bg-accent/10' : ''}`}
+                    style={getExperienceElementTransform(3, 2)}
                   >
                     <div className={`relative z-10 flex h-12 w-12 items-center justify-center rounded-lg border-4 border-background overflow-hidden transition-all duration-300 transform ${
                       activeTimelineItem === 'inselligence' 
@@ -1027,6 +1260,7 @@ export default function Home() {
                         ? 'opacity-40 scale-95 blur-[1px]' 
                         : 'opacity-100 scale-100 blur-0'
                     } ${activeTimelineItem === 'elion' ? 'bg-accent/10' : ''}`}
+                    style={getExperienceElementTransform(4, 2)}
                   >
                     <div className={`relative z-10 flex h-12 w-12 items-center justify-center rounded-lg border-4 border-background overflow-hidden transition-all duration-300 transform ${
                       activeTimelineItem === 'elion' 
@@ -1062,6 +1296,7 @@ export default function Home() {
                         ? 'opacity-40 scale-95 blur-[1px]' 
                         : 'opacity-100 scale-100 blur-0'
                     } ${activeTimelineItem === 'elite-endoscopy' ? 'bg-accent/10' : ''}`}
+                    style={getExperienceElementTransform(5, 3)}
                   >
                     <div className={`relative z-10 flex h-12 w-12 items-center justify-center rounded-lg border-4 border-background overflow-hidden transition-all duration-300 transform ${
                       activeTimelineItem === 'elite-endoscopy' 
