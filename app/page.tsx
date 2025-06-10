@@ -1199,8 +1199,15 @@ export default function Home() {
       document.head.removeChild(style)
     }
   }, [])
-  const [activeSection, setActiveSection] = useState('home')
+  const [activeSection, setActiveSection] = useState<'home' | 'projects' | 'blog' | 'contact'>('home')
   const [activeTab, setActiveTab] = useState('work')
+
+  // Reset scroll position when switching to non-home sections
+  useEffect(() => {
+    if (activeSection !== 'home') {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }, [activeSection])
   const [activeTimelineItem, setActiveTimelineItem] = useState<string | null>('palantir')
   const [isSpotifyExpanded, setIsSpotifyExpanded] = useState(false)
 
@@ -1455,7 +1462,11 @@ export default function Home() {
       
       <div className="min-h-screen bg-background font-sans antialiased">
         {/* Navigation */}
-      <header className="sticky top-0 z-50 bg-background/75 backdrop-blur-sm">
+      <header className="sticky top-0 z-[9999] backdrop-blur-sm transition-all duration-500" style={{
+        background: (scrollY > 100 || activeSection !== 'home') ? 'linear-gradient(to bottom, hsl(var(--background) / 0.9) 0%, hsl(var(--background) / 0.7) 50%, hsl(var(--background) / 0.3) 80%, transparent 100%)' : 'transparent',
+        transform: (scrollY > 100 || activeSection !== 'home') ? 'translateY(0)' : 'translateY(-100%)',
+        opacity: (scrollY > 100 || activeSection !== 'home') ? 1 : 0,
+      }}>
         <div className="mx-auto flex max-w-3xl flex-col px-8">
           <nav className="flex items-center justify-between py-6">
             <ul className="flex items-center space-x-8">
@@ -1482,6 +1493,7 @@ export default function Home() {
             ...getHeroExitTransform(),
             backfaceVisibility: 'hidden',
             perspective: '1000px',
+            background: 'radial-gradient(ellipse at top, hsl(var(--background) / 0.9) 0%, hsl(var(--background) / 0.6) 30%, hsl(var(--background) / 0.3) 60%, hsl(var(--background) / 0.1) 85%, transparent 100%)',
           }}
         >
           <FloatingElements section="hero" />
@@ -1526,6 +1538,73 @@ export default function Home() {
               
               {/* Left Column - Main Content */}
               <div className="lg:col-span-7 space-y-4">
+                
+                {/* Hero Navigation - Sleek & Elegant */}
+                <div 
+                  className="flex justify-center mb-6 transition-all duration-500"
+                  style={{
+                    transform: `${scrollY > 100 ? 'translateY(-20px)' : 'translateY(0)'} ${getHeroElementTransform('up', 0.3).transform || ''}`,
+                    opacity: scrollY > 100 ? 0 : (getHeroElementTransform('up', 0.3).opacity as number || 1),
+                  }}
+                >
+                  <nav className="relative group">
+                    {/* Subtle outer glow */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 via-cyan-400/10 to-cyan-500/5 rounded-full blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    
+                    <div className="relative bg-background/10 backdrop-blur-md rounded-full border border-border/20 px-6 py-2.5 shadow-lg shadow-black/10">
+                      <ul className="flex items-center space-x-6">
+                        <li>
+                          <button 
+                            onClick={() => setActiveSection('home')} 
+                            className="relative px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-cyan-300 transition-all duration-200 hover:scale-105 group/item"
+                          >
+                            Home
+                            <div className="absolute bottom-0 left-1/2 h-px bg-gradient-to-r from-cyan-400 to-cyan-300 w-0 group-hover/item:w-full -translate-x-1/2 transition-all duration-200 shadow-sm shadow-cyan-400/50"></div>
+                          </button>
+                        </li>
+                        
+                        <li>
+                          <button 
+                            onClick={() => setActiveSection('projects')} 
+                            className={`relative px-3 py-1.5 text-sm font-medium transition-all duration-200 hover:scale-105 group/item ${activeSection === 'projects' ? 'text-cyan-300' : 'text-muted-foreground hover:text-cyan-300'}`}
+                            style={{
+                              filter: activeSection === 'projects' ? 'drop-shadow(0 0 4px rgba(34, 211, 238, 0.3))' : 'none'
+                            }}
+                          >
+                            Projects
+                            <div className={`absolute bottom-0 left-1/2 h-px bg-gradient-to-r from-cyan-400 to-cyan-300 transition-all duration-200 -translate-x-1/2 shadow-sm shadow-cyan-400/50 ${activeSection === 'projects' ? 'w-full' : 'w-0 group-hover/item:w-full'}`}></div>
+                          </button>
+                        </li>
+                        
+                        <li>
+                          <button 
+                            onClick={() => setActiveSection('blog')} 
+                            className={`relative px-3 py-1.5 text-sm font-medium transition-all duration-200 hover:scale-105 group/item ${activeSection === 'blog' ? 'text-cyan-300' : 'text-muted-foreground hover:text-cyan-300'}`}
+                            style={{
+                              filter: activeSection === 'blog' ? 'drop-shadow(0 0 4px rgba(34, 211, 238, 0.3))' : 'none'
+                            }}
+                          >
+                            Blog
+                            <div className={`absolute bottom-0 left-1/2 h-px bg-gradient-to-r from-cyan-400 to-cyan-300 transition-all duration-200 -translate-x-1/2 shadow-sm shadow-cyan-400/50 ${activeSection === 'blog' ? 'w-full' : 'w-0 group-hover/item:w-full'}`}></div>
+                          </button>
+                        </li>
+                        
+                        <li>
+                          <button 
+                            onClick={() => setActiveSection('contact')} 
+                            className={`relative px-3 py-1.5 text-sm font-medium transition-all duration-200 hover:scale-105 group/item ${activeSection === 'contact' ? 'text-cyan-300' : 'text-muted-foreground hover:text-cyan-300'}`}
+                            style={{
+                              filter: activeSection === 'contact' ? 'drop-shadow(0 0 4px rgba(34, 211, 238, 0.3))' : 'none'
+                            }}
+                          >
+                            Contact
+                            <div className={`absolute bottom-0 left-1/2 h-px bg-gradient-to-r from-cyan-400 to-cyan-300 transition-all duration-200 -translate-x-1/2 shadow-sm shadow-cyan-400/50 ${activeSection === 'contact' ? 'w-full' : 'w-0 group-hover/item:w-full'}`}></div>
+                          </button>
+                        </li>
+                      </ul>
+                    </div>
+                  </nav>
+                </div>
                 
                 {/* Intro Card */}
                 <div 
@@ -1856,45 +1935,63 @@ export default function Home() {
             className="mb-6 rounded-lg border border-border bg-card"
             style={getExperienceElementTransform(0, 0)}
           >
-            <div className="flex">
-            <button 
-                className={`flex-1 rounded-l-lg px-6 py-3 text-sm font-medium transition-colors ${
-                  activeTab === 'work' 
-                    ? 'bg-primary text-primary-foreground' 
-                    : 'bg-background text-muted-foreground hover:text-foreground'
-                }`}
-              onClick={() => {
-                setActiveTab('work')
-                setActiveTimelineItem('palantir')
-              }}
-            >
-              Work
-            </button>
-            <button 
-                className={`flex-1 px-6 py-3 text-sm font-medium transition-colors ${
-                  activeTab === 'education' 
-                    ? 'bg-primary text-primary-foreground' 
-                    : 'bg-background text-muted-foreground hover:text-foreground'
-                }`}
-              onClick={() => {
-                setActiveTab('education')
-                setActiveTimelineItem('uf-masters')
-              }}
-            >
-              Education
-            </button>
+            <div className="flex p-2 bg-gradient-to-r from-background via-accent/5 to-background rounded-lg">
               <button 
-                className={`flex-1 rounded-r-lg px-6 py-3 text-sm font-medium transition-colors ${
+                className={`group relative flex-1 rounded-md px-6 py-3 text-sm font-medium transition-all duration-300 ${
+                  activeTab === 'work' 
+                    ? 'bg-gradient-to-r from-cyan-500/10 to-cyan-400/10 text-cyan-300 shadow-lg shadow-cyan-400/20 border border-cyan-400/20' 
+                    : 'text-muted-foreground hover:text-cyan-300 hover:bg-accent/20'
+                }`}
+                onClick={() => {
+                  setActiveTab('work')
+                  setActiveTimelineItem('palantir')
+                }}
+              >
+                <span className="relative z-10">Work</span>
+                {activeTab === 'work' && (
+                  <div className="absolute inset-0 rounded-md bg-gradient-to-r from-cyan-500/5 via-cyan-400/10 to-cyan-500/5 animate-pulse"></div>
+                )}
+                <div className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-gradient-to-r from-transparent via-cyan-400 to-transparent transition-all duration-300 ${
+                  activeTab === 'work' ? 'w-3/4 opacity-100' : 'w-0 opacity-0 group-hover:w-1/2 group-hover:opacity-70'
+                }`}></div>
+              </button>
+              <button 
+                className={`group relative flex-1 rounded-md px-6 py-3 text-sm font-medium transition-all duration-300 ${
+                  activeTab === 'education' 
+                    ? 'bg-gradient-to-r from-cyan-500/10 to-cyan-400/10 text-cyan-300 shadow-lg shadow-cyan-400/20 border border-cyan-400/20' 
+                    : 'text-muted-foreground hover:text-cyan-300 hover:bg-accent/20'
+                }`}
+                onClick={() => {
+                  setActiveTab('education')
+                  setActiveTimelineItem('uf-masters')
+                }}
+              >
+                <span className="relative z-10">Education</span>
+                {activeTab === 'education' && (
+                  <div className="absolute inset-0 rounded-md bg-gradient-to-r from-cyan-500/5 via-cyan-400/10 to-cyan-500/5 animate-pulse"></div>
+                )}
+                <div className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-gradient-to-r from-transparent via-cyan-400 to-transparent transition-all duration-300 ${
+                  activeTab === 'education' ? 'w-3/4 opacity-100' : 'w-0 opacity-0 group-hover:w-1/2 group-hover:opacity-70'
+                }`}></div>
+              </button>
+              <button 
+                className={`group relative flex-1 rounded-md px-6 py-3 text-sm font-medium transition-all duration-300 ${
                   activeTab === 'philanthropy' 
-                    ? 'bg-primary text-primary-foreground' 
-                    : 'bg-background text-muted-foreground hover:text-foreground'
+                    ? 'bg-gradient-to-r from-cyan-500/10 to-cyan-400/10 text-cyan-300 shadow-lg shadow-cyan-400/20 border border-cyan-400/20' 
+                    : 'text-muted-foreground hover:text-cyan-300 hover:bg-accent/20'
                 }`}
                 onClick={() => {
                   setActiveTab('philanthropy')
                   setActiveTimelineItem('asm')
                 }}
               >
-                Philanthropy
+                <span className="relative z-10">Philanthropy</span>
+                {activeTab === 'philanthropy' && (
+                  <div className="absolute inset-0 rounded-md bg-gradient-to-r from-cyan-500/5 via-cyan-400/10 to-cyan-500/5 animate-pulse"></div>
+                )}
+                <div className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-gradient-to-r from-transparent via-cyan-400 to-transparent transition-all duration-300 ${
+                  activeTab === 'philanthropy' ? 'w-3/4 opacity-100' : 'w-0 opacity-0 group-hover:w-1/2 group-hover:opacity-70'
+                }`}></div>
               </button>
             </div>
           </div>
