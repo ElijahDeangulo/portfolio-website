@@ -439,12 +439,51 @@ const CustomCursor = () => {
     }
 
     const updateMousePosition = (e: MouseEvent) => {
-      const x = e.clientX
-      const y = e.clientY
+      let x = e.clientX
+      let y = e.clientY
+      
+      // Advanced compensation for scroll-based section transforms
+      const scrollY = window.scrollY
+      const viewportHeight = window.innerHeight
+      const heroExitProgress = Math.min(scrollY / (viewportHeight * 0.6), 1)
+      const experienceProgress = Math.min(scrollY / (viewportHeight * 0.4), 1)
+      
+      // If we're in any transition zone, adjust cursor position
+      if (scrollY > 0 && experienceProgress < 1) {
+        const experienceSection = document.querySelector('[data-section="experience"]')
+        if (experienceSection && e.target) {
+          // Check if cursor is over experience section elements
+          const isOverExperience = experienceSection.contains(e.target as Node) || 
+                                   (e.target as Element).closest?.('[data-section="experience"]')
+          
+          if (isOverExperience) {
+            // Calculate the exact transform being applied to the experience section
+            const parallaxProgress = Math.min(scrollY / (viewportHeight * 0.4), 1)
+            const smoothEase = 1 - Math.pow(1 - parallaxProgress, 2)
+            const pushUpAmount = parallaxProgress * viewportHeight * 0.85 * smoothEase
+            
+            // Compensate cursor position to account for the upward transform
+            // We need to reverse-engineer where the element actually is vs where the cursor thinks it is
+            const compensationFactor = pushUpAmount * 0.05 // Fine-tuned compensation
+            y = y + compensationFactor
+          }
+        }
+      }
       
       mousePositionRef.current = { x, y }
       targetPositionRef.current = { x, y }
       setTargetPosition({ x, y })
+    }
+
+    // Track scroll state for cursor responsiveness optimization
+    let isScrolling = false
+    let scrollTimeout: NodeJS.Timeout | null = null
+    const handleScroll = () => {
+      isScrolling = true
+      if (scrollTimeout) clearTimeout(scrollTimeout)
+      scrollTimeout = setTimeout(() => {
+        isScrolling = false
+      }, 100)
     }
 
     const handleMouseEnter = (e: Event) => {
@@ -497,10 +536,22 @@ const CustomCursor = () => {
         const currentX = parseFloat(cursor.dataset.x || '0') || targetPositionRef.current.x
         const currentY = parseFloat(cursor.dataset.y || '0') || targetPositionRef.current.y
         
-        // Use higher interpolation for very close distances for snappier feel
+        // Dynamic interpolation speed based on distance and scroll state
         const distanceX = Math.abs(targetPositionRef.current.x - currentX)
         const distanceY = Math.abs(targetPositionRef.current.y - currentY)
-        const interpolationSpeed = (distanceX < 5 && distanceY < 5) ? 0.6 : 0.35
+        const totalDistance = Math.sqrt(distanceX * distanceX + distanceY * distanceY)
+        
+        // Highly responsive interpolation with section-aware optimization
+        let interpolationSpeed = 0.55 // Base speed increased from 0.45 to 0.55
+        if (totalDistance < 3) interpolationSpeed = 0.85 // Very close - snap very quickly
+        if (totalDistance > 80) interpolationSpeed = 0.75 // Large movements - much faster tracking
+        if (isScrolling) interpolationSpeed = Math.min(interpolationSpeed * 1.4, 0.9) // Higher boost during scroll
+        
+        // Extra speed boost during section transitions for precision
+        const scrollY = window.scrollY
+        const viewportHeight = window.innerHeight
+        const transitionZone = scrollY > 0 && scrollY < viewportHeight * 0.8
+        if (transitionZone) interpolationSpeed = Math.min(interpolationSpeed * 1.2, 0.95)
         
         const newX = currentX + (targetPositionRef.current.x - currentX) * interpolationSpeed
         const newY = currentY + (targetPositionRef.current.y - currentY) * interpolationSpeed
@@ -528,33 +579,44 @@ const CustomCursor = () => {
     document.addEventListener('mousemove', updateMousePosition)
     document.addEventListener('mousedown', handleMouseDown)
     document.addEventListener('mouseup', handleMouseUp)
+    window.addEventListener('scroll', handleScroll, { passive: true })
 
     let currentElements = addEventListeners()
     animationRef.current = requestAnimationFrame(animateCursor)
 
-    // Observe DOM changes
+    // Optimized DOM change observation with throttling
+    let mutationTimeout: NodeJS.Timeout | null = null
     const observer = new MutationObserver(() => {
-      currentElements.forEach(element => {
-        element.removeEventListener('mouseenter', handleMouseEnter)
-        element.removeEventListener('mouseleave', handleMouseLeave)
-      })
-      currentElements = addEventListeners()
+      // Throttle mutations to prevent lag during scroll animations
+      if (mutationTimeout) clearTimeout(mutationTimeout)
+      mutationTimeout = setTimeout(() => {
+        currentElements.forEach(element => {
+          element.removeEventListener('mouseenter', handleMouseEnter)
+          element.removeEventListener('mouseleave', handleMouseLeave)
+        })
+        currentElements = addEventListeners()
+      }, 16) // Delay by one frame to avoid blocking animations
     })
 
     observer.observe(document.body, {
       childList: true,
-      subtree: true
+      subtree: true,
+      attributes: false, // Don't observe attribute changes for better performance
+      characterData: false // Don't observe text changes
     })
 
     return () => {
       document.removeEventListener('mousemove', updateMousePosition)
       document.removeEventListener('mousedown', handleMouseDown)
       document.removeEventListener('mouseup', handleMouseUp)
+      window.removeEventListener('scroll', handleScroll)
       currentElements.forEach(element => {
         element.removeEventListener('mouseenter', handleMouseEnter)
         element.removeEventListener('mouseleave', handleMouseLeave)
       })
       observer.disconnect()
+      if (mutationTimeout) clearTimeout(mutationTimeout)
+      if (scrollTimeout) clearTimeout(scrollTimeout)
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current)
       }
@@ -675,8 +737,17 @@ const useParallax = () => {
   useEffect(() => {
     setViewportHeight(window.innerHeight)
     
+    let ticking = false
+    
+    // Ultra-optimized scroll handler with RAF throttling
     const handleScroll = () => {
-      setScrollY(window.scrollY)
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          setScrollY(window.scrollY)
+          ticking = false
+        })
+        ticking = true
+      }
     }
 
     const handleMouseMove = (e: MouseEvent) => {
@@ -712,72 +783,133 @@ const useParallax = () => {
     return `translate3d(${mouseX}px, ${-scrollOffset + mouseY}px, 0)`
   }
 
-  // Elegant scroll-based animations
+  // Hero elements rip LEFT and RIGHT off screen with parallax
   const getHeroElementTransform = (direction: 'left' | 'right' | 'up' | 'down' = 'up', speed: number = 1) => {
-    const progress = Math.min(scrollY / (viewportHeight * 0.4), 1) // Slightly slower for elegance
-    const easeOut = 1 - Math.pow(1 - progress, 4) // Smooth quartic easing for elegant movement
+    const progress = Math.min(scrollY / (viewportHeight * 0.6), 1) // Medium scroll distance
+    
+    // Two clear phases: gentle movement, then violent sideways ripping
+    const gentlePhase = Math.min(progress / 0.4, 1) // First 40% - gentle movement
+    const ripPhase = Math.max(0, (progress - 0.4) / 0.6) // Last 60% - violent sideways exit
     
     let translateX = 0
     let translateY = 0
-    let opacity = Math.max(1 - (easeOut * 1.2), 0) // Gentler fade
     let rotate = 0
-    let scale = 1 - (easeOut * 0.05) // Subtle scale for elegance
+    let scale = 1 - gentlePhase * 0.03 - ripPhase * 0.25 // Controlled shrinking
+    let opacity = Math.max(1 - gentlePhase * 0.1 - ripPhase * 1.8, 0)
+    
+    // All elements rip to LEFT or RIGHT - never up/down
+    const ripMultiplier = 1 + ripPhase * 2.5 // Accelerate ripping
 
     switch (direction) {
       case 'left':
-        translateX = -easeOut * 250 * speed // More controlled movement
-        rotate = -easeOut * 3 // Very subtle rotation
-        translateY = easeOut * 20 * speed // Slight downward drift
+        // Rip to the LEFT
+        translateX = -(gentlePhase * 50 + ripPhase * 600) * speed * ripMultiplier
+        rotate = -(gentlePhase * 3 + ripPhase * 20)
+        translateY = (gentlePhase * 5 + ripPhase * 30) * speed // Slight downward drift
         break
       case 'right':
-        translateX = easeOut * 250 * speed // More controlled movement
-        rotate = easeOut * 3 // Very subtle rotation
-        translateY = easeOut * 20 * speed // Slight downward drift
+        // Rip to the RIGHT  
+        translateX = (gentlePhase * 50 + ripPhase * 600) * speed * ripMultiplier
+        rotate = (gentlePhase * 3 + ripPhase * 20)
+        translateY = (gentlePhase * 5 + ripPhase * 30) * speed // Slight downward drift
         break
       case 'up':
-        translateY = -easeOut * 200 * speed // Gentler upward movement
+        // UP elements also rip to LEFT
+        translateX = -(gentlePhase * 40 + ripPhase * 500) * speed * ripMultiplier
+        rotate = -(gentlePhase * 2 + ripPhase * 15)
+        translateY = (gentlePhase * 8 + ripPhase * 40) * speed // Slight downward
         break
       case 'down':
-        translateY = easeOut * 180 * speed // Gentler downward movement
+        // DOWN elements rip to RIGHT
+        translateX = (gentlePhase * 40 + ripPhase * 500) * speed * ripMultiplier
+        rotate = (gentlePhase * 2 + ripPhase * 15)
+        translateY = (gentlePhase * 8 + ripPhase * 40) * speed // Slight downward
         break
     }
+
+    // Dramatic color degradation as elements rip away
+    const brightness = Math.max(1 - gentlePhase * 0.4 - ripPhase * 0.9, 0.05) // Fade to almost black
+    const contrast = Math.max(1 - gentlePhase * 0.3 - ripPhase * 0.8, 0.2) // Massive contrast reduction
+    const saturation = Math.max(1 - gentlePhase * 0.5 - ripPhase * 1.2, 0) // Complete desaturation
+    const hueRotate = gentlePhase * 15 + ripPhase * 45 // Color shift as they tear away
 
     return {
       transform: `translate3d(${translateX}px, ${translateY}px, 0) rotate(${rotate}deg) scale(${scale})`,
       opacity,
-      filter: `blur(${easeOut * 3}px)`, // Reduced blur for cleaner look
-      transition: 'transform 0.1s ease-out' // Micro-smoothing
+      filter: `blur(${gentlePhase * 2 + ripPhase * 18}px) brightness(${brightness}) contrast(${contrast}) saturate(${saturation}) hue-rotate(${hueRotate}deg)`,
+      willChange: 'transform, opacity, filter',
+      backfaceVisibility: 'hidden' as const,
+      transformOrigin: translateX < 0 ? 'right center' : 'left center',
+      pointerEvents: gentlePhase > 0.05 ? 'none' as const : 'auto' as const, // Much earlier disable to prevent cursor lag
     }
   }
 
   const getExperienceElementTransform = (index: number, delay: number = 0): React.CSSProperties => {
-    const startPoint = viewportHeight * 0.07 // LIGHTNING FAST - starts at 7% scroll
-    const progress = Math.max(0, Math.min((scrollY - startPoint) / (viewportHeight * 0.08), 1)) // SUPER fast animation window - fully visible by 15%
-    const adjustedProgress = Math.max(0, progress - (delay * 0.01)) // Minimal stagger delay for rapid sequence
-    const easeOut = adjustedProgress < 0 ? 0 : 1 - Math.pow(1 - adjustedProgress, 1.5) // Lightning fast easing
+    const startPoint = viewportHeight * 0.1 // Start earlier - reduced from 0.15 to 0.1
+    const progress = Math.max(0, Math.min((scrollY - startPoint) / (viewportHeight * 0.12), 1)) // Faster entrance - reduced from 0.15 to 0.12
+    const adjustedProgress = Math.max(0, progress - (delay * 0.03)) // Faster stagger - reduced from 0.05 to 0.03
+    
+    // Simple smooth entrance for parallax
+    const smoothEase = adjustedProgress < 0 ? 0 : 1 - Math.pow(1 - adjustedProgress, 2) // Quadratic ease-out
     
     // Only apply entrance animation if not fully loaded yet
-    if (easeOut >= 0.98) {
-      return {} // Return empty object to not interfere with existing hover effects
+    if (smoothEase >= 0.9) { // Earlier completion - reduced from 0.95 to 0.9
+      return {
+        willChange: 'auto',
+        backfaceVisibility: 'visible' as const,
+        pointerEvents: 'auto' as const,
+      }
     }
     
     return {
-      transform: `translate3d(0, ${30 - (easeOut * 30)}px, 0)`, // No scaling, just Y movement
-      opacity: easeOut < 0.1 ? 0 : easeOut, // Prevent flash
-      filter: `blur(${(1 - easeOut) * 4}px)`, // Reduced blur
-      pointerEvents: (easeOut < 0.5 ? 'none' : 'auto') as 'none' | 'auto'
+      transform: `translate3d(0, ${20 - (smoothEase * 20)}px, 0)`,
+      opacity: smoothEase < 0.1 ? 0 : smoothEase,
+      filter: `blur(${(1 - smoothEase) * 2}px)`,
+      pointerEvents: (smoothEase < 0.3 ? 'none' : 'auto') as 'none' | 'auto', // Earlier enable for better responsiveness
+      willChange: 'transform, opacity, filter',
+      backfaceVisibility: 'hidden' as const,
     }
   }
 
-  // New function for the push-up parallax effect
+  // Resume slides in FRONT - dominates the hero
   const getExperienceSectionPushTransform = () => {
-    const heroExitProgress = Math.min(scrollY / (viewportHeight * 0.35), 1) // Much earlier trigger - starts at 35% instead of 60%
-    const pushUpAmount = heroExitProgress * viewportHeight * 0.5 // Push up by 50% of viewport height for more dramatic effect
-    const easeOut = 1 - Math.pow(1 - heroExitProgress, 2.5) // Faster easing for quicker push
+    const parallaxProgress = Math.min(scrollY / (viewportHeight * 0.4), 1) // Start even earlier - reduced from 0.5 to 0.4
+    const pushUpAmount = parallaxProgress * viewportHeight * 0.85 // Slightly more movement - increased from 0.8 to 0.85
+    
+    // Smooth parallax easing - no dramatic acceleration
+    const smoothEase = 1 - Math.pow(1 - parallaxProgress, 2) // Simple quadratic ease-out
     
     return {
-      transform: `translate3d(0, ${-pushUpAmount}px, 0)`,
-      zIndex: heroExitProgress > 0.2 ? 10 : 'auto' // Bring to front earlier
+      transform: `translate3d(0, ${-pushUpAmount * smoothEase}px, 0)`,
+      zIndex: 50, // IN FRONT of hero content - slides over it
+      willChange: 'transform',
+      backfaceVisibility: 'hidden' as const,
+    }
+  }
+
+  // Hero fades and blurs dramatically as resume overtakes it
+  const getHeroExitTransform = () => {
+    const exitProgress = Math.min(scrollY / (viewportHeight * 0.6), 1) // Medium scroll distance
+    
+    // Two phases: gentle start, then violent sideways ripping
+    const gentlePhase = Math.min(exitProgress / 0.5, 1) // First 50% - gentle movement
+    const ripPhase = Math.max(0, (exitProgress - 0.5) / 0.5) // Last 50% - violent sideways rip
+    
+    // Dramatic color fading and blur
+    const scale = 1 - gentlePhase * 0.05 - ripPhase * 0.2
+    const opacity = Math.max(1 - gentlePhase * 0.4 - ripPhase * 2.0, 0) // Much more aggressive fading
+    const brightness = Math.max(1 - gentlePhase * 0.3 - ripPhase * 0.8, 0.1) // Fade to near black
+    const contrast = Math.max(1 - gentlePhase * 0.2 - ripPhase * 0.6, 0.3) // Reduce contrast dramatically
+    const saturation = Math.max(1 - gentlePhase * 0.4 - ripPhase * 1.0, 0) // Completely desaturate
+    
+    return {
+      transform: `translate3d(0, 0, 0) scale(${scale})`, // No vertical movement for container
+      opacity,
+      filter: `blur(${gentlePhase * 3 + ripPhase * 15}px) brightness(${brightness}) contrast(${contrast}) saturate(${saturation})`,
+      willChange: 'transform, opacity, filter',
+      backfaceVisibility: 'hidden' as const,
+      zIndex: 1, // BEHIND the sliding resume
+      pointerEvents: gentlePhase > 0.05 ? 'none' as const : 'auto' as const, // Much earlier disable to sync with hero elements
     }
   }
 
@@ -789,7 +921,8 @@ const useParallax = () => {
     getElementTransform,
     getHeroElementTransform,
     getExperienceElementTransform,
-    getExperienceSectionPushTransform
+    getExperienceSectionPushTransform,
+    getHeroExitTransform
   }
 }
 
@@ -802,15 +935,24 @@ const FloatingElements = ({ section }: { section: string }) => {
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div 
           className="absolute top-20 left-10 w-32 h-32 bg-gradient-to-br from-blue-400/8 to-purple-400/8 rounded-full blur-xl"
-          style={{ transform: getElementTransform(0.1, 0.5) }}
+          style={{ 
+            transform: getElementTransform(0.1, 0.5),
+            pointerEvents: 'none' // Ensure no cursor interference
+          }}
         />
         <div 
           className="absolute top-40 right-20 w-24 h-24 bg-gradient-to-br from-green-400/8 to-cyan-400/8 rounded-full blur-lg"
-          style={{ transform: getElementTransform(0.2, -0.3) }}
+          style={{ 
+            transform: getElementTransform(0.2, -0.3),
+            pointerEvents: 'none' // Ensure no cursor interference
+          }}
         />
         <div 
           className="absolute bottom-20 left-1/4 w-40 h-40 bg-gradient-to-br from-purple-400/8 to-pink-400/8 rounded-full blur-2xl"
-          style={{ transform: getElementTransform(0.15, 0.4) }}
+          style={{ 
+            transform: getElementTransform(0.15, 0.4),
+            pointerEvents: 'none' // Ensure no cursor interference
+          }}
         />
       </div>
     )
@@ -821,11 +963,17 @@ const FloatingElements = ({ section }: { section: string }) => {
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div 
           className="absolute top-20 right-1/4 w-28 h-28 bg-gradient-to-br from-cyan-400/8 to-blue-400/8 rounded-full blur-xl"
-          style={{ transform: getElementTransform(0.15, 0.3) }}
+          style={{ 
+            transform: getElementTransform(0.15, 0.3),
+            pointerEvents: 'none' // Ensure no cursor interference
+          }}
         />
         <div 
           className="absolute bottom-10 left-1/3 w-32 h-32 bg-gradient-to-br from-purple-400/8 to-pink-400/8 rounded-full blur-2xl"
-          style={{ transform: getElementTransform(0.1, -0.2) }}
+          style={{ 
+            transform: getElementTransform(0.1, -0.2),
+            pointerEvents: 'none' // Ensure no cursor interference
+          }}
         />
       </div>
     )
@@ -836,11 +984,17 @@ const FloatingElements = ({ section }: { section: string }) => {
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div 
           className="absolute top-0 left-1/4 w-20 h-20 bg-gradient-to-br from-orange-400/8 to-red-400/8 rounded-full blur-lg"
-          style={{ transform: getElementTransform(0.4, 0.2) }}
+          style={{ 
+            transform: getElementTransform(0.4, 0.2),
+            pointerEvents: 'none' // Ensure no cursor interference
+          }}
         />
         <div 
           className="absolute bottom-10 right-1/3 w-16 h-16 bg-gradient-to-br from-teal-400/8 to-green-400/8 rounded-full blur-lg"
-          style={{ transform: getElementTransform(0.35, -0.2) }}
+          style={{ 
+            transform: getElementTransform(0.35, -0.2),
+            pointerEvents: 'none' // Ensure no cursor interference
+          }}
         />
       </div>
     )
@@ -851,11 +1005,17 @@ const FloatingElements = ({ section }: { section: string }) => {
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div 
           className="absolute top-20 right-10 w-12 h-12 bg-gradient-to-br from-blue-400/8 to-cyan-400/8 rounded-full blur-lg"
-          style={{ transform: getElementTransform(0.3, 0.3) }}
+          style={{ 
+            transform: getElementTransform(0.3, 0.3),
+            pointerEvents: 'none' // Ensure no cursor interference
+          }}
         />
         <div 
           className="absolute bottom-10 left-10 w-16 h-16 bg-gradient-to-br from-purple-400/8 to-pink-400/8 rounded-full blur-xl"
-          style={{ transform: getElementTransform(0.05, -0.2) }}
+          style={{ 
+            transform: getElementTransform(0.05, -0.2),
+            pointerEvents: 'none' // Ensure no cursor interference
+          }}
         />
       </div>
     )
@@ -906,9 +1066,22 @@ export default function Home() {
         }
       }
 
-      /* Smooth scroll behavior */
+      /* Ultra-smooth scroll behavior with performance optimizations */
       html {
         scroll-behavior: smooth;
+        transform-style: preserve-3d;
+      }
+
+      /* Global performance optimizations */
+      * {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      /* Optimized sections for hardware acceleration */
+      section {
+        transform-style: preserve-3d;
+        backface-visibility: hidden;
       }
 
       /* Custom scrollbar for modern look */
@@ -927,6 +1100,20 @@ export default function Home() {
 
       ::-webkit-scrollbar-thumb:hover {
         background: linear-gradient(180deg, #1e40af, #1e3a8a);
+      }
+
+      /* Force hardware acceleration for transitions */
+      .hero-transition {
+        will-change: transform, opacity, filter;
+        transform-style: preserve-3d;
+        backface-visibility: hidden;
+      }
+
+      /* Optimize animations */
+      @media (prefers-reduced-motion: no-preference) {
+        .smooth-transition {
+          transition: transform 0.16ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
       }
     `
     document.head.appendChild(style)
@@ -948,7 +1135,8 @@ export default function Home() {
     getElementTransform,
     getHeroElementTransform,
     getExperienceElementTransform,
-    getExperienceSectionPushTransform
+    getExperienceSectionPushTransform,
+    getHeroExitTransform
   } = useParallax()
   const [isDownloading, setIsDownloading] = useState(false)
   const [downloadComplete, setDownloadComplete] = useState(false)
@@ -1106,12 +1294,11 @@ export default function Home() {
           <div>
         {/* Hero Section */}
         <section 
-          className="relative py-6 overflow-hidden transition-all duration-300"
-                      style={{ 
-            transform: getSectionTransform(-0.02),
-            opacity: Math.max(1 - (scrollY / (viewportHeight * 0.4)) * 1.2, 0), // Gentler hero section fade
-            filter: `blur(${Math.min((scrollY / (viewportHeight * 0.4)) * 2.5, 6)}px)`, // Gentler progressive blur
-            transition: 'opacity 0.3s ease-out, filter 0.3s ease-out' // Smooth transitions
+          className="relative py-6 overflow-hidden"
+          style={{ 
+            ...getHeroExitTransform(),
+            backfaceVisibility: 'hidden',
+            perspective: '1000px',
           }}
         >
           <FloatingElements section="hero" />
@@ -1123,7 +1310,8 @@ export default function Home() {
               transform: `translateY(${-scrollY * 0.08}px) scale(${1 + (scrollY / (viewportHeight * 0.4)) * 0.15})`, // Gentler movement and scaling
               opacity: Math.max(1 - (scrollY / (viewportHeight * 0.4)) * 1.8, 0), // Smoother dissipation
               filter: `blur(${(scrollY / (viewportHeight * 0.4)) * 12}px)`, // Gentler progressive blur
-              transition: 'transform 0.2s ease-out, opacity 0.2s ease-out' // Smooth transitions
+              transition: 'transform 0.2s ease-out, opacity 0.2s ease-out', // Smooth transitions
+              pointerEvents: 'none' // Fix cursor issues
             }}
           >
             <div className="absolute inset-0" style={{
@@ -1158,7 +1346,7 @@ export default function Home() {
                 
                 {/* Intro Card */}
                 <div 
-                  className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-card/50 to-card/30 backdrop-blur-sm border border-border/50 p-4 transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl hover:shadow-primary/10"
+                  className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-card/50 to-card/30 backdrop-blur-sm border border-border/50 p-4 transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl hover:shadow-primary/10 hero-transition"
                   style={getHeroElementTransform('left', 1)}
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -1437,50 +1625,46 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Dynamic Transition Zone - Creates Push Effect */}
+        {/* Transition Buffer Zone */}
         <div 
-          className="relative overflow-hidden transition-all duration-500"
+          className="relative overflow-hidden"
           style={{
-            height: `${Math.max(24 - (scrollY / (viewportHeight * 0.6)) * 100, 0)}px`, // Shrinks as experience pushes up
+            height: `${Math.max(40 - (scrollY / (viewportHeight * 0.5)) * 60, 0)}px`, // Smaller buffer
             background: `linear-gradient(to bottom, 
-              hsl(var(--background))/80 0%, 
-              rgba(var(--background-rgb), 0.4) 50%, 
-              hsl(var(--card))/90 100%)`,
-            opacity: Math.max(1 - (scrollY / (viewportHeight * 0.4)) * 2, 0) // Fades as push happens
+              hsl(var(--background))/70 0%, 
+              hsl(var(--card))/60 100%)`,
+            opacity: Math.max(1 - (scrollY / (viewportHeight * 0.3)) * 3, 0),
+            willChange: 'height, opacity',
+            backfaceVisibility: 'hidden',
+            pointerEvents: 'none',
+            zIndex: 5, // Between hero (1) and resume (50)
           }}
         >
-          {/* Particle effect that gets pushed up */}
+          {/* Subtle fade gradient */}
           <div 
             className="absolute inset-0"
             style={{
               background: `radial-gradient(ellipse at center, 
-                rgba(59, 130, 246, ${0.2 - (scrollY / (viewportHeight * 0.6)) * 0.2}) 0%, 
-                transparent 70%)`,
-              transform: `translateY(${-(scrollY / (viewportHeight * 0.6)) * 50}px) scale(${1 + (scrollY / (viewportHeight * 0.6)) * 0.5})`
-            }}
-          />
-          
-          {/* Shimmer effect during transition */}
-          <div 
-            className="absolute inset-0"
-            style={{
-              background: `linear-gradient(90deg, 
-                transparent 0%, 
-                rgba(255, 255, 255, ${(scrollY / (viewportHeight * 0.4)) * 0.1}) 50%, 
-                transparent 100%)`,
-              transform: `translateX(${(scrollY / (viewportHeight * 0.6)) * 200 - 100}%)`
+                rgba(59, 130, 246, ${Math.max(0.05 - (scrollY / (viewportHeight * 0.3)) * 0.05, 0)}) 0%, 
+                transparent 40%)`,
+              transform: `translate3d(0, ${-(scrollY / (viewportHeight * 0.3)) * 20}px, 0)`,
+              willChange: 'transform',
+              backfaceVisibility: 'hidden',
             }}
           />
         </div>
 
               {/* Work/Education Tabs */}
         <section 
-          className="relative py-8"
+          className="relative py-8 hero-transition"
+          data-section="experience"
           style={{ 
             ...getExperienceSectionPushTransform(),
             background: `linear-gradient(135deg, 
               hsl(var(--card))/80 0%, 
-              hsl(var(--background))/90 100%)`
+              hsl(var(--background))/90 100%)`,
+            backfaceVisibility: 'hidden',
+            transformStyle: 'preserve-3d',
           }}
         >
           <FloatingElements section="experience" />
