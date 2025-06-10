@@ -933,21 +933,21 @@ export default function Home() {
                 <div className="absolute left-6 top-6 w-0.5 flex flex-col">
                   {/* Palantir segment - compact content */}
                   <div className={`h-[9.5rem] w-full transition-all duration-300 ${activeTimelineItem === 'palantir' ? 'bg-gradient-to-b from-transparent via-cyan-400 to-transparent shadow-lg shadow-cyan-400/20' : 'bg-transparent'}`}></div>
-                  <div className="h-4"></div> {/* space-y-4 gap */}
+                  <div className="h-3"></div> {/* space-y-3 gap */}
                   
                   {/* Inselligence segment - compact content */}
                   <div className={`h-[9.5rem] w-full transition-all duration-300 ${activeTimelineItem === 'inselligence' ? 'bg-gradient-to-b from-transparent via-cyan-400 to-transparent shadow-lg shadow-cyan-400/20' : 'bg-transparent'}`}></div>
-                  <div className="h-4"></div> {/* space-y-4 gap */}
+                  <div className="h-3"></div> {/* space-y-3 gap */}
                   
                   {/* Elion segment - compact content */}
                   <div className={`h-[9.5rem] w-full transition-all duration-300 ${activeTimelineItem === 'elion' ? 'bg-gradient-to-b from-transparent via-cyan-400 to-transparent shadow-lg shadow-cyan-400/20' : 'bg-transparent'}`}></div>
-                  <div className="h-4"></div> {/* space-y-4 gap */}
+                  <div className="h-3"></div> {/* space-y-3 gap */}
                   
                   {/* Elite Endoscopy segment - compact content */}
                   <div className={`h-[9.5rem] w-full transition-all duration-300 ${activeTimelineItem === 'elite-endoscopy' ? 'bg-gradient-to-b from-transparent via-cyan-400 to-transparent shadow-lg shadow-cyan-400/20' : 'bg-transparent'}`}></div>
                 </div>
                 
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {/* Palantir */}
                   <div 
                     data-timeline-item="palantir"
@@ -1043,7 +1043,7 @@ export default function Home() {
                         <img src="/images/logos/elion.jpg" alt="Elion Partners" className="h-8 w-8 object-contain hover:scale-110 transition-transform" />
                       </a>
                     </div>
-                    <div className="flex-1 pt-1 max-w-lg">
+                    <div className="flex-1 pt-1 max-w-lg min-h-[6rem]">
                       <div className="mb-1 text-sm text-muted-foreground">Jun 2023 - Aug 2023</div>
                       <h3 className="mb-1 text-lg font-semibold text-foreground">Elion Partners</h3>
                       <div className="text-sm text-muted-foreground">Data Science and Acquisitions Intern</div>
@@ -1078,10 +1078,10 @@ export default function Home() {
                         <img src="/images/logos/elite-endoscopy.jpg" alt="Elite Endoscopy Services" className="h-8 w-8 object-contain hover:scale-110 transition-transform" />
                       </a>
                     </div>
-                    <div className="flex-1 pt-1 max-w-lg">
+                    <div className="flex-1 pt-1 max-w-lg min-h-[6rem]">
                       <div className="mb-1 text-sm text-muted-foreground">Nov 2020 - Mar 2021</div>
                       <h3 className="mb-1 text-lg font-semibold text-foreground">Elite Endoscopy Services</h3>
-                      <div className="text-sm text-muted-foreground">Revenue Operations Consultant Intern</div>
+                      <div className="text-sm text-muted-foreground">Revenue Operations Intern</div>
                       <p className="mt-2 text-sm text-muted-foreground">
                         Optimized revenue cycle management and streamlined billing processes for healthcare operations, improving collection efficiency and financial reporting.
                       </p>
@@ -1103,13 +1103,13 @@ export default function Home() {
                 <div className="absolute left-6 top-6 w-0.5 flex flex-col">
                   {/* UF Masters segment - compact content */}
                   <div className={`h-[9.5rem] w-full transition-all duration-300 ${activeTimelineItem === 'uf-masters' ? 'bg-gradient-to-b from-transparent via-cyan-400 to-transparent shadow-lg shadow-cyan-400/20' : 'bg-transparent'}`}></div>
-                  <div className="h-4"></div> {/* space-y-4 gap */}
+                  <div className="h-3"></div> {/* space-y-3 gap */}
                   
                   {/* UF Bachelors segment - compact content */}
                   <div className={`h-[9.5rem] w-full transition-all duration-300 ${activeTimelineItem === 'uf-bachelors' ? 'bg-gradient-to-b from-transparent via-cyan-400 to-transparent shadow-lg shadow-cyan-400/20' : 'bg-transparent'}`}></div>
                 </div>
                 
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {/* Master's Degree */}
                   <div 
                     data-timeline-item="uf-masters"
@@ -1198,13 +1198,13 @@ export default function Home() {
                                 <div className="absolute left-6 top-6 w-0.5 flex flex-col">
                   {/* A Special Miracle segment */}
                   <div className={`h-[8.75rem] w-full transition-all duration-300 ${activeTimelineItem === 'asm' ? 'bg-gradient-to-b from-transparent via-cyan-400 to-transparent shadow-lg shadow-cyan-400/20' : 'bg-transparent'}`}></div>
-                  <div className="h-4"></div> {/* space-y-4 gap */}
+                  <div className="h-3"></div> {/* space-y-3 gap */}
                   
                   {/* Food Bank segment */}
                   <div className={`h-[8rem] w-full transition-all duration-300 ${activeTimelineItem === 'food-bank' ? 'bg-gradient-to-b from-transparent via-cyan-400 to-transparent shadow-lg shadow-cyan-400/20' : 'bg-transparent'}`}></div>
                 </div>
                 
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {/* A Special Miracle */}
                   <div 
                     data-timeline-item="asm"
