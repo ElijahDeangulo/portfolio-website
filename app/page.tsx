@@ -921,7 +921,7 @@ const useParallax = () => {
     if (viewportHeight === 0) return { transform: 'translate3d(0, 0, 0)' }
     
     const parallaxProgress = Math.min(scrollY / (viewportHeight * 0.4), 1) // Start even earlier - reduced from 0.5 to 0.4
-    const pushUpAmount = parallaxProgress * viewportHeight * 0.85 // Slightly more movement - increased from 0.8 to 0.85
+    const pushUpAmount = parallaxProgress * viewportHeight * 0.5 // Further reduced movement - decreased from 0.65 to 0.5
     
     // Smooth parallax easing - no dramatic acceleration
     const smoothEase = 1 - Math.pow(1 - parallaxProgress, 2) // Simple quadratic ease-out
@@ -1891,7 +1891,7 @@ export default function Home() {
         <div 
           className="relative overflow-hidden"
           style={{
-            height: `${Math.max(40 - (scrollY / (viewportHeight * 0.5)) * 60, 0)}px`, // Smaller buffer
+            height: `${Math.max(2 - (scrollY / (viewportHeight * 0.5)) * 5, 0)}px`, // Virtually eliminate buffer
             background: `linear-gradient(to bottom, 
               hsl(var(--background))/70 0%, 
               hsl(var(--card))/60 100%)`,
@@ -2365,7 +2365,7 @@ export default function Home() {
 
               {/* Featured Projects */}
         <section 
-          className="relative py-8"
+          className="relative py-4 -mt-72"
           style={{ transform: getSectionTransform(-0.015) }}
         >
           <FloatingElements section="projects" />
@@ -2481,7 +2481,7 @@ export default function Home() {
 
         {/* Recent Posts */}
         <section 
-          className="py-8"
+          className="py-4 mt-8"
           style={{ transform: getSectionTransform(0.005) }}
         >
           <div className="mb-6 flex items-center justify-between">
@@ -2541,7 +2541,7 @@ export default function Home() {
 
         {/* Projects Section */}
         {activeSection === 'projects' && (
-          <div className="py-8">
+          <div className="py-8 mt-8">
             <div className="mb-6">
               <h2 className="text-2xl font-bold text-foreground mb-4">My Projects</h2>
               <p className="text-muted-foreground">
@@ -2616,7 +2616,7 @@ export default function Home() {
 
         {/* Blog Section */}
         {activeSection === 'blog' && (
-          <div className="py-8">
+          <div className="py-8 mt-8">
             <div className="mb-6">
               <h2 className="text-2xl font-bold text-foreground mb-4">Recent Posts</h2>
               <p className="text-muted-foreground">
