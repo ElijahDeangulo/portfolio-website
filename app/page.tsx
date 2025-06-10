@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 
 // Modern Theme Toggle Component
 const ModernThemeToggle = ({ isDark, toggleDarkMode, isClient, isSpotifyExpanded }: { 
@@ -13,7 +14,7 @@ const ModernThemeToggle = ({ isDark, toggleDarkMode, isClient, isSpotifyExpanded
 
   return (
     <div 
-      className="fixed bottom-6 right-6 z-[100] transition-all duration-300"
+      className="transition-all duration-300"
     >
       <button 
         onClick={toggleDarkMode}
@@ -62,6 +63,9 @@ const HybridMusicPlayer = ({
   onExpandedChange?: (expanded: boolean) => void
 }) => {
   const [isVisible, setIsVisible] = useState(true)
+  
+  // Temporary fix: Force visible to always be true for debugging
+  const forceVisible = true
   const [isExpanded, setIsExpanded] = useState(false)
   const [isPlaying, setIsPlaying] = useState(false)
   const [volume, setVolume] = useState(0.3)
@@ -69,9 +73,18 @@ const HybridMusicPlayer = ({
   const [showAutoplayTip, setShowAutoplayTip] = useState(true)
   const [currentPlayer, setCurrentPlayer] = useState<'spotify' | 'youtube'>('youtube')
 
+  // Debug visibility changes
+  useEffect(() => {
+    console.log('🎵 Music Player visibility changed:', isVisible)
+  }, [isVisible])
+
+  // Debug component rendering
+  console.log('🎵 HybridMusicPlayer rendering - isVisible:', isVisible, 'forceVisible:', forceVisible)
+
   // Handle user interaction for autoplay
   useEffect(() => {
-    const handleFirstInteraction = () => {
+    const handleFirstInteraction = (e: Event) => {
+      console.log('🎵 First interaction detected:', e.type, e.target)
       setHasUserInteracted(true)
       setShowAutoplayTip(false)
       // Try to trigger autoplay after user interaction
@@ -86,15 +99,16 @@ const HybridMusicPlayer = ({
     }
 
     if (!hasUserInteracted) {
-      document.addEventListener('click', handleFirstInteraction, { once: true })
-      document.addEventListener('keydown', handleFirstInteraction, { once: true })
-      document.addEventListener('touchstart', handleFirstInteraction, { once: true })
+      // Use capture phase to avoid conflicts with music player buttons
+      document.addEventListener('click', handleFirstInteraction, { once: true, capture: true })
+      document.addEventListener('keydown', handleFirstInteraction, { once: true, capture: true })
+      document.addEventListener('touchstart', handleFirstInteraction, { once: true, capture: true })
     }
 
     return () => {
-      document.removeEventListener('click', handleFirstInteraction)
-      document.removeEventListener('keydown', handleFirstInteraction)
-      document.removeEventListener('touchstart', handleFirstInteraction)
+      document.removeEventListener('click', handleFirstInteraction, true)
+      document.removeEventListener('keydown', handleFirstInteraction, true)
+      document.removeEventListener('touchstart', handleFirstInteraction, true)
     }
   }, [hasUserInteracted])
 
@@ -132,11 +146,24 @@ const HybridMusicPlayer = ({
     setIsPlaying(!isPlaying)
   }
 
-  if (!isVisible) {
+  if (!isVisible && !forceVisible) {
     return (
       <button
-        onClick={() => setIsVisible(true)}
-        className="fixed bottom-6 right-20 z-[100] w-11 h-11 bg-background border border-border rounded-full flex items-center justify-center text-foreground/80 hover:text-foreground hover:bg-accent transition-all duration-300 shadow-lg"
+        onClick={() => {
+          console.log('🎵 Show button clicked!')
+          setIsVisible(true)
+        }}
+        style={{
+          position: 'fixed',
+          bottom: '24px',
+          right: '100px',
+          zIndex: 2147483647,
+          width: '44px',
+          height: '44px',
+          pointerEvents: 'auto',
+          transform: 'none'
+        }}
+        className="w-11 h-11 bg-red-500 border border-border rounded-full flex items-center justify-center text-white hover:text-foreground hover:bg-accent transition-all duration-300 shadow-lg"
         title="Show Music Player"
       >
         ♪
@@ -145,7 +172,8 @@ const HybridMusicPlayer = ({
   }
 
   return (
-    <div className="fixed bottom-6 right-20 z-[100] group">
+    <div className="group">
+      
       {/* Autoplay Tip */}
       {showAutoplayTip && !hasUserInteracted && (
         <div className="absolute -top-16 -right-4 w-64 bg-background border border-border rounded-lg p-3 shadow-xl text-xs text-muted-foreground animate-pulse">
@@ -283,7 +311,10 @@ const HybridMusicPlayer = ({
 
         {/* Hide Button */}
         <button
-          onClick={() => setIsVisible(false)}
+          onClick={() => {
+            console.log('🎵 Hide button clicked!')
+            setIsVisible(false)
+          }}
           className="flex items-center justify-center w-7 h-7 rounded-full hover:bg-accent transition-all duration-200 text-foreground/60 hover:text-foreground group-hover:scale-110"
           title="Hide Music Player"
         >
@@ -732,7 +763,7 @@ const useDarkMode = () => {
 const useParallax = () => {
   const [scrollY, setScrollY] = useState(0)
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
-  const [viewportHeight, setViewportHeight] = useState(0)
+  const [viewportHeight, setViewportHeight] = useState(1000) // Initialize with a safe default to prevent NaN
 
   useEffect(() => {
     setViewportHeight(window.innerHeight)
@@ -785,6 +816,9 @@ const useParallax = () => {
 
   // Hero elements rip LEFT and RIGHT off screen with parallax
   const getHeroElementTransform = (direction: 'left' | 'right' | 'up' | 'down' = 'up', speed: number = 1) => {
+    // Safety check to prevent division by zero
+    if (viewportHeight === 0) return { opacity: 1 }
+    
     const progress = Math.min(scrollY / (viewportHeight * 0.6), 1) // Medium scroll distance
     
     // Two clear phases: gentle movement, then violent sideways ripping
@@ -796,6 +830,9 @@ const useParallax = () => {
     let rotate = 0
     let scale = 1 - gentlePhase * 0.03 - ripPhase * 0.25 // Controlled shrinking
     let opacity = Math.max(1 - gentlePhase * 0.1 - ripPhase * 1.8, 0)
+    
+    // Safety check for NaN values
+    if (isNaN(opacity)) opacity = 1
     
     // All elements rip to LEFT or RIGHT - never up/down
     const ripMultiplier = 1 + ripPhase * 2.5 // Accelerate ripping
@@ -845,6 +882,9 @@ const useParallax = () => {
   }
 
   const getExperienceElementTransform = (index: number, delay: number = 0): React.CSSProperties => {
+    // Safety check to prevent division by zero
+    if (viewportHeight === 0) return { opacity: 1 }
+    
     const startPoint = viewportHeight * 0.1 // Start earlier - reduced from 0.15 to 0.1
     const progress = Math.max(0, Math.min((scrollY - startPoint) / (viewportHeight * 0.12), 1)) // Faster entrance - reduced from 0.15 to 0.12
     const adjustedProgress = Math.max(0, progress - (delay * 0.03)) // Faster stagger - reduced from 0.05 to 0.03
@@ -861,9 +901,13 @@ const useParallax = () => {
       }
     }
     
+    const finalOpacity = smoothEase < 0.1 ? 0 : smoothEase
+    // Safety check for NaN values
+    const safeOpacity = isNaN(finalOpacity) ? 1 : finalOpacity
+    
     return {
       transform: `translate3d(0, ${20 - (smoothEase * 20)}px, 0)`,
-      opacity: smoothEase < 0.1 ? 0 : smoothEase,
+      opacity: safeOpacity,
       filter: `blur(${(1 - smoothEase) * 2}px)`,
       pointerEvents: (smoothEase < 0.3 ? 'none' : 'auto') as 'none' | 'auto', // Earlier enable for better responsiveness
       willChange: 'transform, opacity, filter',
@@ -873,6 +917,9 @@ const useParallax = () => {
 
   // Resume slides in FRONT - dominates the hero
   const getExperienceSectionPushTransform = () => {
+    // Safety check to prevent division by zero
+    if (viewportHeight === 0) return { transform: 'translate3d(0, 0, 0)' }
+    
     const parallaxProgress = Math.min(scrollY / (viewportHeight * 0.4), 1) // Start even earlier - reduced from 0.5 to 0.4
     const pushUpAmount = parallaxProgress * viewportHeight * 0.85 // Slightly more movement - increased from 0.8 to 0.85
     
@@ -889,6 +936,9 @@ const useParallax = () => {
 
   // Hero fades and blurs dramatically as resume overtakes it
   const getHeroExitTransform = () => {
+    // Safety check to prevent division by zero
+    if (viewportHeight === 0) return { opacity: 1 }
+    
     const exitProgress = Math.min(scrollY / (viewportHeight * 0.6), 1) // Medium scroll distance
     
     // Two phases: gentle start, then violent sideways ripping
@@ -897,7 +947,10 @@ const useParallax = () => {
     
     // Dramatic color fading and blur
     const scale = 1 - gentlePhase * 0.05 - ripPhase * 0.2
-    const opacity = Math.max(1 - gentlePhase * 0.4 - ripPhase * 2.0, 0) // Much more aggressive fading
+    let opacity = Math.max(1 - gentlePhase * 0.4 - ripPhase * 2.0, 0) // Much more aggressive fading
+    
+    // Safety check for NaN values
+    if (isNaN(opacity)) opacity = 1
     const brightness = Math.max(1 - gentlePhase * 0.3 - ripPhase * 0.8, 0.1) // Fade to near black
     const contrast = Math.max(1 - gentlePhase * 0.2 - ripPhase * 0.6, 0.3) // Reduce contrast dramatically
     const saturation = Math.max(1 - gentlePhase * 0.4 - ripPhase * 1.0, 0) // Completely desaturate
@@ -1069,7 +1122,21 @@ export default function Home() {
       /* Ultra-smooth scroll behavior with performance optimizations */
       html {
         scroll-behavior: smooth;
-        transform-style: preserve-3d;
+        /* transform-style: preserve-3d; TEMPORARILY DISABLED FOR TESTING */
+      }
+
+      /* Create a separate stacking context for fixed elements */
+      .fixed-viewport-layer {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        pointer-events: none !important;
+        z-index: 999998 !important;
+        transform: none !important;
+        transform-style: flat !important;
+        perspective: none !important;
       }
 
       /* Global performance optimizations */
@@ -1107,6 +1174,17 @@ export default function Home() {
         will-change: transform, opacity, filter;
         transform-style: preserve-3d;
         backface-visibility: hidden;
+      }
+
+      /* Music player positioning within the viewport layer */
+      .music-player-fixed {
+        position: absolute !important;
+        top: calc(100vh - 100px) !important;
+        bottom: auto !important;
+        left: auto !important;
+        right: 88px !important;
+        z-index: 1 !important;
+        pointer-events: auto !important;
       }
 
       /* Optimize animations */
@@ -1266,12 +1344,117 @@ export default function Home() {
     }))
   }
 
+  // Create viewport overlay for fixed positioning that works with transforms
+  const [musicPlayerContainer, setMusicPlayerContainer] = useState<HTMLElement | null>(null)
+  const [themeToggleContainer, setThemeToggleContainer] = useState<HTMLElement | null>(null)
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    // Create viewport overlay that ignores all page transforms
+    let viewportOverlay = document.getElementById('viewport-overlay')
+    if (!viewportOverlay) {
+      viewportOverlay = document.createElement('div')
+      viewportOverlay.id = 'viewport-overlay'
+      viewportOverlay.style.cssText = `
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        pointer-events: none !important;
+        z-index: 999999 !important;
+        transform: none !important;
+        filter: none !important;
+        perspective: none !important;
+        transform-style: flat !important;
+        isolation: isolate !important;
+      `
+      document.body.appendChild(viewportOverlay)
+    }
+
+    // Create theme toggle container inside the overlay (rightmost position)
+    let themeContainer = document.getElementById('theme-toggle-root')
+    if (!themeContainer) {
+      themeContainer = document.createElement('div')
+      themeContainer.id = 'theme-toggle-root'
+      themeContainer.style.cssText = `
+        position: absolute !important;
+        bottom: 24px !important;
+        right: 24px !important;
+        z-index: 1 !important;
+        pointer-events: auto !important;
+        transform: none !important;
+        filter: none !important;
+        perspective: none !important;
+        transform-style: flat !important;
+        isolation: isolate !important;
+      `
+      viewportOverlay.appendChild(themeContainer)
+      setThemeToggleContainer(themeContainer)
+    }
+
+    // Create music player container inside the overlay (positioned further to the left of theme toggle)
+    let musicContainer = document.getElementById('music-player-root')
+    if (!musicContainer) {
+      musicContainer = document.createElement('div')
+      musicContainer.id = 'music-player-root'
+      musicContainer.style.cssText = `
+        position: absolute !important;
+        bottom: 24px !important;
+        right: 100px !important;
+        z-index: 1 !important;
+        pointer-events: auto !important;
+        transform: none !important;
+        filter: none !important;
+        perspective: none !important;
+        transform-style: flat !important;
+        isolation: isolate !important;
+      `
+      viewportOverlay.appendChild(musicContainer)
+      setMusicPlayerContainer(musicContainer)
+    }
+
+    return () => {
+      // Cleanup on unmount
+      const overlay = document.getElementById('viewport-overlay')
+      if (overlay && overlay.parentNode) {
+        overlay.parentNode.removeChild(overlay)
+      }
+      setMusicPlayerContainer(null)
+      setThemeToggleContainer(null)
+    }
+  }, [])
+
   return (
-    <div className="min-h-screen bg-background font-sans antialiased">
+    <React.Fragment>
+      {/* Fixed positioned elements must be outside of transformed containers */}
       <CustomCursor />
-      <HybridMusicPlayer onExpandedChange={setIsSpotifyExpanded} />
-      <ModernThemeToggle isDark={isDark} toggleDarkMode={toggleDarkMode} isClient={isClient} isSpotifyExpanded={isSpotifyExpanded} />
-      {/* Navigation */}
+      
+      {/* Music Player Portal - Render into viewport overlay */}
+      {musicPlayerContainer && createPortal(
+        <HybridMusicPlayer 
+          playlistId="37i9dQZF1DZ06evO3qQrNm"
+          youtubeVideoId="5i8W1z9zkE0"
+          youtubeStartTime="5448"
+          onExpandedChange={setIsSpotifyExpanded}
+        />,
+        musicPlayerContainer
+      )}
+
+      {/* Theme Toggle Portal - Render into viewport overlay */}
+      {themeToggleContainer && createPortal(
+        <ModernThemeToggle 
+          isDark={isDark} 
+          toggleDarkMode={toggleDarkMode} 
+          isClient={isClient} 
+          isSpotifyExpanded={isSpotifyExpanded} 
+        />,
+        themeToggleContainer
+      )}
+      
+      <div className="min-h-screen bg-background font-sans antialiased">
+        {/* Navigation */}
       <header className="sticky top-0 z-50 bg-background/75 backdrop-blur-sm">
         <div className="mx-auto flex max-w-3xl flex-col px-8">
           <nav className="flex items-center justify-between py-6">
@@ -1308,7 +1491,7 @@ export default function Home() {
             className="absolute inset-0 opacity-30 transition-all duration-1000"
             style={{
               transform: `translateY(${-scrollY * 0.08}px) scale(${1 + (scrollY / (viewportHeight * 0.4)) * 0.15})`, // Gentler movement and scaling
-              opacity: Math.max(1 - (scrollY / (viewportHeight * 0.4)) * 1.8, 0), // Smoother dissipation
+              opacity: viewportHeight > 0 ? Math.max(1 - (scrollY / (viewportHeight * 0.4)) * 1.8, 0) : 1, // Smoother dissipation with safety check
               filter: `blur(${(scrollY / (viewportHeight * 0.4)) * 12}px)`, // Gentler progressive blur
               transition: 'transform 0.2s ease-out, opacity 0.2s ease-out', // Smooth transitions
               pointerEvents: 'none' // Fix cursor issues
@@ -1633,7 +1816,7 @@ export default function Home() {
             background: `linear-gradient(to bottom, 
               hsl(var(--background))/70 0%, 
               hsl(var(--card))/60 100%)`,
-            opacity: Math.max(1 - (scrollY / (viewportHeight * 0.3)) * 3, 0),
+            opacity: viewportHeight > 0 ? Math.max(1 - (scrollY / (viewportHeight * 0.3)) * 3, 0) : 1,
             willChange: 'height, opacity',
             backfaceVisibility: 'hidden',
             pointerEvents: 'none',
@@ -1645,7 +1828,7 @@ export default function Home() {
             className="absolute inset-0"
             style={{
               background: `radial-gradient(ellipse at center, 
-                rgba(59, 130, 246, ${Math.max(0.05 - (scrollY / (viewportHeight * 0.3)) * 0.05, 0)}) 0%, 
+                rgba(59, 130, 246, ${viewportHeight > 0 ? Math.max(0.05 - (scrollY / (viewportHeight * 0.3)) * 0.05, 0) : 0.05}) 0%, 
                 transparent 40%)`,
               transform: `translate3d(0, ${-(scrollY / (viewportHeight * 0.3)) * 20}px, 0)`,
               willChange: 'transform',
@@ -2619,7 +2802,8 @@ export default function Home() {
             </div>
           </div>
         )}
-    </div>
+      </div>
+    </React.Fragment>
   )
 }
 

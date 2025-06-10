@@ -594,7 +594,7 @@ body * {
   border: 3px solid rgb(34, 211, 238);
   border-radius: 50%;
   pointer-events: none;
-  z-index: 99999;
+  z-index: 1000001;
   transition: width 0.1s cubic-bezier(0.25, 0.46, 0.45, 0.94), height 0.1s cubic-bezier(0.25, 0.46, 0.45, 0.94), background 0.1s ease, border 0.1s ease;
   transform: translate(-50%, -50%);
   mix-blend-mode: normal;
@@ -611,7 +611,7 @@ body * {
   background: linear-gradient(45deg, rgb(34, 211, 238), rgb(59, 130, 246), rgb(71, 85, 105));
   border-radius: 50%;
   pointer-events: none;
-  z-index: 100000;
+  z-index: 1000002;
   transform: translate(-50%, -50%);
   transition: width 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94), height 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94), background 0.15s ease;
   opacity: 1;
@@ -629,7 +629,7 @@ body * {
   background: radial-gradient(circle, rgba(0, 0, 0, 0.05) 0%, transparent 70%);
   border-radius: 50%;
   pointer-events: none;
-  z-index: 9998;
+  z-index: 1000000;
   transform: translate(-50%, -50%);
   transition: opacity 0.3s ease;
   will-change: transform;
