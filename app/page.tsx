@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
+import { motion, AnimatePresence, useMotionValue, useTransform, PanInfo } from 'framer-motion'
 
 // Modern Theme Toggle Component
 const ModernThemeToggle = ({ isDark, toggleDarkMode, isClient, isSpotifyExpanded }: { 
@@ -1075,6 +1076,332 @@ const FloatingElements = ({ section }: { section: string }) => {
   }
 
   return null
+}
+
+// Featured Projects Carousel Component
+const FeaturedProjectsCarousel = ({ 
+  mousePosition, 
+  getSectionTransform 
+}: { 
+  mousePosition: { x: number; y: number }; 
+  getSectionTransform: (speed: number) => any 
+}) => {
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [isVisible, setIsVisible] = useState(false)
+  const [isDragging, setIsDragging] = useState(false)
+  const sectionRef = useRef<HTMLElement>(null)
+  const dragX = useMotionValue(0)
+  
+  // Project data
+  const projects = [
+    {
+      id: 1,
+      emoji: '🤖',
+      title: 'AR Automation Platform',
+      description: 'End-to-end accounts receivable automation using multi-agent LLM orchestration, RAG techniques, and real-time payment processing.',
+      tags: ['PySpark', 'LLM', 'RAG', 'Foundry', 'TypeScript'],
+      gradient: 'from-blue-500/20 to-cyan-500/20',
+      accentColor: 'text-cyan-400',
+      shadowColor: 'shadow-cyan-500/20'
+    },
+    {
+      id: 2,
+      emoji: '📈',
+      title: 'Pricing Intelligence Platform',
+      description: 'Bayesian optimization models with demand curve simulation and real-time anomaly detection driving $10M+ revenue impact.',
+      tags: ['Bayesian Optimization', 'Python', 'Real-time Analytics', 'ML Models'],
+      gradient: 'from-emerald-500/20 to-green-500/20',
+      accentColor: 'text-emerald-400',
+      shadowColor: 'shadow-emerald-500/20'
+    },
+    {
+      id: 3,
+      emoji: '🏆',
+      title: 'A Special Miracle',
+      description: 'Founded a non-profit organization focused on community impact and social good initiatives.',
+      tags: ['Leadership', 'Non-Profit', 'Community Impact'],
+      gradient: 'from-purple-500/20 to-pink-500/20',
+      accentColor: 'text-purple-400',
+      shadowColor: 'shadow-purple-500/20',
+      link: 'https://aspecialmiracle.org'
+    },
+    {
+      id: 4,
+      emoji: '💼',
+      title: 'Revenue Intelligence Suite',
+      description: 'ML-driven sales forecasting and CRM optimization platform improving pipeline hygiene and customer engagement.',
+      tags: ['ML Forecasting', 'CRM', 'Python', 'API Integration'],
+      gradient: 'from-orange-500/20 to-red-500/20',
+      accentColor: 'text-orange-400',
+      shadowColor: 'shadow-orange-500/20'
+    }
+  ]
+
+  // Intersection Observer for intelligent triggering
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry.isIntersecting)
+      },
+      { threshold: 0.3 }
+    )
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current)
+    }
+
+    return () => observer.disconnect()
+  }, [])
+
+  // Auto-advance carousel when visible
+  useEffect(() => {
+    if (!isVisible || isDragging) return
+
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % projects.length)
+    }, 4000)
+
+    return () => clearInterval(interval)
+  }, [isVisible, isDragging, projects.length])
+
+  // Calculate transforms for infinite loop effect
+  const getProjectTransform = (index: number) => {
+    const totalProjects = projects.length
+    const offset = index - currentIndex
+    
+    // Normalize to handle infinite loop
+    let normalizedOffset = offset
+    if (offset > totalProjects / 2) {
+      normalizedOffset = offset - totalProjects
+    } else if (offset < -totalProjects / 2) {
+      normalizedOffset = offset + totalProjects
+    }
+
+    const translateX = normalizedOffset * 320 + (isDragging ? 0 : 0)
+    const scale = Math.max(0.7, 1 - Math.abs(normalizedOffset) * 0.15)
+    const opacity = Math.max(0.3, 1 - Math.abs(normalizedOffset) * 0.3)
+    const rotateY = normalizedOffset * -15
+    const zIndex = 10 - Math.abs(normalizedOffset)
+
+    return {
+      x: translateX,
+      scale,
+      opacity,
+      rotateY,
+      zIndex,
+      filter: `blur(${Math.abs(normalizedOffset) * 1}px)`,
+    }
+  }
+
+  const handleDrag = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    const threshold = 100
+    
+    if (Math.abs(info.offset.x) > threshold) {
+      if (info.offset.x > 0) {
+        setCurrentIndex((prev) => (prev - 1 + projects.length) % projects.length)
+      } else {
+        setCurrentIndex((prev) => (prev + 1) % projects.length)
+      }
+    }
+  }
+
+  return (
+    <motion.section 
+      ref={sectionRef}
+      className="relative py-8 -mt-72 overflow-hidden"
+      style={{ transform: getSectionTransform(-0.015) }}
+      initial={{ opacity: 0, y: 50 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8, ease: "easeOut" }}
+    >
+      <FloatingElements section="projects" />
+      
+      {/* Header */}
+      <motion.div 
+        className="mb-12 flex items-center justify-between"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2, duration: 0.6 }}
+      >
+        <h2 className="text-3xl font-bold text-foreground bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text">
+          Featured Projects
+        </h2>
+        <div className="flex items-center gap-4">
+          {/* Progress indicator */}
+          <div className="flex gap-2">
+            {projects.map((_, index) => (
+              <motion.div
+                key={index}
+                className={`h-2 rounded-full cursor-pointer transition-all duration-300 ${
+                  index === currentIndex 
+                    ? 'w-8 bg-gradient-to-r from-cyan-400 to-blue-500' 
+                    : 'w-2 bg-muted-foreground/30 hover:bg-muted-foreground/50'
+                }`}
+                onClick={() => setCurrentIndex(index)}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+              />
+            ))}
+          </div>
+          
+          <a href="#" className="group flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground">
+            <span>View all</span>
+            <motion.span 
+              className="relative"
+              whileHover={{ scale: 1.1, rotate: 5 }}
+              transition={{ type: "spring", stiffness: 400, damping: 10 }}
+            >
+              <svg className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" viewBox="0 0 24 24" fill="currentColor">
+                <path className="origin-[12px_12px] transition-transform duration-300 group-hover:rotate-12" d="M4 8c0-2 2-4 8-4s8 2 8 4v2H4V8z"/>
+                <path className="origin-[12px_12px] transition-transform duration-300 group-hover:-rotate-12" d="M4 14c0 2 2 4 8 4s8-2 8-4v-2H4v2z"/>
+                <path className="opacity-80" d="M6 10h1v2H6v-2zm2 0h1v2H8v-2zm2 0h1v2h-1v-2zm2 0h1v2h-1v-2zm2 0h1v2h-1v-2zm2 0h1v2h-1v-2z"/>
+                <circle cx="8" cy="6" r="1"/>
+                <circle cx="16" cy="6" r="1"/>
+              </svg>
+            </motion.span>
+          </a>
+        </div>
+      </motion.div>
+
+      {/* Carousel Container */}
+      <div className="relative h-80 flex items-center justify-center perspective-1000">
+        <div className="relative w-full max-w-6xl">
+          {projects.map((project, index) => {
+            const transform = getProjectTransform(index)
+            
+            return (
+              <motion.div
+                key={project.id}
+                className="absolute left-1/2 top-1/2 w-72 cursor-grab active:cursor-grabbing"
+                style={{
+                  zIndex: transform.zIndex,
+                  transformOrigin: 'center center',
+                }}
+                animate={{
+                  x: `calc(-50% + ${transform.x}px)`,
+                  y: '-50%',
+                  scale: transform.scale,
+                  opacity: transform.opacity,
+                  rotateY: transform.rotateY,
+                  filter: transform.filter,
+                }}
+                transition={{
+                  type: "spring",
+                  stiffness: 300,
+                  damping: 30,
+                  mass: 0.8,
+                }}
+                drag="x"
+                dragConstraints={{ left: 0, right: 0 }}
+                onDragStart={() => setIsDragging(true)}
+                onDragEnd={(event, info) => {
+                  setIsDragging(false)
+                  handleDrag(event, info)
+                }}
+                whileHover={index === currentIndex ? { 
+                  scale: transform.scale * 1.05,
+                  rotateY: transform.rotateY * 0.5,
+                } : {}}
+                whileTap={{ scale: transform.scale * 0.95 }}
+              >
+                <div 
+                  className={`relative rounded-2xl border border-border/50 bg-gradient-to-br ${project.gradient} backdrop-blur-sm p-6 transition-all duration-300 hover:border-border group ${project.shadowColor} shadow-xl`}
+                  style={{
+                    transform: `translate3d(${mousePosition.x * 0.005}px, ${mousePosition.y * 0.005}px, 0)`,
+                    background: `linear-gradient(135deg, hsl(var(--card) / 0.8), hsl(var(--card) / 0.4))`,
+                  }}
+                >
+                  {/* Accent gradient overlay */}
+                  <div className={`absolute inset-0 rounded-2xl bg-gradient-to-r ${project.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none`} />
+                  
+                  {/* Content */}
+                  <div className="relative z-10">
+                    <motion.div 
+                      className="mb-4 text-4xl"
+                      whileHover={{ scale: 1.2, rotate: 10 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                    >
+                      {project.emoji}
+                    </motion.div>
+                    
+                    <h3 className={`mb-3 text-xl font-bold ${project.accentColor} group-hover:text-foreground transition-colors`}>
+                      {project.title}
+                    </h3>
+                    
+                    <p className="mb-4 text-sm text-muted-foreground leading-relaxed line-clamp-3">
+                      {project.description}
+                    </p>
+                    
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {project.tags.map((tag, tagIndex) => (
+                        <motion.span
+                          key={tagIndex}
+                          className="rounded-full bg-secondary/80 px-3 py-1 text-xs text-secondary-foreground backdrop-blur-sm border border-border/30"
+                          whileHover={{ scale: 1.05, y: -2 }}
+                          transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                        >
+                          {tag}
+                        </motion.span>
+                      ))}
+                    </div>
+
+                    {project.link && (
+                      <motion.a
+                        href={project.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`inline-flex items-center gap-2 text-sm ${project.accentColor} hover:text-foreground transition-colors group/link`}
+                        whileHover={{ x: 5 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                      >
+                        <span>🌐 Visit Website</span>
+                        <motion.svg 
+                          className="w-4 h-4" 
+                          fill="none" 
+                          stroke="currentColor" 
+                          viewBox="0 0 24 24"
+                          whileHover={{ x: 3, y: -3 }}
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </motion.svg>
+                      </motion.a>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Navigation Arrows */}
+      <div className="absolute left-8 top-1/2 -translate-y-1/2">
+        <motion.button
+          onClick={() => setCurrentIndex((prev) => (prev - 1 + projects.length) % projects.length)}
+          className="w-12 h-12 rounded-full bg-background/80 border border-border backdrop-blur-sm flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-background transition-all duration-300 shadow-lg"
+          whileHover={{ scale: 1.1, x: -2 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+        </motion.button>
+      </div>
+
+      <div className="absolute right-8 top-1/2 -translate-y-1/2">
+        <motion.button
+          onClick={() => setCurrentIndex((prev) => (prev + 1) % projects.length)}
+          className="w-12 h-12 rounded-full bg-background/80 border border-border backdrop-blur-sm flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-background transition-all duration-300 shadow-lg"
+          whileHover={{ scale: 1.1, x: 2 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </motion.button>
+      </div>
+    </motion.section>
+  )
 }
 
 export default function Home() {
@@ -2363,121 +2690,11 @@ export default function Home() {
 
       </section>
 
-              {/* Featured Projects */}
-        <section 
-          className="relative py-4 -mt-72"
-          style={{ transform: getSectionTransform(-0.015) }}
-        >
-          <FloatingElements section="projects" />
-          <div className="mb-6 flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-foreground">Featured Projects</h2>
-            <a href="#" className="group flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground">
-              <span>View more</span>
-              <span className="relative transition-transform group-hover:scale-110">
-                <svg className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" viewBox="0 0 24 24" fill="currentColor">
-                  {/* Top jaw - rotates down on hover */}
-                  <path 
-                    className="origin-[12px_12px] transition-transform duration-300 group-hover:rotate-12" 
-                    d="M4 8c0-2 2-4 8-4s8 2 8 4v2H4V8z"
-                  />
-                  {/* Bottom jaw - rotates up on hover */}
-                  <path 
-                    className="origin-[12px_12px] transition-transform duration-300 group-hover:-rotate-12" 
-                    d="M4 14c0 2 2 4 8 4s8-2 8-4v-2H4v2z"
-                  />
-                  {/* Teeth */}
-                  <path className="opacity-80" d="M6 10h1v2H6v-2zm2 0h1v2H8v-2zm2 0h1v2h-1v-2zm2 0h1v2h-1v-2zm2 0h1v2h-1v-2zm2 0h1v2h-1v-2z"/>
-                  {/* Eyes */}
-                  <circle cx="8" cy="6" r="1"/>
-                  <circle cx="16" cy="6" r="1"/>
-                </svg>
-              </span>
-            </a>
-          </div>
-          
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            <div 
-              className="rounded-lg border border-border bg-card p-4 transition-all duration-300 hover:bg-accent/50 transform hover:scale-105"
-              style={{
-                transform: `translate3d(${mousePosition.x * 0.008}px, ${mousePosition.y * 0.008}px, 0)`
-              }}
-            >
-              <div className="mb-3 text-3xl">🤖</div>
-              <h3 className="mb-2 text-lg font-semibold text-foreground">AR Automation Platform</h3>
-              <p className="mb-3 text-sm text-muted-foreground">
-                End-to-end accounts receivable automation using multi-agent LLM orchestration, RAG techniques, and real-time payment processing.
-              </p>
-              <div className="mb-3 flex flex-wrap gap-2">
-                <span className="rounded-md bg-secondary px-2 py-1 text-xs text-secondary-foreground">PySpark</span>
-                <span className="rounded-md bg-secondary px-2 py-1 text-xs text-secondary-foreground">LLM</span>
-                <span className="rounded-md bg-secondary px-2 py-1 text-xs text-secondary-foreground">RAG</span>
-                <span className="rounded-md bg-secondary px-2 py-1 text-xs text-secondary-foreground">Foundry</span>
-                <span className="rounded-md bg-secondary px-2 py-1 text-xs text-secondary-foreground">TypeScript</span>
-              </div>
-                    </div>
-            
-            <div 
-              className="rounded-lg border border-border bg-card p-4 transition-all duration-300 hover:bg-accent/50 transform hover:scale-105"
-              style={{
-                transform: `translate3d(${mousePosition.x * 0.003}px, ${mousePosition.y * 0.003}px, 0)`
-              }}
-            >
-              <div className="mb-3 text-3xl">📈</div>
-              <h3 className="mb-2 text-lg font-semibold text-foreground">Pricing Intelligence Platform</h3>
-              <p className="mb-3 text-sm text-muted-foreground">
-                Bayesian optimization models with demand curve simulation and real-time anomaly detection driving $10M+ revenue impact.
-              </p>
-              <div className="mb-3 flex flex-wrap gap-2">
-                <span className="rounded-md bg-secondary px-2 py-1 text-xs text-secondary-foreground">Bayesian Optimization</span>
-                <span className="rounded-md bg-secondary px-2 py-1 text-xs text-secondary-foreground">Python</span>
-                <span className="rounded-md bg-secondary px-2 py-1 text-xs text-secondary-foreground">Real-time Analytics</span>
-                <span className="rounded-md bg-secondary px-2 py-1 text-xs text-secondary-foreground">ML Models</span>
-              </div>
-            </div>
-
-            <div 
-              className="rounded-lg border border-border bg-card p-4 transition-all duration-300 hover:bg-accent/50 transform hover:scale-105"
-              style={{
-                transform: `translate3d(${mousePosition.x * 0.003}px, ${mousePosition.y * 0.003}px, 0)`
-              }}
-            >
-              <div className="mb-3 text-3xl">🏆</div>
-              <h3 className="mb-2 text-lg font-semibold text-foreground">A Special Miracle</h3>
-              <p className="mb-3 text-sm text-muted-foreground">
-                Founded a non-profit organization focused on community impact and social good initiatives.
-              </p>
-              <div className="mb-3 flex flex-wrap gap-2">
-                <span className="rounded-md bg-secondary px-2 py-1 text-xs text-secondary-foreground">Leadership</span>
-                <span className="rounded-md bg-secondary px-2 py-1 text-xs text-secondary-foreground">Non-Profit</span>
-                <span className="rounded-md bg-secondary px-2 py-1 text-xs text-secondary-foreground">Community Impact</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <a href="https://aspecialmiracle.org" className="inline-flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground">
-                  🌐 Website
-                </a>
-            </div>
-                      </div>
-
-            <div 
-              className="rounded-lg border border-border bg-card p-4 transition-all duration-300 hover:bg-accent/50 transform hover:scale-105"
-              style={{
-                transform: `translate3d(${mousePosition.x * 0.01}px, ${mousePosition.y * 0.01}px, 0)`
-              }}
-            >
-              <div className="mb-3 text-3xl">💼</div>
-              <h3 className="mb-2 text-lg font-semibold text-foreground">Revenue Intelligence Suite</h3>
-              <p className="mb-3 text-sm text-muted-foreground">
-                ML-driven sales forecasting and CRM optimization platform improving pipeline hygiene and customer engagement.
-              </p>
-              <div className="flex flex-wrap gap-2">
-                <span className="rounded-md bg-secondary px-2 py-1 text-xs text-secondary-foreground">ML Forecasting</span>
-                <span className="rounded-md bg-secondary px-2 py-1 text-xs text-secondary-foreground">CRM</span>
-                <span className="rounded-md bg-secondary px-2 py-1 text-xs text-secondary-foreground">Python</span>
-                <span className="rounded-md bg-secondary px-2 py-1 text-xs text-secondary-foreground">API Integration</span>
-              </div>
-            </div>
-          </div>
-        </section>
+              {/* Featured Projects - Advanced Carousel */}
+        <FeaturedProjectsCarousel 
+          mousePosition={mousePosition}
+          getSectionTransform={getSectionTransform}
+        />
 
         {/* Recent Posts */}
         <section 
