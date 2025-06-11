@@ -428,6 +428,18 @@ body {
   margin-top: var(--space-6);
 }
 
+/* Advanced Carousel */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 .project-card {
   background-color: hsl(var(--card));
   border: 1px solid hsl(var(--border));
