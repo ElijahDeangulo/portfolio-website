@@ -1815,7 +1815,7 @@ export default function Home() {
           <div>
         {/* Hero Section */}
         <section 
-          className="relative py-6 overflow-hidden"
+          className="relative py-4 overflow-hidden"
           style={{ 
             ...getHeroExitTransform(),
             backfaceVisibility: 'hidden',
@@ -1859,16 +1859,16 @@ export default function Home() {
             />
           </div>
 
-          <div className="relative z-10">
+          <div className="relative z-10 max-w-7xl mx-auto px-4">
             {/* Main Content Grid */}
-            <div className="grid gap-4 lg:grid-cols-12 lg:gap-6 items-center">
+            <div className="grid gap-3 lg:grid-cols-12 lg:gap-4 items-start">
               
               {/* Left Column - Main Content */}
-              <div className="lg:col-span-7 space-y-4">
+              <div className="lg:col-span-7 space-y-3">
                 
                 {/* Hero Navigation - Sleek & Elegant */}
                 <div 
-                  className="flex justify-center mb-6 transition-all duration-500"
+                  className="flex justify-center mb-4 transition-all duration-500"
                   style={{
                     transform: `${scrollY > 100 ? 'translateY(-20px)' : 'translateY(0)'} ${getHeroElementTransform('up', 0.3).transform || ''}`,
                     opacity: scrollY > 100 ? 0 : (getHeroElementTransform('up', 0.3).opacity as number || 1),
@@ -1878,12 +1878,12 @@ export default function Home() {
                     {/* Subtle outer glow */}
                     <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 via-cyan-400/10 to-cyan-500/5 rounded-full blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     
-                    <div className="relative bg-background/10 backdrop-blur-md rounded-full border border-border/20 px-6 py-2.5 shadow-lg shadow-black/10">
-                      <ul className="flex items-center space-x-6">
+                    <div className="relative bg-background/10 backdrop-blur-md rounded-full border border-border/20 px-4 py-2 shadow-lg shadow-black/10">
+                      <ul className="flex items-center space-x-4">
                         <li>
                           <button 
                             onClick={() => setActiveSection('home')} 
-                            className="relative px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-cyan-300 transition-all duration-200 hover:scale-105 group/item"
+                            className="relative px-2.5 py-1 text-sm font-medium text-muted-foreground hover:text-cyan-300 transition-all duration-200 hover:scale-105 group/item"
                           >
                             Home
                             <div className="absolute bottom-0 left-1/2 h-px bg-gradient-to-r from-cyan-400 to-cyan-300 w-0 group-hover/item:w-full -translate-x-1/2 transition-all duration-200 shadow-sm shadow-cyan-400/50"></div>
@@ -1893,7 +1893,7 @@ export default function Home() {
                         <li>
                           <button 
                             onClick={() => setActiveSection('projects')} 
-                            className={`relative px-3 py-1.5 text-sm font-medium transition-all duration-200 hover:scale-105 group/item ${activeSection === 'projects' ? 'text-cyan-300' : 'text-muted-foreground hover:text-cyan-300'}`}
+                            className={`relative px-2.5 py-1 text-sm font-medium transition-all duration-200 hover:scale-105 group/item ${activeSection === 'projects' ? 'text-cyan-300' : 'text-muted-foreground hover:text-cyan-300'}`}
                             style={{
                               filter: activeSection === 'projects' ? 'drop-shadow(0 0 4px rgba(34, 211, 238, 0.3))' : 'none'
                             }}
@@ -1906,7 +1906,7 @@ export default function Home() {
                         <li>
                           <button 
                             onClick={() => setActiveSection('blog')} 
-                            className={`relative px-3 py-1.5 text-sm font-medium transition-all duration-200 hover:scale-105 group/item ${activeSection === 'blog' ? 'text-cyan-300' : 'text-muted-foreground hover:text-cyan-300'}`}
+                            className={`relative px-2.5 py-1 text-sm font-medium transition-all duration-200 hover:scale-105 group/item ${activeSection === 'blog' ? 'text-cyan-300' : 'text-muted-foreground hover:text-cyan-300'}`}
                             style={{
                               filter: activeSection === 'blog' ? 'drop-shadow(0 0 4px rgba(34, 211, 238, 0.3))' : 'none'
                             }}
@@ -1919,7 +1919,7 @@ export default function Home() {
                         <li>
                           <button 
                             onClick={() => setActiveSection('contact')} 
-                            className={`relative px-3 py-1.5 text-sm font-medium transition-all duration-200 hover:scale-105 group/item ${activeSection === 'contact' ? 'text-cyan-300' : 'text-muted-foreground hover:text-cyan-300'}`}
+                            className={`relative px-2.5 py-1 text-sm font-medium transition-all duration-200 hover:scale-105 group/item ${activeSection === 'contact' ? 'text-cyan-300' : 'text-muted-foreground hover:text-cyan-300'}`}
                             style={{
                               filter: activeSection === 'contact' ? 'drop-shadow(0 0 4px rgba(34, 211, 238, 0.3))' : 'none'
                             }}
@@ -1935,17 +1935,17 @@ export default function Home() {
                 
                 {/* Intro Card */}
                 <div 
-                  className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-card/50 to-card/30 backdrop-blur-sm border border-border/50 p-4 transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl hover:shadow-primary/10 hero-transition"
+                  className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-card/50 to-card/30 backdrop-blur-sm border border-border/50 p-3 transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl hover:shadow-primary/10 hero-transition"
                   style={getHeroElementTransform('left', 1)}
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   <div className="relative z-10">
-                    <div className="mb-4 flex items-center gap-3">
-                      <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                      <span className="text-sm text-muted-foreground">Actively looking for internships for Fall 2025</span>
+                    <div className="mb-3 flex items-center gap-2">
+                      <div className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
+                      <span className="text-xs text-muted-foreground">Actively looking for internships for Fall 2025</span>
                     </div>
                                         <h1 
-                      className="mb-3 text-2xl font-bold tracking-tight lg:text-4xl bg-gradient-to-r from-slate-500 via-cyan-300 via-cyan-500 via-blue-400 to-slate-600 bg-clip-text text-transparent"
+                      className="mb-2 text-xl font-bold tracking-tight lg:text-3xl bg-gradient-to-r from-slate-500 via-cyan-300 via-cyan-500 via-blue-400 to-slate-600 bg-clip-text text-transparent"
                       style={{
                         backgroundSize: '300% 300%',
                         animation: 'gradient-shift 4s ease infinite'
@@ -1953,7 +1953,7 @@ export default function Home() {
                     >
                       Hi, I'm Elijah Deangulo
                     </h1>
-                    <div className="mb-3 text-base text-muted-foreground">
+                    <div className="mb-2 text-sm text-muted-foreground">
                       <TypingAnimation 
                         texts={[
                           "AI/ML Engineer building intelligent systems",
@@ -1971,42 +1971,42 @@ export default function Home() {
 
                 {/* Stats Cards */}
                 <div 
-                  className="grid gap-4 sm:grid-cols-3"
+                  className="grid gap-2.5 sm:grid-cols-3"
                   style={getHeroElementTransform('up', 0.8)}
                 >
                   <div 
-                    className="group relative overflow-hidden rounded-lg bg-card/60 backdrop-blur-sm border border-border/50 p-3 transition-all duration-300 hover:scale-105 hover:bg-accent/20"
+                    className="group relative overflow-hidden rounded-lg bg-card/60 backdrop-blur-sm border border-border/50 p-2.5 transition-all duration-300 hover:scale-105 hover:bg-accent/20"
                   >
-                    <div className="text-lg font-bold text-primary mb-1">4.0</div>
+                    <div className="text-base font-bold text-primary mb-0.5">4.0</div>
                     <div className="text-xs text-muted-foreground">Current Grad GPA</div>
                     <div className="absolute top-1 right-1 opacity-50 group-hover:opacity-100 transition-opacity">
-                      <div className="text-sm transition-transform group-hover:scale-110 group-hover:rotate-6">🐊</div>
+                      <div className="text-xs transition-transform group-hover:scale-110 group-hover:rotate-6">🐊</div>
                     </div>
                   </div>
                   
                   <div 
-                    className="group relative overflow-hidden rounded-lg bg-card/60 backdrop-blur-sm border border-border/50 p-3 transition-all duration-300 hover:scale-105 hover:bg-accent/20"
+                    className="group relative overflow-hidden rounded-lg bg-card/60 backdrop-blur-sm border border-border/50 p-2.5 transition-all duration-300 hover:scale-105 hover:bg-accent/20"
                   >
-                    <div className="text-lg font-bold text-primary mb-1">Florida</div>
+                    <div className="text-base font-bold text-primary mb-0.5">Florida</div>
                     <div className="text-xs text-muted-foreground">Ft. Lauderdale</div>
-                    <div className="absolute top-1 right-1 text-lg opacity-50">🌴</div>
+                    <div className="absolute top-1 right-1 text-sm opacity-50">🌴</div>
                   </div>
                   
                   <div 
-                    className="group relative overflow-hidden rounded-lg bg-card/60 backdrop-blur-sm border border-border/50 p-3 transition-all duration-300 hover:scale-105 hover:bg-accent/20"
+                    className="group relative overflow-hidden rounded-lg bg-card/60 backdrop-blur-sm border border-border/50 p-2.5 transition-all duration-300 hover:scale-105 hover:bg-accent/20"
                   >
-                    <div className="text-lg font-bold text-primary mb-1">4+</div>
+                    <div className="text-base font-bold text-primary mb-0.5">4+</div>
                     <div className="text-xs text-muted-foreground">Years Experience</div>
-                    <div className="absolute top-1 right-1 text-lg opacity-50">⚡</div>
+                    <div className="absolute top-1 right-1 text-sm opacity-50">⚡</div>
                   </div>
                 </div>
 
                 {/* Description Card */}
                 <div 
-                  className="rounded-lg bg-card/30 backdrop-blur-sm border border-border/50 p-3"
+                  className="rounded-lg bg-card/30 backdrop-blur-sm border border-border/50 p-2.5"
                   style={getHeroElementTransform('down', 0.6)}
                 >
-                  <div className="space-y-4 text-muted-foreground">
+                  <div className="space-y-3 text-muted-foreground text-sm">
                     <p className="leading-relaxed">
                       Currently pursuing my <strong className="text-foreground">MS in Business Analytics at UF</strong> while interning as a <strong className="text-foreground">Deployment Strategist at Palantir</strong>. I specialize in building AI-powered solutions that drive measurable business impact.
                     </p>
@@ -2018,14 +2018,14 @@ export default function Home() {
 
                 {/* Action Buttons */}
                 <div 
-                  className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6"
+                  className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4"
                   style={getHeroElementTransform('left', 0.7)}
                 >
-                  <div className="flex gap-4">
+                  <div className="flex gap-3">
                     <button 
                       onClick={handleDownloadClick}
                       disabled={isDownloading}
-                      className={`group relative overflow-hidden rounded-lg px-4 py-2 text-sm font-medium transition-all duration-300 ${
+                      className={`group relative overflow-hidden rounded-lg px-3 py-1.5 text-sm font-medium transition-all duration-300 ${
                         downloadComplete 
                           ? 'bg-green-500 text-white shadow-lg shadow-green-500/25' 
                           : isDownloading 
@@ -2034,12 +2034,12 @@ export default function Home() {
                       }`}
                     >
                       <div className="absolute inset-0 bg-gradient-to-r from-white/0 to-white/20 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-600" />
-                      <div className="relative flex items-center gap-2">
+                      <div className="relative flex items-center gap-1.5">
                         {downloadComplete ? (
                           <>✅ Downloaded!</>
                         ) : isDownloading ? (
                           <>
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                            <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
                             Preparing...
                           </>
                         ) : (
@@ -2050,7 +2050,7 @@ export default function Home() {
 
                     <button 
                       onClick={() => setActiveSection('contact')}
-                      className="group relative overflow-hidden rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium transition-all duration-300 hover:bg-accent hover:scale-105 hover:shadow-lg"
+                      className="group relative overflow-hidden rounded-lg border border-border bg-background px-3 py-1.5 text-sm font-medium transition-all duration-300 hover:bg-accent hover:scale-105 hover:shadow-lg"
                     >
                       <div className="absolute inset-0 bg-gradient-to-r from-primary/0 to-primary/10 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-600" />
                       <div className="relative">💬 Let's Talk</div>
@@ -2058,19 +2058,19 @@ export default function Home() {
                   </div>
                   
                   {/* Social Links */}
-                  <div className="flex items-center gap-3">
-                    <a href="https://www.linkedin.com/in/elijah-deangulo-a26306175" target="_blank" rel="noopener noreferrer" className="group flex items-center justify-center px-5 py-2.5 rounded-lg border border-border bg-background transition-all duration-300 hover:bg-blue-500 hover:border-blue-500 hover:scale-110 hover:shadow-lg hover:shadow-blue-500/25">
-                      <svg className="h-4 w-4 text-blue-600 group-hover:text-white transition-colors" fill="currentColor" viewBox="0 0 24 24">
+                  <div className="flex items-center gap-2">
+                    <a href="https://www.linkedin.com/in/elijah-deangulo-a26306175" target="_blank" rel="noopener noreferrer" className="group flex items-center justify-center px-3 py-2 rounded-lg border border-border bg-background transition-all duration-300 hover:bg-blue-500 hover:border-blue-500 hover:scale-110 hover:shadow-lg hover:shadow-blue-500/25">
+                      <svg className="h-3.5 w-3.5 text-blue-600 group-hover:text-white transition-colors" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
                       </svg>
                     </a>
-                    <a href="https://github.com/ElijahDeangulo" target="_blank" rel="noopener noreferrer" className="group flex items-center justify-center px-5 py-2.5 rounded-lg border border-border bg-background transition-all duration-300 hover:bg-gray-900 hover:border-gray-900 hover:scale-110 hover:shadow-lg hover:shadow-gray-900/25">
-                      <svg className="h-4 w-4 text-gray-700 group-hover:text-white transition-colors" fill="currentColor" viewBox="0 0 24 24">
+                    <a href="https://github.com/ElijahDeangulo" target="_blank" rel="noopener noreferrer" className="group flex items-center justify-center px-3 py-2 rounded-lg border border-border bg-background transition-all duration-300 hover:bg-gray-900 hover:border-gray-900 hover:scale-110 hover:shadow-lg hover:shadow-gray-900/25">
+                      <svg className="h-3.5 w-3.5 text-gray-700 group-hover:text-white transition-colors" fill="currentColor" viewBox="0 0 24 24">
                         <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd"/>
                       </svg>
                     </a>
-                    <a href="mailto:ejdeangulo@gmail.com" className="group flex items-center justify-center px-5 py-2.5 rounded-lg border border-border bg-background transition-all duration-300 hover:bg-red-500 hover:border-red-500 hover:scale-110 hover:shadow-lg hover:shadow-red-500/25">
-                      <svg className="h-4 w-4 text-red-600 group-hover:text-white transition-colors" fill="currentColor" viewBox="0 0 24 24">
+                    <a href="mailto:ejdeangulo@gmail.com" className="group flex items-center justify-center px-3 py-2 rounded-lg border border-border bg-background transition-all duration-300 hover:bg-red-500 hover:border-red-500 hover:scale-110 hover:shadow-lg hover:shadow-red-500/25">
+                      <svg className="h-3.5 w-3.5 text-red-600 group-hover:text-white transition-colors" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-.904.732-1.636 1.636-1.636h.075L12 13.267 22.289 3.821h.075A1.636 1.636 0 0 1 24 5.457z"/>
                       </svg>
                     </a>
@@ -2079,11 +2079,11 @@ export default function Home() {
               </div>
 
               {/* Right Column - Profile & Tech Stack */}
-              <div className="lg:col-span-5 space-y-0.5">
+              <div className="lg:col-span-5 space-y-2">
                 
                 {/* Profile Image Card */}
                 <div 
-                  className="group relative overflow-hidden rounded bg-card/30 backdrop-blur-sm border border-border/50 p-0.5 transition-all duration-300"
+                  className="group relative overflow-hidden rounded bg-card/30 backdrop-blur-sm border border-border/50 p-0 transition-all duration-300"
                   style={getHeroElementTransform('right', 1.2)}
                 >
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-secondary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -2092,7 +2092,7 @@ export default function Home() {
                       src="/images/profile.jpg" 
                       alt="Elijah DeAngulo" 
                       className="w-full rounded-md object-cover shadow-sm transition-transform duration-500 group-hover:scale-105"
-                      style={{ aspectRatio: '2/3', objectPosition: 'center 13%', height: '320px', overflow: 'hidden', transform: 'scale(0.85)' }}
+                      style={{ aspectRatio: '3/5', objectPosition: 'center 13%', height: '290px', overflow: 'hidden', transform: 'scale(0.95)' }}
                       onError={(e) => {
                         e.currentTarget.src = "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=320&h=400&fit=crop&crop=face"
                       }}
@@ -2103,31 +2103,31 @@ export default function Home() {
 
                 {/* Current Status Card */}
                 <div 
-                  className="rounded-lg bg-card/50 backdrop-blur-sm border border-border/50 p-3"
+                  className="rounded-lg bg-card/50 backdrop-blur-sm border border-border/50 p-2"
                   style={getHeroElementTransform('right', 0.8)}
                 >
-                                    <div className="flex items-center gap-3 mb-3">
-                    <div className="h-3 w-3 rounded-full bg-blue-500 animate-pulse" />
-                    <span className="text-sm font-medium text-foreground">Currently at</span>
+                                    <div className="flex items-center gap-1.5 mb-1.5">
+                    <div className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
+                    <span className="text-xs font-medium text-foreground">Currently at</span>
                   </div>
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2.5">
                     <div className="flex-shrink-0">
-                      <img src="/images/logos/palantir.jpg" alt="Palantir" className="h-10 w-10 rounded-lg object-contain bg-white p-2" />
+                      <img src="/images/logos/palantir.jpg" alt="Palantir" className="h-7 w-7 rounded-lg object-contain bg-white p-1" />
                     </div>
                     <div>
-                      <div className="font-semibold text-foreground">Palantir Technologies</div>
-                      <div className="text-sm text-muted-foreground">Deployment Strategist Intern</div>
+                      <div className="text-xs font-semibold text-foreground">Palantir Technologies</div>
+                      <div className="text-xs text-muted-foreground">Deployment Strategist Intern</div>
                     </div>
                   </div>
                 </div>
 
                                  {/* Tech Stack Preview */}
                  <div 
-                   className="rounded-lg bg-card/50 backdrop-blur-sm border border-border/50 p-3"
+                   className="rounded-lg bg-card/50 backdrop-blur-sm border border-border/50 p-2"
                    style={getHeroElementTransform('right', 0.6)}
                  >
-                   <h3 className="text-sm font-medium text-foreground mb-3">Core Technologies</h3>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 <div className="grid grid-cols-4 gap-3">
+                   <h3 className="text-xs font-medium text-foreground mb-1.5">Core Technologies</h3>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 <div className="grid grid-cols-4 gap-1.5">
                      {[
                        { 
                          name: 'Python', 
@@ -2193,20 +2193,20 @@ export default function Home() {
                            </svg>
                          )
                        }
-                     ].map((tech, index) => (
-                       <div 
-                         key={tech.name}
-                         className="group flex flex-col items-center gap-2 p-2 rounded-lg bg-background/50 border border-border/50 transition-all duration-300 hover:scale-110 hover:bg-accent/20"
-                         style={{
-                           animationDelay: `${index * 100}ms`
-                         }}
-                       >
-                         <div className="text-muted-foreground group-hover:text-primary transition-colors">
-                           {tech.icon}
+                                            ].map((tech, index) => (
+                         <div 
+                           key={tech.name}
+                           className="group flex flex-col items-center gap-0.5 p-1 rounded-lg bg-background/50 border border-border/50 transition-all duration-300 hover:scale-110 hover:bg-accent/20"
+                           style={{
+                             animationDelay: `${index * 100}ms`
+                           }}
+                         >
+                           <div className="text-muted-foreground group-hover:text-primary transition-colors">
+                             {tech.icon}
+                           </div>
+                           <div className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">{tech.name}</div>
                          </div>
-                         <div className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">{tech.name}</div>
-                       </div>
-                     ))}
+                       ))}
                    </div>
                  </div>
               </div>
@@ -2502,7 +2502,10 @@ export default function Home() {
 
           {/* Education Section */}
           {activeTab === 'education' && (
-            <div className="rounded-lg border border-border bg-card p-6">
+            <div 
+              className="rounded-lg border border-border bg-card p-6"
+              style={getExperienceElementTransform(1, 1)}
+            >
               <div className="relative">
                 {/* Timeline line - base line always visible */}
                 <div className="absolute left-6 top-6 bottom-6 w-0.5 bg-border"></div>
@@ -2527,6 +2530,7 @@ export default function Home() {
                         ? 'opacity-40 scale-95 blur-[1px]' 
                         : 'opacity-100 scale-100 blur-0'
                     } ${activeTimelineItem === 'uf-masters' ? 'bg-accent/10' : ''}`}
+                    style={getExperienceElementTransform(2, 1)}
                   >
                     <div className={`relative z-10 flex h-12 w-12 items-center justify-center rounded-lg border-4 border-background overflow-hidden transition-all duration-300 transform ${
                       activeTimelineItem === 'uf-masters' 
@@ -2561,6 +2565,7 @@ export default function Home() {
                         ? 'opacity-40 scale-95 blur-[1px]' 
                         : 'opacity-100 scale-100 blur-0'
                     } ${activeTimelineItem === 'uf-bachelors' ? 'bg-accent/10' : ''}`}
+                    style={getExperienceElementTransform(3, 2)}
                   >
                     <div className={`relative z-10 flex h-12 w-12 items-center justify-center rounded-lg border-4 border-background overflow-hidden transition-all duration-300 transform ${
                       activeTimelineItem === 'uf-bachelors' 
@@ -2597,7 +2602,10 @@ export default function Home() {
 
           {/* Philanthropy Section */}
           {activeTab === 'philanthropy' && (
-            <div className="rounded-lg border border-border bg-card p-6">
+            <div 
+              className="rounded-lg border border-border bg-card p-6"
+              style={getExperienceElementTransform(1, 1)}
+            >
               <div className="relative">
                 {/* Timeline line - base line always visible */}
                 <div className="absolute left-6 top-6 bottom-6 w-0.5 bg-border"></div>
@@ -2622,6 +2630,7 @@ export default function Home() {
                         ? 'opacity-40 scale-95 blur-[1px]' 
                         : 'opacity-100 scale-100 blur-0'
                     } ${activeTimelineItem === 'asm' ? 'bg-accent/10' : ''}`}
+                    style={getExperienceElementTransform(2, 1)}
                   >
                     <div className={`relative z-10 flex h-12 w-12 items-center justify-center rounded-lg border-4 border-background overflow-hidden transition-all duration-300 transform ${
                       activeTimelineItem === 'asm' 
@@ -2657,6 +2666,7 @@ export default function Home() {
                         ? 'opacity-40 scale-95 blur-[1px]' 
                         : 'opacity-100 scale-100 blur-0'
                     } ${activeTimelineItem === 'food-bank' ? 'bg-accent/10' : ''}`}
+                    style={getExperienceElementTransform(3, 2)}
                   >
                     <div className={`relative z-10 flex h-12 w-12 items-center justify-center rounded-lg border-4 border-background overflow-hidden transition-all duration-300 transform ${
                       activeTimelineItem === 'food-bank' 
@@ -2691,10 +2701,12 @@ export default function Home() {
       </section>
 
               {/* Featured Projects - Advanced Carousel */}
-        <FeaturedProjectsCarousel 
-          mousePosition={mousePosition}
-          getSectionTransform={getSectionTransform}
-        />
+        <div>
+          <FeaturedProjectsCarousel 
+            mousePosition={mousePosition}
+            getSectionTransform={getSectionTransform}
+          />
+        </div>
 
         {/* Recent Posts */}
         <section 
