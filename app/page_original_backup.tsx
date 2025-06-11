@@ -1569,78 +1569,9 @@ export default function Home() {
       document.head.removeChild(style)
     }
   }, [])
-  // Smooth scroll navigation with modals
+  // Remove tab switching - now using smooth scroll navigation
   const [showAboutModal, setShowAboutModal] = useState(false)
-  const [showContactModal, setShowContactModal] = useState(false)
   const [selectedProject, setSelectedProject] = useState<string | null>(null)
-  
-  // Project data for modals
-  const projectDetails = {
-    'ar-automation': {
-      title: 'AR Automation Platform',
-      emoji: '🤖',
-      description: 'End-to-end accounts receivable automation using multi-agent LLM orchestration, RAG techniques, and real-time payment processing.',
-      fullDescription: 'A comprehensive AI-powered platform that revolutionizes accounts receivable processes through intelligent automation. The system leverages multi-agent LLM orchestration to handle complex business logic, RAG techniques for contextual decision-making, and real-time payment processing.',
-      technologies: ['PySpark', 'LLM', 'RAG', 'Foundry', 'TypeScript', 'Python', 'Apache Kafka'],
-      features: [
-        'Multi-agent LLM orchestration for complex workflows',
-        'RAG-based contextual decision making',
-        'Real-time payment processing and reconciliation',
-        'Enterprise-scale data processing with PySpark',
-        'Automated invoice matching and dispute resolution'
-      ],
-      impact: 'Reduced manual processing time by 85% and improved cash flow by $2.3M annually',
-      github: 'https://github.com/ElijahDeangulo/ar-automation'
-    },
-    'pricing-intelligence': {
-      title: 'Pricing Intelligence Platform',
-      emoji: '📈',
-      description: 'Bayesian optimization models with demand curve simulation and real-time anomaly detection. Drove $10M+ in projected revenue impact.',
-      fullDescription: 'An advanced ML-driven pricing platform that uses Bayesian optimization to determine optimal pricing strategies. The system simulates demand curves, detects market anomalies in real-time, and provides actionable insights.',
-      technologies: ['Bayesian Optimization', 'Python', 'Real-time Analytics', 'ML Models', 'TensorFlow', 'Redis'],
-      features: [
-        'Bayesian optimization for price discovery',
-        'Real-time demand curve simulation',
-        'Market anomaly detection and alerts',
-        'A/B testing framework for pricing strategies',
-        'Revenue impact forecasting'
-      ],
-      impact: 'Generated $10M+ in projected revenue impact with 23% improvement in pricing accuracy',
-      github: 'https://github.com/ElijahDeangulo/pricing-intelligence'
-    },
-    'revenue-intelligence': {
-      title: 'Revenue Intelligence Suite',
-      emoji: '💼',
-      description: 'ML-driven sales forecasting and CRM optimization platform improving pipeline hygiene and customer engagement.',
-      fullDescription: 'A comprehensive revenue intelligence platform that combines ML-driven sales forecasting with CRM optimization. The system analyzes customer behavior patterns and predicts sales outcomes.',
-      technologies: ['ML Forecasting', 'CRM', 'Python', 'API Integration', 'Salesforce', 'React'],
-      features: [
-        'Predictive sales forecasting with 92% accuracy',
-        'Customer behavior analysis and segmentation',
-        'Pipeline health scoring and recommendations',
-        'Automated lead qualification and routing',
-        'Real-time sales performance dashboards'
-      ],
-      impact: 'Improved forecast accuracy by 34% and increased sales team productivity by 28%',
-      github: 'https://github.com/ElijahDeangulo/revenue-intelligence'
-    },
-    'special-miracle': {
-      title: 'A Special Miracle',
-      emoji: '🏆',
-      description: 'Founded a non-profit organization focused on community impact and social good initiatives. Supporting families with children with Down Syndrome.',
-      fullDescription: 'A Special Miracle is a non-profit organization dedicated to supporting families with children with Down Syndrome. The platform provides resources, community support, and educational content.',
-      technologies: ['Leadership', 'Non-Profit', 'Community Impact', 'React', 'Node.js'],
-      features: [
-        'Community support forums and resources',
-        'Educational content and guides',
-        'Event planning and coordination',
-        'Volunteer management system',
-        'Donation processing and tracking'
-      ],
-      impact: 'Supported 150+ families and organized 25+ community events',
-      website: 'https://aspecialmiracle.org'
-    }
-  }
   const [activeTab, setActiveTab] = useState('work')
 
   // Smooth scroll functions
@@ -1652,41 +1583,10 @@ export default function Home() {
   }
 
   const scrollToTop = () => {
-    // Close any open modals when going home
-    setShowAboutModal(false)
-    setShowContactModal(false)
     window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
-
-  const handleAboutClick = () => {
-    if (showAboutModal) {
-      // If About modal is already open, close it
-      setShowAboutModal(false)
-    } else {
-      // Close any other modals and open About
-      setShowContactModal(false)
-      setShowAboutModal(true)
-    }
-  }
-
-  const handleContactClick = () => {
-    if (showContactModal) {
-      // If Contact modal is already open, close it
-      setShowContactModal(false)
-    } else {
-      // Close any other modals and open Contact
-      setShowAboutModal(false)
-      setShowContactModal(true)
-    }
-  }
-
-  // Project click handler
-  const handleProjectClick = (projectId: string) => {
-    setSelectedProject(projectId)
   }
   const [activeTimelineItem, setActiveTimelineItem] = useState<string | null>('palantir')
   const [isSpotifyExpanded, setIsSpotifyExpanded] = useState(false)
-  const [activeSection, setActiveSection] = useState('home')
 
   const { isDark, toggleDarkMode, isClient } = useDarkMode()
   const { 
@@ -1912,7 +1812,7 @@ export default function Home() {
   }, [])
 
   return (
-    <div>
+    <React.Fragment>
       {/* Fixed positioned elements must be outside of transformed containers */}
       <CustomCursor />
       
@@ -1950,8 +1850,8 @@ export default function Home() {
             <ul className="flex items-center space-x-8">
               <li><button onClick={scrollToTop} className="text-sm transition-colors hover:text-foreground/80 text-muted-foreground hover:text-foreground">Home</button></li>
               <li><button onClick={() => scrollToSection('projects')} className="text-sm transition-colors hover:text-foreground text-muted-foreground hover:text-foreground">Projects</button></li>
-                              <li><button onClick={handleAboutClick} className="text-sm transition-colors hover:text-foreground text-muted-foreground hover:text-foreground">About</button></li>
-                <li><button onClick={handleContactClick} className="text-sm transition-colors hover:text-foreground text-muted-foreground hover:text-foreground">Contact</button></li>
+              <li><button onClick={() => setShowAboutModal(true)} className="text-sm transition-colors hover:text-foreground text-muted-foreground hover:text-foreground">About</button></li>
+              <li><button onClick={() => scrollToSection('contact')} className="text-sm transition-colors hover:text-foreground text-muted-foreground hover:text-foreground">Contact</button></li>
         </ul>
             <div className="flex items-center space-x-3">
             </div>
@@ -2052,7 +1952,7 @@ export default function Home() {
                         
                         <li>
                           <button 
-                            onClick={handleAboutClick} 
+                            onClick={() => setShowAboutModal(true)} 
                             className="relative px-2.5 py-1 text-sm font-medium transition-all duration-200 hover:scale-105 group/item text-muted-foreground hover:text-cyan-300"
                           >
                             About
@@ -2062,7 +1962,7 @@ export default function Home() {
                         
                         <li>
                           <button 
-                            onClick={handleContactClick} 
+                            onClick={() => scrollToSection('contact')} 
                             className="relative px-2.5 py-1 text-sm font-medium transition-all duration-200 hover:scale-105 group/item text-muted-foreground hover:text-cyan-300"
                           >
                             Contact
@@ -2852,114 +2752,166 @@ export default function Home() {
 
           </div>
 
+        {/* Projects Section */}
+        <section id="projects" className="py-8 mt-8">
+          <div>
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-foreground mb-4">My Projects</h2>
+              <p className="text-muted-foreground">
+                A collection of projects I've worked on, from AI-powered solutions to enterprise platforms.
+              </p>
+            </div>
+            
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <div className="rounded-lg border border-border bg-card p-6 transition-all duration-300 hover:bg-accent/50 transform hover:scale-105">
+                <div className="mb-4 text-4xl">🤖</div>
+                <h3 className="mb-3 text-xl font-semibold text-foreground">AR Automation Platform</h3>
+                <p className="mb-4 text-sm text-muted-foreground">
+                  End-to-end accounts receivable automation using multi-agent LLM orchestration, RAG techniques, and real-time payment processing. Built for enterprise scale with PySpark and Foundry.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <span className="rounded-md bg-secondary px-2 py-1 text-xs text-secondary-foreground">PySpark</span>
+                  <span className="rounded-md bg-secondary px-2 py-1 text-xs text-secondary-foreground">LLM</span>
+                  <span className="rounded-md bg-secondary px-2 py-1 text-xs text-secondary-foreground">RAG</span>
+                  <span className="rounded-md bg-secondary px-2 py-1 text-xs text-secondary-foreground">Foundry</span>
+                  <span className="rounded-md bg-secondary px-2 py-1 text-xs text-secondary-foreground">TypeScript</span>
+                </div>
+              </div>
 
+              <div className="rounded-lg border border-border bg-card p-6 transition-all duration-300 hover:bg-accent/50 transform hover:scale-105">
+                <div className="mb-4 text-4xl">📈</div>
+                <h3 className="mb-3 text-xl font-semibold text-foreground">Pricing Intelligence Platform</h3>
+                <p className="mb-4 text-sm text-muted-foreground">
+                  Bayesian optimization models with demand curve simulation and real-time anomaly detection. Drove $10M+ in projected revenue impact through intelligent pricing strategies.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <span className="rounded-md bg-secondary px-2 py-1 text-xs text-secondary-foreground">Bayesian Optimization</span>
+                  <span className="rounded-md bg-secondary px-2 py-1 text-xs text-secondary-foreground">Python</span>
+                  <span className="rounded-md bg-secondary px-2 py-1 text-xs text-secondary-foreground">Real-time Analytics</span>
+                  <span className="rounded-md bg-secondary px-2 py-1 text-xs text-secondary-foreground">ML Models</span>
+                </div>
+              </div>
 
+              <div className="rounded-lg border border-border bg-card p-6 transition-all duration-300 hover:bg-accent/50 transform hover:scale-105">
+                <div className="mb-4 text-4xl">💼</div>
+                <h3 className="mb-3 text-xl font-semibold text-foreground">Revenue Intelligence Suite</h3>
+                <p className="mb-4 text-sm text-muted-foreground">
+                  ML-driven sales forecasting and CRM optimization platform improving pipeline hygiene and customer engagement. Enhanced system reliability by 34%.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <span className="rounded-md bg-secondary px-2 py-1 text-xs text-secondary-foreground">ML Forecasting</span>
+                  <span className="rounded-md bg-secondary px-2 py-1 text-xs text-secondary-foreground">CRM</span>
+                  <span className="rounded-md bg-secondary px-2 py-1 text-xs text-secondary-foreground">Python</span>
+                  <span className="rounded-md bg-secondary px-2 py-1 text-xs text-secondary-foreground">API Integration</span>
+                </div>
+              </div>
 
-        
-        {/* Footer */}
-        <footer className="border-t border-border py-8">
-          <div className="text-center">
-            <div className="text-sm text-muted-foreground">
-              © 2025 ejdeangulo.com | <a href="#" className="hover:text-foreground">Privacy</a>
+              <div className="rounded-lg border border-border bg-card p-6 transition-all duration-300 hover:bg-accent/50 transform hover:scale-105">
+                <div className="mb-4 text-4xl">🏆</div>
+                <h3 className="mb-3 text-xl font-semibold text-foreground">A Special Miracle</h3>
+                <p className="mb-4 text-sm text-muted-foreground">
+                  Founded a non-profit organization focused on community impact and social good initiatives. Supporting families with children with Down Syndrome.
+                </p>
+                <div className="mb-4 flex flex-wrap gap-2">
+                  <span className="rounded-md bg-secondary px-2 py-1 text-xs text-secondary-foreground">Leadership</span>
+                  <span className="rounded-md bg-secondary px-2 py-1 text-xs text-secondary-foreground">Non-Profit</span>
+                  <span className="rounded-md bg-secondary px-2 py-1 text-xs text-secondary-foreground">Community Impact</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <a href="https://aspecialmiracle.org" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 transition-colors">
+                    🌐 Visit Website
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
-        </footer>
-        </div>
+        </section>
 
-        {/* About Modal */}
-        {showAboutModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pt-20">
-            <div 
-              className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-in fade-in duration-300" 
-              onClick={() => setShowAboutModal(false)} 
-            />
-            <div className="relative bg-background rounded-xl border border-border shadow-2xl p-6 max-w-4xl w-full max-h-[85vh] overflow-y-auto animate-in zoom-in-95 slide-in-from-bottom-8 duration-300">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-foreground">About Me</h2>
-                <button 
-                  onClick={() => setShowAboutModal(false)} 
-                  className="text-muted-foreground hover:text-foreground transition-colors text-xl"
-                >
-                  ✕
-                </button>
+        {/* Contact Section */}
+        <section id="contact" className="py-8 mt-8">
+          <div>
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-foreground mb-4">Get in Touch 📧</h2>
+              <p className="text-muted-foreground">
+                Learn more about my journey, passions, and what drives me to build meaningful technology.
+              </p>
+            </div>
+            
+            <div className="space-y-6">
+              {/* Personal Story */}
+              <div className="rounded-lg border border-border bg-card p-6 transition-colors hover:bg-accent/50">
+                <h3 className="mb-4 text-xl font-semibold text-foreground">My Journey</h3>
+                <div className="space-y-4 text-muted-foreground">
+                  <p>
+                    I'm a passionate AI/ML engineer and graduate student at the University of Florida, where I'm pursuing my Master's in Business Analytics while maintaining a 4.0 GPA. My journey in technology began with a fascination for how data can tell stories and drive meaningful change.
+                  </p>
+                  <p>
+                    Currently, I work as a Decision Sciences Engineering Intern at Palantir Technologies, where I build enterprise-scale AI solutions that transform how Fortune 500 companies leverage their data. From developing accounts receivable automation systems to creating pricing intelligence platforms, I love solving complex problems that have real business impact.
+                  </p>
+                  <p>
+                    What excites me most is the intersection of technology and human impact. Whether it's building ML models that drive millions in revenue or founding a non-profit to support families with children with Down Syndrome, I believe technology should serve a greater purpose.
+                  </p>
+                </div>
               </div>
-              
-              <div className="space-y-6">
-                {/* Personal Story */}
-                <div>
-                  <h3 className="text-xl font-semibold text-foreground mb-4">My Journey</h3>
-                  <div className="space-y-4 text-muted-foreground">
-                    <p>
-                      I'm a passionate AI/ML engineer and graduate student at the University of Florida, where I'm pursuing my Master's in Business Analytics while maintaining a 4.0 GPA. My journey in technology began with a fascination for how data can tell stories and drive meaningful change.
+
+              {/* Personal Interests */}
+              <div className="rounded-lg border border-border bg-card p-6 transition-colors hover:bg-accent/50">
+                <h3 className="mb-4 text-xl font-semibold text-foreground">Beyond Code</h3>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div>
+                    <h4 className="mb-2 font-semibold text-foreground">🏈 Sports & Fitness</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Avid sports enthusiast and fitness lover. I believe in maintaining a healthy work-life balance and find that physical activity enhances my problem-solving abilities.
                     </p>
-                    <p>
-                      Currently, I work as a Decision Sciences Engineering Intern at Palantir Technologies, where I build enterprise-scale AI solutions that transform how Fortune 500 companies leverage their data. From developing accounts receivable automation systems to creating pricing intelligence platforms, I love solving complex problems that have real business impact.
+                  </div>
+                  <div>
+                    <h4 className="mb-2 font-semibold text-foreground">🎵 Music Production</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Creative outlet through music production and sound design. The same attention to detail that goes into my code translates beautifully into crafting the perfect beat.
                     </p>
-                    <p>
-                      What excites me most is the intersection of technology and human impact. Whether it's building ML models that drive millions in revenue or founding a non-profit to support families with children with Down Syndrome, I believe technology should serve a greater purpose.
+                  </div>
+                  <div>
+                    <h4 className="mb-2 font-semibold text-foreground">🌟 Community Impact</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Founder of "A Special Miracle," a non-profit supporting families with children with Down Syndrome. Using technology and community to create meaningful change.
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="mb-2 font-semibold text-foreground">📚 Continuous Learning</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Always exploring new technologies, from the latest ML frameworks to emerging fintech trends. The tech landscape evolves fast, and I love staying ahead of the curve.
                     </p>
                   </div>
                 </div>
+              </div>
 
-                {/* Personal Interests */}
-                <div>
-                  <h3 className="text-xl font-semibold text-foreground mb-4">Beyond Code</h3>
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <div>
-                      <h4 className="font-semibold text-foreground mb-2">🏈 Sports & Fitness</h4>
-                      <p className="text-sm text-muted-foreground">
-                        Avid sports enthusiast and fitness lover. I believe in maintaining a healthy work-life balance and find that physical activity enhances my problem-solving abilities.
-                      </p>
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-foreground mb-2">🎵 Music Production</h4>
-                      <p className="text-sm text-muted-foreground">
-                        Creative outlet through music production and sound design. The same attention to detail that goes into my code translates beautifully into crafting the perfect beat.
-                      </p>
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-foreground mb-2">🌟 Community Impact</h4>
-                      <p className="text-sm text-muted-foreground">
-                        Founder of "A Special Miracle," a non-profit supporting families with children with Down Syndrome. Using technology and community to create meaningful change.
-                      </p>
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-foreground mb-2">📚 Continuous Learning</h4>
-                      <p className="text-sm text-muted-foreground">
-                        Always exploring new technologies, from the latest ML frameworks to emerging fintech trends. The tech landscape evolves fast, and I love staying ahead of the curve.
-                      </p>
-                    </div>
+              {/* Values & Philosophy */}
+              <div className="rounded-lg border border-border bg-card p-6 transition-colors hover:bg-accent/50">
+                <h3 className="mb-4 text-xl font-semibold text-foreground">What Drives Me</h3>
+                <div className="space-y-3">
+                  <div className="flex items-start gap-3">
+                    <div className="mt-1 h-2 w-2 rounded-full bg-primary"></div>
+                    <p className="text-sm text-muted-foreground">
+                      <strong className="text-foreground">Impact over Innovation:</strong> Technology should solve real problems and improve lives, not just showcase technical prowess.
+                    </p>
                   </div>
-                </div>
-
-                {/* Values & Philosophy */}
-                <div>
-                  <h3 className="text-xl font-semibold text-foreground mb-4">What Drives Me</h3>
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3">
-                      <div className="mt-1 h-2 w-2 rounded-full bg-primary"></div>
-                      <p className="text-sm text-muted-foreground">
-                        <strong className="text-foreground">Impact over Innovation:</strong> Technology should solve real problems and improve lives, not just showcase technical prowess.
-                      </p>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <div className="mt-1 h-2 w-2 rounded-full bg-primary"></div>
-                      <p className="text-sm text-muted-foreground">
-                        <strong className="text-foreground">Continuous Growth:</strong> Every project is an opportunity to learn something new and push the boundaries of what's possible.
-                      </p>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <div className="mt-1 h-2 w-2 rounded-full bg-primary"></div>
-                      <p className="text-sm text-muted-foreground">
-                        <strong className="text-foreground">Collaborative Excellence:</strong> The best solutions emerge from diverse perspectives and inclusive collaboration.
-                      </p>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <div className="mt-1 h-2 w-2 rounded-full bg-primary"></div>
-                      <p className="text-sm text-muted-foreground">
-                        <strong className="text-foreground">Purpose-Driven Work:</strong> Whether it's enterprise AI or community service, everything I do is guided by a desire to make a positive difference.
-                      </p>
-                    </div>
+                  <div className="flex items-start gap-3">
+                    <div className="mt-1 h-2 w-2 rounded-full bg-primary"></div>
+                    <p className="text-sm text-muted-foreground">
+                      <strong className="text-foreground">Continuous Growth:</strong> Every project is an opportunity to learn something new and push the boundaries of what's possible.
+                    </p>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="mt-1 h-2 w-2 rounded-full bg-primary"></div>
+                    <p className="text-sm text-muted-foreground">
+                      <strong className="text-foreground">Collaborative Excellence:</strong> The best solutions emerge from diverse perspectives and inclusive collaboration.
+                    </p>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="mt-1 h-2 w-2 rounded-full bg-primary"></div>
+                    <p className="text-sm text-muted-foreground">
+                      <strong className="text-foreground">Purpose-Driven Work:</strong> Whether it's enterprise AI or community service, everything I do is guided by a desire to make a positive difference.
+                    </p>
                   </div>
                 </div>
               </div>
@@ -2967,101 +2919,94 @@ export default function Home() {
           </div>
         )}
 
-        {/* Contact Modal */}
-        {showContactModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pt-20">
-            <div 
-              className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-in fade-in duration-300" 
-              onClick={() => setShowContactModal(false)} 
-            />
-            <div className="relative bg-background rounded-xl border border-border shadow-2xl p-6 max-w-4xl w-full max-h-[85vh] overflow-y-auto animate-in zoom-in-95 slide-in-from-bottom-8 duration-300">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-foreground">Get in Touch 📧</h2>
-                <button 
-                  onClick={() => setShowContactModal(false)} 
-                  className="text-muted-foreground hover:text-foreground transition-colors text-xl"
-                >
-                  ✕
-                </button>
-              </div>
-              
-              <div className="grid gap-8 lg:grid-cols-2">
-                {/* Contact Form */}
-                <div>
-                  <p className="mb-6 text-muted-foreground">
-                    Interested in collaborating or have a question? I'd love to hear from you.
-                  </p>
-                  
-                  <form onSubmit={handleContactSubmit} className="space-y-6">
-                    <div className="grid gap-6 md:grid-cols-2">
-                      <div className="group">
-                        <div className="relative">
-                          <input
-                            type="text"
-                            name="name"
-                            value={contactForm.name}
-                            onChange={handleContactChange}
-                            required
-                            className="peer w-full rounded-lg border border-border bg-background px-4 pt-6 pb-2 text-foreground transition-all duration-200 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                            placeholder=" "
-                          />
-                          <label className="absolute left-4 top-2 text-xs text-muted-foreground transition-all duration-200 peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-xs peer-focus:text-primary">
-                            Your Name
-                          </label>
-                        </div>
-                      </div>
-                      
-                      <div className="group">
-                        <div className="relative">
-                          <input
-                            type="email"
-                            name="email"
-                            value={contactForm.email}
-                            onChange={handleContactChange}
-                            required
-                            className="peer w-full rounded-lg border border-border bg-background px-4 pt-6 pb-2 text-foreground transition-all duration-200 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                            placeholder=" "
-                          />
-                          <label className="absolute left-4 top-2 text-xs text-muted-foreground transition-all duration-200 peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-xs peer-focus:text-primary">
-                            Email Address
-                          </label>
-                        </div>
+        {/* Contact Section */}
+        {activeSection === 'contact' && (
+          <div>
+            {/* Contact Hero Section */}
+            <section 
+              className="relative flex flex-col gap-6 py-8 lg:flex-row lg:items-center"
+              style={{ transform: getSectionTransform(-0.02) }}
+            >
+              <FloatingElements section="contact" />
+              <div className="flex-1">
+                            <h1 className="mb-4 text-4xl font-bold tracking-tight text-foreground lg:text-5xl">
+              Get in Touch 📧
+            </h1>
+                <p className="mb-6 text-xl text-muted-foreground">
+                  Interested in collaborating or have a question? I'd love to hear from you.
+                </p>
+                
+                <form onSubmit={handleContactSubmit} className="space-y-6">
+                  <div className="grid gap-6 md:grid-cols-2">
+                    <div className="group">
+                      <div className="relative">
+                        <input
+                          type="text"
+                          name="name"
+                          value={contactForm.name}
+                          onChange={handleContactChange}
+                          required
+                          className="peer w-full rounded-lg border border-border bg-background px-4 pt-6 pb-2 text-foreground transition-all duration-200 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                          placeholder=" "
+                        />
+                        <label className="absolute left-4 top-2 text-xs text-muted-foreground transition-all duration-200 peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-xs peer-focus:text-primary">
+                          Your Name
+                        </label>
                       </div>
                     </div>
                     
                     <div className="group">
                       <div className="relative">
-                        <textarea
-                          name="message"
-                          value={contactForm.message}
+                        <input
+                          type="email"
+                          name="email"
+                          value={contactForm.email}
                           onChange={handleContactChange}
                           required
-                          rows={6}
-                          className="peer w-full rounded-lg border border-border bg-background px-4 pt-6 pb-2 text-foreground transition-all duration-200 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
+                          className="peer w-full rounded-lg border border-border bg-background px-4 pt-6 pb-2 text-foreground transition-all duration-200 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                           placeholder=" "
                         />
                         <label className="absolute left-4 top-2 text-xs text-muted-foreground transition-all duration-200 peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-xs peer-focus:text-primary">
-                          Your Message
+                          Email Address
                         </label>
                       </div>
                     </div>
-                    
-                    {submitError && (
-                      <div className="rounded-lg bg-red-50 border border-red-200 p-4 text-red-700 text-sm animate-in slide-in-from-top-2 duration-300">
-                        {submitError}
-                      </div>
-                    )}
-                    
-                    {submitSuccess && (
-                      <div className="rounded-lg bg-green-50 border border-green-200 p-4 text-green-700 text-sm animate-in slide-in-from-top-2 duration-300">
-                        ✅ Message sent successfully! I'll get back to you soon.
-                      </div>
-                    )}
-                    
+                  </div>
+                  
+                  <div className="group">
+                    <div className="relative">
+                      <textarea
+                        name="message"
+                        value={contactForm.message}
+                        onChange={handleContactChange}
+                        required
+                        rows={6}
+                        className="peer w-full rounded-lg border border-border bg-background px-4 pt-6 pb-2 text-foreground transition-all duration-200 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
+                        placeholder=" "
+                      />
+                      <label className="absolute left-4 top-2 text-xs text-muted-foreground transition-all duration-200 peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-xs peer-focus:text-primary">
+                        Your Message
+                      </label>
+                    </div>
+                  </div>
+                  
+                  {submitError && (
+                    <div className="rounded-lg bg-red-50 border border-red-200 p-4 text-red-700 text-sm animate-in slide-in-from-top-2 duration-300">
+                      {submitError}
+                    </div>
+                  )}
+                  
+                  {submitSuccess && (
+                    <div className="rounded-lg bg-green-50 border border-green-200 p-4 text-green-700 text-sm animate-in slide-in-from-top-2 duration-300">
+                      ✅ Message sent successfully! I'll get back to you soon.
+                    </div>
+                  )}
+                  
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
                     <button
                       type="submit"
                       disabled={isSubmitting || submitSuccess}
-                      className={`w-full inline-flex items-center justify-center rounded-lg px-8 py-3 text-sm font-medium transition-all duration-300 ${
+                      className={`inline-flex items-center justify-center rounded-lg px-8 py-3 text-sm font-medium transition-all duration-300 ${
                         submitSuccess
                           ? 'bg-green-500 text-white cursor-not-allowed'
                           : isSubmitting
@@ -3080,157 +3025,81 @@ export default function Home() {
                         <>📧 Send Message</>
                       )}
                     </button>
-                  </form>
-                </div>
-
-                {/* Quick Connect */}
-                <div className="space-y-6">
-                  <div className="text-center">
-                    <div className="text-6xl mb-4">📬</div>
-                    <h3 className="text-2xl font-semibold text-foreground mb-2">Quick Connect</h3>
-                    <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground mb-6">
-                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                      Usually responds within 24 hours
-                    </div>
                   </div>
-                  
-                  <div className="grid gap-4">
-                    <a href="https://www.linkedin.com/in/elijah-deangulo-a26306175" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 rounded-lg bg-background/50 border border-border/50 hover:bg-blue-500/20 hover:border-blue-500/50 transition-all duration-300 hover:scale-105 group">
-                      <div className="flex items-center justify-center w-6 h-6">
-                        <svg className="h-5 w-5 text-blue-600 group-hover:text-blue-500 transition-colors" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-                        </svg>
-                      </div>
-                      <div className="text-left">
-                        <div className="font-medium text-foreground group-hover:text-blue-500 transition-colors">LinkedIn</div>
-                        <div className="text-sm text-muted-foreground">Professional networking</div>
-                      </div>
-                    </a>
-                    
-                    <a href="https://github.com/ElijahDeangulo" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 rounded-lg bg-background/50 border border-border/50 hover:bg-gray-500/20 hover:border-gray-500/50 transition-all duration-300 hover:scale-105 group">
-                      <div className="flex items-center justify-center w-6 h-6">
-                        <svg className="h-5 w-5 text-gray-700 group-hover:text-gray-600 transition-colors" fill="currentColor" viewBox="0 0 24 24">
-                          <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd"/>
-                        </svg>
-                      </div>
-                      <div className="text-left">
-                        <div className="font-medium text-foreground group-hover:text-gray-600 transition-colors">GitHub</div>
-                        <div className="text-sm text-muted-foreground">Check out my code</div>
-                      </div>
-                    </a>
-                    
-                    <a href="mailto:ejdeangulo@gmail.com" className="flex items-center gap-3 p-4 rounded-lg bg-background/50 border border-border/50 hover:bg-red-500/20 hover:border-red-500/50 transition-all duration-300 hover:scale-105 group">
-                      <div className="flex items-center justify-center w-6 h-6">
-                        <svg className="h-5 w-5 text-red-600 group-hover:text-red-500 transition-colors" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-.904.732-1.636 1.636-1.636h.075L12 13.267 22.289 3.821h.075A1.636 1.636 0 0 1 24 5.457z"/>
-                        </svg>
-                      </div>
-                      <div className="text-left">
-                        <div className="font-medium text-foreground group-hover:text-red-500 transition-colors">Email</div>
-                        <div className="text-sm text-muted-foreground">ejdeangulo@gmail.com</div>
-                      </div>
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Project Detail Modal */}
-        {selectedProject && projectDetails[selectedProject as keyof typeof projectDetails] && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div 
-              className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-in fade-in duration-300" 
-              onClick={() => setSelectedProject(null)} 
-            />
-            <div className="relative bg-background rounded-xl border border-border shadow-2xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto animate-in zoom-in-95 slide-in-from-bottom-8 duration-300">
-              <div className="flex justify-between items-center mb-6">
-                <div className="flex items-center gap-3">
-                  <span className="text-3xl">{projectDetails[selectedProject as keyof typeof projectDetails].emoji}</span>
-                  <h2 className="text-2xl font-bold text-foreground">{projectDetails[selectedProject as keyof typeof projectDetails].title}</h2>
-                </div>
-                <button 
-                  onClick={() => setSelectedProject(null)} 
-                  className="text-muted-foreground hover:text-foreground transition-colors text-xl"
-                >
-                  ✕
-                </button>
+                </form>
               </div>
               
-              <div className="space-y-6">
-                {(() => {
-                  const project = projectDetails[selectedProject as keyof typeof projectDetails];
-                  return (
-                    <>
-                      <div>
-                        <h3 className="text-lg font-semibold mb-3">Overview</h3>
-                        <p className="text-muted-foreground">{project.fullDescription}</p>
+              <div 
+                className="lg:w-80 transform transition-transform duration-700 ease-out"
+                style={{
+                  transform: `translate3d(${mousePosition.x * 0.1}px, ${mousePosition.y * 0.1 + scrollY * -0.03}px, 0) rotateY(${mousePosition.x * 0.01}deg) rotateX(${-mousePosition.y * 0.01}deg)`
+                }}
+              >
+                <div className="w-full rounded-2xl bg-gradient-to-br from-primary/20 to-secondary/20 p-8 shadow-2xl border border-border">
+                  <div className="text-center space-y-6">
+                    <div className="text-6xl mb-4">📬</div>
+                    <h3 className="text-2xl font-semibold text-foreground">Quick Connect</h3>
+                    
+                    <div className="space-y-4 pt-4">
+                      <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                        Usually responds within 24 hours
                       </div>
-
-                      {project.features && (
-                        <div>
-                          <h3 className="text-lg font-semibold mb-3">Key Features</h3>
-                          <ul className="space-y-2">
-                            {project.features.map((feature, index) => (
-                              <li key={index} className="flex items-start gap-2">
-                                <span className="text-primary">•</span>
-                                <span className="text-sm text-muted-foreground">{feature}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-
-                      <div>
-                        <h3 className="text-lg font-semibold mb-3">Technologies</h3>
-                        <div className="flex flex-wrap gap-2">
-                          {project.technologies.map((tech) => (
-                            <span key={tech} className="rounded-md bg-secondary px-3 py-1 text-sm text-secondary-foreground">
-                              {tech}
-                            </span>
-                          ))}
-                        </div>
+                      
+                      <div className="grid gap-4">
+                        <a href="https://www.linkedin.com/in/elijah-deangulo-a26306175" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 rounded-lg bg-background/50 border border-border/50 hover:bg-blue-500/20 hover:border-blue-500/50 transition-all duration-300 hover:scale-105 group">
+                          <div className="flex items-center justify-center w-5 h-5">
+                            <svg className="h-4 w-4 text-blue-600 group-hover:text-blue-500 transition-colors" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                            </svg>
+                          </div>
+                          <div className="text-left">
+                            <div className="font-medium text-foreground text-sm group-hover:text-blue-500 transition-colors">LinkedIn</div>
+                            <div className="text-xs text-muted-foreground">Professional networking</div>
+                          </div>
+                        </a>
+                        
+                        <a href="https://github.com/ElijahDeangulo" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 rounded-lg bg-background/50 border border-border/50 hover:bg-gray-500/20 hover:border-gray-500/50 transition-all duration-300 hover:scale-105 group">
+                          <div className="flex items-center justify-center w-5 h-5">
+                            <svg className="h-4 w-4 text-gray-700 group-hover:text-gray-600 transition-colors" fill="currentColor" viewBox="0 0 24 24">
+                              <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd"/>
+                            </svg>
+                          </div>
+                          <div className="text-left">
+                            <div className="font-medium text-foreground text-sm group-hover:text-gray-600 transition-colors">GitHub</div>
+                            <div className="text-xs text-muted-foreground">Check out my code</div>
+                          </div>
+                        </a>
+                        
+                        <a href="mailto:ejdeangulo@gmail.com" className="flex items-center gap-3 p-3 rounded-lg bg-background/50 border border-border/50 hover:bg-red-500/20 hover:border-red-500/50 transition-all duration-300 hover:scale-105 group">
+                          <div className="flex items-center justify-center w-5 h-5">
+                            <svg className="h-4 w-4 text-red-600 group-hover:text-red-500 transition-colors" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-.904.732-1.636 1.636-1.636h.075L12 13.267 22.289 3.821h.075A1.636 1.636 0 0 1 24 5.457z"/>
+                            </svg>
+                          </div>
+                          <div className="text-left">
+                            <div className="font-medium text-foreground text-sm group-hover:text-red-500 transition-colors">Email</div>
+                            <div className="text-xs text-muted-foreground">ejdeangulo@gmail.com</div>
+                          </div>
+                        </a>
                       </div>
-
-                      {project.impact && (
-                        <div>
-                          <h3 className="text-lg font-semibold mb-3">Impact</h3>
-                          <p className="text-sm text-muted-foreground bg-primary/10 p-3 rounded-lg">
-                            {project.impact}
-                          </p>
-                        </div>
-                      )}
-
-                      <div className="flex gap-4 pt-4">
-                        {project.github && (
-                          <a 
-                            href={project.github} 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
-                          >
-                            🐙 View Code
-                          </a>
-                        )}
-                        {project.website && (
-                          <a 
-                            href={project.website} 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
-                            className="inline-flex items-center gap-2 px-4 py-2 border border-border rounded-lg hover:bg-accent transition-colors"
-                          >
-                            🌐 Visit Website
-                          </a>
-                        )}
-                      </div>
-                    </>
-                  )
-                })()}
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
+            </section>
           </div>
         )}
+
+        {/* Footer */}
+        <footer className="border-t border-border py-8">
+          <div className="text-center">
+            <div className="text-sm text-muted-foreground">
+              © 2025 ejdeangulo.com | <a href="#" className="hover:text-foreground">Privacy</a>
+            </div>
+          </div>
+        </footer>
+        </div>
 
         {/* Download Confirmation Dialog */}
         {showDownloadConfirm && (
@@ -3271,7 +3140,7 @@ export default function Home() {
           </div>
         )}
       </div>
-    </div>
+    </React.Fragment>
   )
 }
 
