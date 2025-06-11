@@ -967,6 +967,42 @@ const useParallax = () => {
     }
   }
 
+  // Featured Projects aggressive push up effect - inverse to experience push
+  const getFeaturedProjectsFadeTransform = () => {
+    // Safety check to prevent division by zero
+    if (viewportHeight === 0) return { opacity: 0.1, transform: 'translate3d(0, 0, 0)' }
+    
+    // Slightly extended scroll trigger for full force effect
+    const fadeProgress = Math.min(scrollY / (viewportHeight * 0.5), 1) // Slightly longer trigger for full force effect
+    
+    // Balanced easing curves - quicker completion but dramatic start
+    const smoothEase = fadeProgress < 0 ? 0 : 1 - Math.pow(1 - fadeProgress, 2) // Faster completion curve
+    const lateAcceleration = Math.pow(fadeProgress, 0.4) // Moderate acceleration
+    
+    // Quicker full effect while keeping dramatic initial appearance
+    const opacity = Math.max(0.0006, Math.min(smoothEase * 1.4, 1)) // Quicker opacity progression to full effect
+    const blur = Math.max(50 - (smoothEase * 50), 0) // Blur reaches clear state quicker (100% rate)
+    const scale = Math.min(0.6 + (smoothEase * 0.4), 1) // Scale reaches full size quicker (100% rate)
+    
+    // Maximally refined push up with gradual progression over longer scroll
+    const basePush = 85 - (smoothEase * 0.7 * 85) // Maximally refined base push (70% rate)
+    const aggressivePush = lateAcceleration * 60 // Maximally refined aggressive push for later scroll
+    const translateY = Math.max(basePush + aggressivePush, 0) // Combined maximally refined push effect
+    
+    // Enhanced shadow with more dramatic depth
+    const shadowOpacity = Math.min(smoothEase * 0.8, 0.8)
+    const shadowSize = 50 + (lateAcceleration * 50) // Growing shadow size
+    
+    return {
+      opacity,
+      transform: `translate3d(0, ${-translateY}px, 0) scale(${scale})`,
+      filter: `blur(${blur}px)`,
+      boxShadow: `0 ${shadowSize}px ${shadowSize * 2}px rgba(0, 0, 0, ${shadowOpacity})`,
+      willChange: 'transform, opacity, filter, box-shadow',
+      backfaceVisibility: 'hidden' as const,
+    }
+  }
+
   return { 
     scrollY, 
     mousePosition, 
@@ -976,7 +1012,8 @@ const useParallax = () => {
     getHeroElementTransform,
     getExperienceElementTransform,
     getExperienceSectionPushTransform,
-    getHeroExitTransform
+    getHeroExitTransform,
+    getFeaturedProjectsFadeTransform
   }
 }
 
@@ -1081,10 +1118,10 @@ const FloatingElements = ({ section }: { section: string }) => {
 // Featured Projects Carousel Component
 const FeaturedProjectsCarousel = ({ 
   mousePosition, 
-  getSectionTransform 
+  getSectionTransform
 }: { 
   mousePosition: { x: number; y: number }; 
-  getSectionTransform: (speed: number) => any 
+  getSectionTransform: (speed: number) => any;
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isVisible, setIsVisible] = useState(false)
@@ -1208,8 +1245,14 @@ const FeaturedProjectsCarousel = ({
   return (
     <motion.section 
       ref={sectionRef}
-      className="relative py-8 -mt-72 overflow-hidden"
-      style={{ transform: getSectionTransform(-0.015) }}
+      className="relative py-8 -mt-64 overflow-hidden"
+      style={{ 
+        transform: getSectionTransform(-0.015),
+        background: `linear-gradient(135deg, 
+          hsl(var(--background))/95 0%, 
+          hsl(var(--card))/85 100%)`,
+        backdropFilter: 'blur(8px)',
+      }}
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, ease: "easeOut" }}
@@ -1548,7 +1591,8 @@ export default function Home() {
     getHeroElementTransform,
     getExperienceElementTransform,
     getExperienceSectionPushTransform,
-    getHeroExitTransform
+    getHeroExitTransform,
+    getFeaturedProjectsFadeTransform
   } = useParallax()
   const [isDownloading, setIsDownloading] = useState(false)
   const [downloadComplete, setDownloadComplete] = useState(false)
@@ -2701,7 +2745,7 @@ export default function Home() {
       </section>
 
               {/* Featured Projects - Advanced Carousel */}
-        <div>
+        <div style={getFeaturedProjectsFadeTransform()}>
           <FeaturedProjectsCarousel 
             mousePosition={mousePosition}
             getSectionTransform={getSectionTransform}
