@@ -1810,64 +1810,416 @@ export default function Home() {
   // Skills data organized by categories
   const skillsData = {
     'Programming Languages': [
-      { name: 'Python', icon: '🐍', categories: ['backend', 'data-science', 'ml'] },
-      { name: 'TypeScript', icon: '🔷', categories: ['frontend', 'backend'] },
-      { name: 'JavaScript', icon: '💛', categories: ['frontend', 'backend'] },
-      { name: 'Java', icon: '☕', categories: ['backend'] },
-      { name: 'R', icon: '📊', categories: ['data-science', 'ml'] },
-      { name: 'SQL', icon: '🗃️', categories: ['backend', 'data-science'] }
+      { 
+        name: 'Python', 
+        icon: (
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M14.25.18l.9.2.73.26.59.3.45.32.34.34.25.34.16.33.1.3.04.26.02.2-.01.13V8.5l-.05.63-.13.55-.21.46-.26.38-.3.31-.33.25-.35.19-.35.14-.33.1-.3.07-.26.04-.21.02H8.77l-.69.05-.59.14-.5.22-.41.27-.33.32-.27.35-.2.36-.15.37-.1.35-.07.32-.04.27-.02.21v3.06H3.17l-.21-.03-.28-.07-.32-.12-.35-.18-.36-.26-.36-.36-.35-.46-.32-.59-.28-.73-.21-.88-.14-1.05-.05-1.23.06-1.22.16-1.04.24-.87.32-.71.36-.57.4-.44.42-.33.42-.24.4-.16.36-.1.32-.05.24-.01h.16l.06.01h8.16v-.83H6.18l-.01-2.75-.02-.37.05-.34.11-.31.17-.28.25-.26.31-.23.38-.2.44-.18.51-.15.58-.12.64-.1.71-.06.77-.04.84-.02 1.27.05zm-6.3 1.98l-.23.33-.08.41.08.41.23.34.33.22.41.09.41-.09.33-.22.23-.34.08-.41-.08-.41-.23-.33-.33-.22-.41-.09-.41.09zm13.09 3.95l.28.06.32.12.35.18.36.27.36.35.35.47.32.59.28.73.21.88.14 1.04.05 1.23-.06 1.23-.16 1.04-.24.86-.32.71-.36.57-.4.45-.42.33-.42.24-.4.16-.36.09-.32.05-.24.02-.16-.01h-8.22v.82h5.84l.01 2.76.02.36-.05.34-.11.31-.17.29-.25.25-.31.24-.38.2-.44.17-.51.15-.58.13-.64.09-.71.07-.77.04-.84.01-1.27-.04-1.07-.14-.9-.2-.73-.25-.59-.3-.45-.33-.34-.34-.25-.34-.16-.33-.1-.3-.04-.25-.02-.2.01-.13v-5.34l.05-.64.13-.54.21-.46.26-.38.3-.32.33-.24.35-.2.35-.14.33-.1.3-.06.26-.04.21-.02.13-.01h5.84l.69-.05.59-.14.5-.21.41-.28.33-.32.27-.35.2-.36.15-.36.1-.35.07-.32.04-.28.02-.21V6.07h2.09l.14.01zm-6.47 14.25l-.23.33-.08.41.08.41.23.33.33.23.41.08.41-.08.33-.23.23-.33.08-.41-.08-.41-.23-.33-.33-.23-.41-.08-.41.08z"/>
+          </svg>
+        ), 
+        categories: ['backend', 'data-science', 'ml'] 
+      },
+      { 
+        name: 'TypeScript', 
+        icon: (
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M3,3H21V21H3V3M13.71,17.86C14.21,18.84 15.22,19.59 16.8,19.59C18.4,19.59 19.6,18.76 19.6,17.23C19.6,15.82 18.79,15.19 17.35,14.57L16.93,14.39C16.2,14.08 15.89,13.87 15.89,13.37C15.89,12.96 16.2,12.64 16.7,12.64C17.18,12.64 17.5,12.85 17.79,13.37L19.1,12.5C18.55,11.54 17.77,11.17 16.7,11.17C15.19,11.17 14.22,12.13 14.22,13.4C14.22,14.78 15.03,15.43 16.25,15.95L16.67,16.13C17.45,16.47 17.91,16.68 17.91,17.26C17.91,17.74 17.46,18.09 16.76,18.09C15.93,18.09 15.45,17.66 15.09,17.06L13.71,17.86M13,11.25H8V12.75H9.5V20H11.25V12.75H13V11.25Z"/>
+          </svg>
+        ), 
+        categories: ['frontend', 'backend'] 
+      },
+      { 
+        name: 'JavaScript', 
+        icon: (
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M3,3H21V21H3V3M7.73,18.04C8.13,18.89 8.92,19.59 10.27,19.59C11.77,19.59 12.8,18.79 12.8,17.04V11.26H11.1V17C11.1,17.86 10.75,18.08 10.2,18.08C9.62,18.08 9.38,17.68 9.11,17.21L7.73,18.04M13.71,17.86C14.21,18.84 15.22,19.59 16.8,19.59C18.4,19.59 19.6,18.76 19.6,17.23C19.6,15.82 18.79,15.19 17.35,14.57L16.93,14.39C16.2,14.08 15.89,13.87 15.89,13.37C15.89,12.96 16.2,12.64 16.7,12.64C17.18,12.64 17.5,12.85 17.79,13.37L19.1,12.5C18.55,11.54 17.77,11.17 16.7,11.17C15.19,11.17 14.22,12.13 14.22,13.4C14.22,14.78 15.03,15.43 16.25,15.95L16.67,16.13C17.45,16.47 17.91,16.68 17.91,17.26C17.91,17.74 17.46,18.09 16.76,18.09C15.93,18.09 15.45,17.66 15.09,17.06L13.71,17.86Z"/>
+          </svg>
+        ), 
+        categories: ['frontend', 'backend'] 
+      },
+      { 
+        name: 'Java', 
+        icon: (
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M3,21V19A9,9 0 0,1 12,10A9,9 0 0,1 21,19V21H3M12,2A7,7 0 0,1 19,9A7,7 0 0,1 12,16A7,7 0 0,1 5,9A7,7 0 0,1 12,2M12,4A5,5 0 0,0 7,9A5,5 0 0,0 12,14A5,5 0 0,0 17,9A5,5 0 0,0 12,4Z"/>
+          </svg>
+        ), 
+        categories: ['backend'] 
+      },
+      { 
+        name: 'R', 
+        icon: (
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 3C7.58 3 4 4.79 4 7C4 9.21 7.58 11 12 11S20 9.21 20 7C20 4.79 16.42 3 12 3M4 9V12C4 14.21 7.58 16 12 16S20 14.21 20 12V9C20 11.21 16.42 13 12 13S4 11.21 4 9M4 14V17C4 19.21 7.58 21 12 21S20 19.21 20 17V14C20 16.21 16.42 18 12 18S4 16.21 4 14Z"/>
+          </svg>
+        ), 
+        categories: ['data-science', 'ml'] 
+      },
+      { 
+        name: 'SQL', 
+        icon: (
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 3C7.58 3 4 4.79 4 7C4 9.21 7.58 11 12 11S20 9.21 20 7C20 4.79 16.42 3 12 3M4 9V12C4 14.21 7.58 16 12 16S20 14.21 20 12V9C20 11.21 16.42 13 12 13S4 11.21 4 9M4 14V17C4 19.21 7.58 21 12 21S20 19.21 20 17V14C20 16.21 16.42 18 12 18S4 16.21 4 14Z"/>
+          </svg>
+        ), 
+        categories: ['backend', 'data-science'] 
+      }
     ],
     'AI/ML & Data Science': [
-      { name: 'Machine Learning', icon: '🤖', categories: ['ml', 'data-science'] },
-      { name: 'TensorFlow', icon: '🧠', categories: ['ml'] },
-      { name: 'Keras', icon: '🔥', categories: ['ml'] },
-      { name: 'scikit-learn', icon: '📈', categories: ['ml', 'data-science'] },
-      { name: 'Pandas', icon: '🐼', categories: ['data-science', 'backend'] },
-      { name: 'NumPy', icon: '🔢', categories: ['data-science', 'ml'] },
-      { name: 'PySpark', icon: '⚡', categories: ['data-science', 'backend'] },
-      { name: 'NLP', icon: '💬', categories: ['ml', 'data-science'] },
-      { name: 'RAG', icon: '🔍', categories: ['ml'] },
-      { name: 'LLM', icon: '🧠', categories: ['ml'] }
+      { 
+        name: 'Machine Learning', 
+        icon: (
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2L13.09 8.26L20 9L13.09 9.74L12 16L10.91 9.74L4 9L10.91 8.26L12 2M12 18L10.91 14.26L4 13.5L10.91 12.74L12 6L13.09 12.74L20 13.5L13.09 14.26L12 18M12 12C13.66 12 15 10.66 15 9S13.66 6 12 6 9 7.34 9 9 10.34 12 12 12Z"/>
+          </svg>
+        ), 
+        categories: ['ml', 'data-science'] 
+      },
+      { 
+        name: 'TensorFlow', 
+        icon: (
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2L13.09 8.26L20 9L13.09 9.74L12 16L10.91 9.74L4 9L10.91 8.26L12 2M12 18L10.91 14.26L4 13.5L10.91 12.74L12 6L13.09 12.74L20 13.5L13.09 14.26L12 18"/>
+          </svg>
+        ), 
+        categories: ['ml'] 
+      },
+      { 
+        name: 'Keras', 
+        icon: (
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2L13.09 8.26L20 9L13.09 9.74L12 16L10.91 9.74L4 9L10.91 8.26L12 2"/>
+          </svg>
+        ), 
+        categories: ['ml'] 
+      },
+      { 
+        name: 'scikit-learn', 
+        icon: (
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M2,10H22L20,12H4L2,10M6,6H18L16,8H8L6,6M10,2H14L12,4H12L10,2M7,14H17L15,16H9L7,14M11,18H13L11.5,20H12.5L11,18M8.5,22H15.5L14,20H10L8.5,22Z"/>
+          </svg>
+        ), 
+        categories: ['ml', 'data-science'] 
+      },
+      { 
+        name: 'Pandas', 
+        icon: (
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M9,5V9H15V5M15,13V19H9V13H15M9,19H15V21A2,2 0 0,1 13,23H11A2,2 0 0,1 9,21M15,5H9V3A2,2 0 0,1 11,1H13A2,2 0 0,1 15,3"/>
+          </svg>
+        ), 
+        categories: ['data-science', 'backend'] 
+      },
+      { 
+        name: 'NumPy', 
+        icon: (
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19,3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3M9,17H7V10H9M13,17H11V7H13M17,17H15V14H17V17Z"/>
+          </svg>
+        ), 
+        categories: ['data-science', 'ml'] 
+      },
+      { 
+        name: 'PySpark', 
+        icon: (
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M8.5,7L10.5,1L11.5,2L12.5,1L14.5,7H8.5M12,8A1,1 0 0,1 13,9A1,1 0 0,1 12,10A1,1 0 0,1 11,9A1,1 0 0,1 12,8M8.75,11.25L12,12L15.25,11.25L16,21H8L8.75,11.25M10,13V19H11V13H10M13,13V19H14V13H13Z"/>
+          </svg>
+        ), 
+        categories: ['data-science', 'backend'] 
+      },
+      { 
+        name: 'NLP', 
+        icon: (
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M20,2H4A2,2 0 0,0 2,4V22L6,18H20A2,2 0 0,0 22,16V4A2,2 0 0,0 20,2M6,9H18V11H6M14,14H6V12H14M18,8H6V6H18"/>
+          </svg>
+        ), 
+        categories: ['ml', 'data-science'] 
+      },
+      { 
+        name: 'RAG', 
+        icon: (
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M15.5,14H20.5L22,15.5V9A2,2 0 0,0 20,7H4A2,2 0 0,0 2,9V17A2,2 0 0,0 4,19H15.5M14,17V15.5H15.5V17"/>
+          </svg>
+        ), 
+        categories: ['ml'] 
+      },
+      { 
+        name: 'LLM', 
+        icon: (
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2L13.09 8.26L20 9L13.09 9.74L12 16L10.91 9.74L4 9L10.91 8.26L12 2M12 18L10.91 14.26L4 13.5L10.91 12.74L12 6L13.09 12.74L20 13.5L13.09 14.26L12 18M12 12C13.66 12 15 10.66 15 9S13.66 6 12 6 9 7.34 9 9 10.34 12 12 12Z"/>
+          </svg>
+        ), 
+        categories: ['ml'] 
+      }
     ],
     'Frontend Development': [
-      { name: 'React.js', icon: '⚛️', categories: ['frontend'] },
-      { name: 'Next.js', icon: '🔺', categories: ['frontend'] },
-      { name: 'HTML/CSS', icon: '🎨', categories: ['frontend'] },
-      { name: 'Tailwind CSS', icon: '💨', categories: ['frontend'] }
+      { 
+        name: 'React.js', 
+        icon: (
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 10.11C13.03 10.11 13.87 10.95 13.87 12C13.87 13.05 13.03 13.89 12 13.89C10.97 13.89 10.13 13.05 10.13 12C10.13 10.95 10.97 10.11 12 10.11M7.37 20C8.18 19.81 9.17 19.59 10.29 19.37C10.95 20.87 11.7 21.81 12 21.81C12.3 21.81 13.05 20.87 13.71 19.37C14.83 19.59 15.82 19.81 16.63 20C17.78 20.31 18.25 20.16 18.46 19.95C18.67 19.74 18.52 19.27 18.21 18.12C17.88 16.85 17.39 15.38 16.79 13.81C18.15 13.05 19.23 12.19 19.92 11.34C20.73 10.35 20.73 9.65 20.73 9.65S20.73 8.95 19.92 7.96C19.23 7.11 18.15 6.25 16.79 5.49C17.39 3.92 17.88 2.45 18.21 1.18C18.52 0.03 18.67 -0.44 18.46 -0.65C18.25 -0.86 17.78 -1.01 16.63 -0.7C15.82 -0.49 14.83 -0.27 13.71 -0.05C13.05 -1.55 12.3 -2.49 12 -2.49C11.7 -2.49 10.95 -1.55 10.29 -0.05C9.17 -0.27 8.18 -0.49 7.37 -0.7C6.22 -1.01 5.75 -0.86 5.54 -0.65C5.33 -0.44 5.48 0.03 5.79 1.18C6.12 2.45 6.61 3.92 7.21 5.49C5.85 6.25 4.77 7.11 4.08 7.96C3.27 8.95 3.27 9.65 3.27 9.65S3.27 10.35 4.08 11.34C4.77 12.19 5.85 13.05 7.21 13.81C6.61 15.38 6.12 16.85 5.79 18.12C5.48 19.27 5.33 19.74 5.54 19.95C5.75 20.16 6.22 20.31 7.37 20M9.08 17.81C9.67 16.85 10.26 15.73 10.82 14.5C11.18 14.5 11.59 14.5 12 14.5C12.41 14.5 12.82 14.5 13.18 14.5C13.74 15.73 14.33 16.85 14.92 17.81C14.19 17.94 13.42 18.06 12.62 18.15C12.41 18.18 12.21 18.2 12 18.2C11.79 18.2 11.59 18.18 11.38 18.15C10.58 18.06 9.81 17.94 9.08 17.81M14.92 6.19C14.33 7.15 13.74 8.27 13.18 9.5C12.82 9.5 12.41 9.5 12 9.5C11.59 9.5 11.18 9.5 10.82 9.5C10.26 8.27 9.67 7.15 9.08 6.19C9.81 6.06 10.58 5.94 11.38 5.85C11.59 5.82 11.79 5.8 12 5.8C12.21 5.8 12.41 5.82 12.62 5.85C13.42 5.94 14.19 6.06 14.92 6.19M16.5 13.5C17.73 13.93 18.83 14.38 19.65 14.84C20.39 15.26 20.73 15.63 20.73 15.63S20.39 15.99 19.65 16.41C18.83 16.87 17.73 17.32 16.5 17.75C16.09 16.61 15.61 15.36 15.08 14.03C15.23 13.85 15.37 13.68 15.5 13.5M7.5 13.5C7.63 13.68 7.77 13.85 7.92 14.03C7.39 15.36 6.91 16.61 6.5 17.75C5.27 17.32 4.17 16.87 3.35 16.41C2.61 15.99 2.27 15.63 2.27 15.63S2.61 15.26 3.35 14.84C4.17 14.38 5.27 13.93 6.5 13.5H7.5M16.5 10.5C17.73 10.07 18.83 9.62 19.65 9.16C20.39 8.74 20.73 8.37 20.73 8.37S20.39 8.01 19.65 7.59C18.83 7.13 17.73 6.68 16.5 6.25C16.91 7.39 17.39 8.64 17.92 9.97C17.77 10.15 17.63 10.32 17.5 10.5H16.5M7.5 10.5C7.37 10.32 7.23 10.15 7.08 9.97C7.61 8.64 8.09 7.39 8.5 6.25C5.27 6.68 4.17 7.13 3.35 7.59C2.61 8.01 2.27 8.37 2.27 8.37S2.61 8.74 3.35 9.16C4.17 9.62 5.27 10.07 6.5 10.5H7.5Z"/>
+          </svg>
+        ), 
+        categories: ['frontend'] 
+      },
+      { 
+        name: 'Next.js', 
+        icon: (
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2L13.09 8.26L20 9L13.09 9.74L12 16L10.91 9.74L4 9L10.91 8.26L12 2Z"/>
+          </svg>
+        ), 
+        categories: ['frontend'] 
+      },
+      { 
+        name: 'HTML/CSS', 
+        icon: (
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12,17.56L16.07,16.43L16.62,10.33H9.38L9.2,8.3H16.8L17,6.31H7L7.56,12.32H14.45L14.22,14.9L12,15.5L9.78,14.9L9.64,13.24H7.64L7.93,16.43L12,17.56M4.07,3H19.93L18.5,19.2L12,21L5.5,19.2L4.07,3Z"/>
+          </svg>
+        ), 
+        categories: ['frontend'] 
+      },
+      { 
+        name: 'Tailwind CSS', 
+        icon: (
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12,6C9.33,6 7.67,7.33 7,10C8.33,8.67 9.83,8.17 11.5,8.5C12.25,8.64 12.75,9.14 13.3,9.7C14.13,10.57 15.07,11.6 17,11.6C19.67,11.6 21.33,10.27 22,7.6C20.67,8.93 19.17,9.43 17.5,9.1C16.75,8.96 16.25,8.46 15.7,7.9C14.87,7.03 13.93,6 12,6M7,11.6C4.33,11.6 2.67,12.93 2,15.6C3.33,14.27 4.83,13.77 6.5,14.1C7.25,14.24 7.75,14.74 8.3,15.3C9.13,16.17 10.07,17.2 12,17.2C14.67,17.2 16.33,15.87 17,13.2C15.67,14.53 14.17,15.03 12.5,14.7C11.75,14.56 11.25,14.06 10.7,13.5C9.87,12.63 8.93,11.6 7,11.6Z"/>
+          </svg>
+        ), 
+        categories: ['frontend'] 
+      }
     ],
     'Backend & Cloud': [
-      { name: 'Node.js', icon: '🟢', categories: ['backend'] },
-      { name: 'Flask', icon: '🌶️', categories: ['backend'] },
-      { name: 'AWS', icon: '☁️', categories: ['backend', 'cloud'] },
-      { name: 'Apache Spark', icon: '⚡', categories: ['backend', 'data-science'] },
-      { name: 'Docker', icon: '🐳', categories: ['backend', 'devops'] },
-      { name: 'Redis', icon: '🔴', categories: ['backend'] }
+      { 
+        name: 'Node.js', 
+        icon: (
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12,1.85C11.73,1.85 11.45,1.92 11.22,2.05L3.78,6.35C3.32,6.61 3,7.11 3,7.65V16.35C3,16.89 3.32,17.39 3.78,17.65L11.22,21.95C11.45,22.08 11.73,22.15 12,22.15C12.27,22.15 12.55,22.08 12.78,21.95L20.22,17.65C20.68,17.39 21,16.89 21,16.35V7.65C21,7.11 20.68,6.61 20.22,6.35L12.78,2.05C12.55,1.92 12.27,1.85 12,1.85M12,3.05L19,7L12,11L5,7L12,3.05M5,8.6L11,12.4V19.9L5,16.1V8.6M13,12.4L19,8.6V16.1L13,19.9V12.4Z"/>
+          </svg>
+        ), 
+        categories: ['backend'] 
+      },
+      { 
+        name: 'Flask', 
+        icon: (
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M9,2V8L14,18H22L17,8V2H9M11,4H15V8.25L19.38,17H15.62L11,8.25V4M2,20V22H7V20H2Z"/>
+          </svg>
+        ), 
+        categories: ['backend'] 
+      },
+      { 
+        name: 'AWS', 
+        icon: (
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M6.5 14.5V16H3V14.5C3 13.12 4.12 12 5.5 12S8 13.12 8 14.5M12 3V7H9V3C9 1.62 10.12 0.5 11.5 0.5S14 1.62 14 3M17.5 12C18.88 12 20 13.12 20 14.5V16H16.5V14.5C16.5 13.12 17.62 12 19 12H17.5M3 18H21V20H3V18M6 8H18V10H6V8M9 14H15V16H9V14Z"/>
+          </svg>
+        ), 
+        categories: ['backend', 'cloud'] 
+      },
+      { 
+        name: 'Apache Spark', 
+        icon: (
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M8.5,7L10.5,1L11.5,2L12.5,1L14.5,7H8.5M12,8A1,1 0 0,1 13,9A1,1 0 0,1 12,10A1,1 0 0,1 11,9A1,1 0 0,1 12,8M8.75,11.25L12,12L15.25,11.25L16,21H8L8.75,11.25M10,13V19H11V13H10M13,13V19H14V13H13Z"/>
+          </svg>
+        ), 
+        categories: ['backend', 'data-science'] 
+      },
+      { 
+        name: 'Docker', 
+        icon: (
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M21.3,9.9C21.2,9.8 21.1,9.7 21,9.6C20.3,9.1 19.4,8.9 18.6,9C18.5,8.5 18.3,8.1 18,7.7C17.3,6.9 16.2,6.5 15.1,6.7C14.9,6.5 14.6,6.3 14.3,6.2C13.1,5.7 11.8,5.9 10.8,6.7C10.4,6.3 9.9,6 9.4,5.9C8.1,5.5 6.7,5.9 5.8,6.9C5.6,6.7 5.4,6.5 5.1,6.4C3.9,5.9 2.6,6.1 1.7,7C1.4,7.3 1.2,7.7 1.1,8.1C0.9,8.8 1,9.6 1.4,10.2C1.6,10.6 1.9,10.9 2.3,11.1C2.8,11.4 3.4,11.5 4,11.4C4.3,11.8 4.7,12.1 5.2,12.3C6.4,12.8 7.7,12.6 8.7,11.8C9.1,12.2 9.6,12.5 10.1,12.6C11.4,13 12.8,12.6 13.7,11.6C13.9,11.8 14.2,12 14.5,12.1C15.7,12.6 17,12.4 17.9,11.5C18.1,11.7 18.3,11.9 18.6,12C19.8,12.5 21.1,12.3 22,11.4C22.3,11.1 22.5,10.7 22.6,10.3C22.8,9.6 22.7,8.8 22.3,8.2C22.1,7.8 21.8,7.5 21.4,7.3C20.9,7 20.3,6.9 19.7,7C19.4,6.6 19,6.3 18.5,6.1C17.3,5.6 16,5.8 15.1,6.7C14.7,6.3 14.2,6 13.7,5.9C12.4,5.5 11,5.9 10.1,6.9C9.9,6.7 9.7,6.5 9.4,6.4C8.2,5.9 6.9,6.1 6,7C5.7,7.3 5.5,7.7 5.4,8.1C5.2,8.8 5.3,9.6 5.7,10.2C5.9,10.6 6.2,10.9 6.6,11.1C7.1,11.4 7.7,11.5 8.3,11.4C8.6,11.8 9,12.1 9.5,12.3C10.7,12.8 12,12.6 13,11.8C13.4,12.2 13.9,12.5 14.4,12.6C15.7,13 17.1,12.6 18,11.6C18.2,11.8 18.5,12 18.8,12.1C20,12.6 21.3,12.4 22.2,11.5C22.5,11.2 22.7,10.8 22.8,10.4C23,9.7 22.9,8.9 22.5,8.3C22.3,7.9 22,7.6 21.6,7.4C21.1,7.1 20.5,7 19.9,7.1C19.6,6.7 19.2,6.4 18.7,6.2C17.5,5.7 16.2,5.9 15.3,6.8C14.9,6.4 14.4,6.1 13.9,6C12.6,5.6 11.2,6 10.3,7C10.1,6.8 9.9,6.6 9.6,6.5C8.4,6 7.1,6.2 6.2,7.1C5.9,7.4 5.7,7.8 5.6,8.2C5.4,8.9 5.5,9.7 5.9,10.3C6.1,10.7 6.4,11 6.8,11.2C7.3,11.5 7.9,11.6 8.5,11.5C8.8,11.9 9.2,12.2 9.7,12.4C10.9,12.9 12.2,12.7 13.2,11.9C13.6,12.3 14.1,12.6 14.6,12.7C15.9,13.1 17.3,12.7 18.2,11.7C18.4,11.9 18.7,12.1 19,12.2C20.2,12.7 21.5,12.5 22.4,11.6C22.7,11.3 22.9,10.9 23,10.5C23.2,9.8 23.1,9 22.7,8.4C22.5,8 22.2,7.7 21.8,7.5C21.3,7.2 20.7,7.1 20.1,7.2C19.8,6.8 19.4,6.5 18.9,6.3C17.7,5.8 16.4,6 15.5,6.9C15.1,6.5 14.6,6.2 14.1,6.1C12.8,5.7 11.4,6.1 10.5,7.1C10.3,6.9 10.1,6.7 9.8,6.6C8.6,6.1 7.3,6.3 6.4,7.2C6.1,7.5 5.9,7.9 5.8,8.3C5.6,9 5.7,9.8 6.1,10.4C6.3,10.8 6.6,11.1 7,11.3C7.5,11.6 8.1,11.7 8.7,11.6C9,12 9.4,12.3 9.9,12.5C11.1,13 12.4,12.8 13.4,12C13.8,12.4 14.3,12.7 14.8,12.8C16.1,13.2 17.5,12.8 18.4,11.8C18.6,12 18.9,12.2 19.2,12.3C20.4,12.8 21.7,12.6 22.6,11.7C22.9,11.4 23.1,11 23.2,10.6C23.4,9.9 23.3,9.1 22.9,8.5C22.7,8.1 22.4,7.8 22,7.6C21.5,7.3 20.9,7.2 20.3,7.3C20,6.9 19.6,6.6 19.1,6.4C17.9,5.9 16.6,6.1 15.7,7C15.3,6.6 14.8,6.3 14.3,6.2C13,5.8 11.6,6.2 10.7,7.2C10.5,7 10.3,6.8 10,6.7C8.8,6.2 7.5,6.4 6.6,7.3C6.3,7.6 6.1,8 6,8.4C5.8,9.1 5.9,9.9 6.3,10.5C6.5,10.9 6.8,11.2 7.2,11.4C7.7,11.7 8.3,11.8 8.9,11.7C9.2,12.1 9.6,12.4 10.1,12.6C11.3,13.1 12.6,12.9 13.6,12.1C14,12.5 14.5,12.8 15,12.9C16.3,13.3 17.7,12.9 18.6,11.9C18.8,12.1 19.1,12.3 19.4,12.4C20.6,12.9 21.9,12.7 22.8,11.8C23.1,11.5 23.3,11.1 23.4,10.7C23.6,10 23.5,9.2 23.1,8.6C22.9,8.2 22.6,7.9 22.2,7.7C21.7,7.4 21.1,7.3 20.5,7.4C20.2,7 19.8,6.7 19.3,6.5C18.1,6 16.8,6.2 15.9,7.1C15.5,6.7 15,6.4 14.5,6.3C13.2,5.9 11.8,6.3 10.9,7.3C10.7,7.1 10.5,6.9 10.2,6.8C9,6.3 7.7,6.5 6.8,7.4C6.5,7.7 6.3,8.1 6.2,8.5C6,9.2 6.1,10 6.5,10.6C6.7,11 7,11.3 7.4,11.5C7.9,11.8 8.5,11.9 9.1,11.8C9.4,12.2 9.8,12.5 10.3,12.7C11.5,13.2 12.8,13 13.8,12.2C14.2,12.6 14.7,12.9 15.2,13C16.5,13.4 17.9,13 18.8,12C19,12.2 19.3,12.4 19.6,12.5C20.8,13 22.1,12.8 23,11.9C23.3,11.6 23.5,11.2 23.6,10.8C23.8,10.1 23.7,9.3 23.3,8.7C23.1,8.3 22.8,8 22.4,7.8C21.9,7.5 21.3,7.4 20.7,7.5C20.4,7.1 20,6.8 19.5,6.6C18.3,6.1 17,6.3 16.1,7.2C15.7,6.8 15.2,6.5 14.7,6.4C13.4,6 12,6.4 11.1,7.4C10.9,7.2 10.7,7 10.4,6.9C9.2,6.4 7.9,6.6 7,7.5C6.7,7.8 6.5,8.2 6.4,8.6C6.2,9.3 6.3,10.1 6.7,10.7C6.9,11.1 7.2,11.4 7.6,11.6C8.1,11.9 8.7,12 9.3,11.9C9.6,12.3 10,12.6 10.5,12.8C11.7,13.3 13,13.1 14,12.3C14.4,12.7 14.9,13 15.4,13.1C16.7,13.5 18.1,13.1 19,12.1C19.2,12.3 19.5,12.5 19.8,12.6C21,13.1 22.3,12.9 23.2,12C23.5,11.7 23.7,11.3 23.8,10.9C24,10.2 23.9,9.4 23.5,8.8C23.3,8.4 23,8.1 22.6,7.9C22.1,7.6 21.5,7.5 20.9,7.6C20.6,7.2 20.2,6.9 19.7,6.7C18.5,6.2 17.2,6.4 16.3,7.3C15.9,6.9 15.4,6.6 14.9,6.5C13.6,6.1 12.2,6.5 11.3,7.5C11.1,7.3 10.9,7.1 10.6,7C9.4,6.5 8.1,6.7 7.2,7.6C6.9,7.9 6.7,8.3 6.6,8.7C6.4,9.4 6.5,10.2 6.9,10.8C7.1,11.2 7.4,11.5 7.8,11.7C8.3,12 8.9,12.1 9.5,12C9.8,12.4 10.2,12.7 10.7,12.9C11.9,13.4 13.2,13.2 14.2,12.4C14.6,12.8 15.1,13.1 15.6,13.2C16.9,13.6 18.3,13.2 19.2,12.2C19.4,12.4 19.7,12.6 20,12.7C21.2,13.2 22.5,13 23.4,12.1C23.7,11.8 23.9,11.4 24,11C24.2,10.3 24.1,9.5 23.7,8.9Z"/>
+          </svg>
+        ), 
+        categories: ['backend', 'devops'] 
+      },
+      { 
+        name: 'Redis', 
+        icon: (
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M21.5,9.5L20.5,8.5L12,16.5L7.5,12L6.5,13L12,18.5L21.5,9.5Z"/>
+          </svg>
+        ), 
+        categories: ['backend'] 
+      }
     ],
     'Tools & Platforms': [
-      { name: 'Git/GitHub', icon: '🔀', categories: ['tools'] },
-      { name: 'Tableau', icon: '📊', categories: ['data-science', 'visualization'] },
-      { name: 'Power BI', icon: '📈', categories: ['data-science', 'visualization'] },
-      { name: 'Foundry', icon: '🔨', categories: ['data-science', 'backend'] },
-      { name: 'Salesforce', icon: '☁️', categories: ['tools'] },
-      { name: 'API Integration', icon: '🔗', categories: ['backend', 'tools'] }
+      { 
+        name: 'Git/GitHub', 
+        icon: (
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M2.6,10.59L8.38,4.8L10.07,6.5C9.83,7.35 10.22,8.28 11,8.73V14.27C10.4,14.61 10,15.26 10,16A2,2 0 0,0 12,18A2,2 0 0,0 14,16C14,15.26 13.6,14.61 13,14.27V9.41L15.07,11.5C15,11.65 15,11.82 15,12A2,2 0 0,0 17,14A2,2 0 0,0 19,12A2,2 0 0,0 17,10C16.82,10 16.65,10 16.5,10.07L13.93,7.5C14.19,6.57 13.71,5.55 12.78,5.16C11.85,4.77 10.83,5.25 10.44,6.18C10.05,7.11 10.53,8.13 11.46,8.52L8.4,11.58C7.57,11.58 6.8,12.18 6.61,13C6.42,13.83 6.84,14.7 7.65,15.05C8.46,15.4 9.4,15.05 9.75,14.24C10.1,13.43 9.75,12.5 8.94,12.15L2.6,10.59Z"/>
+          </svg>
+        ), 
+        categories: ['tools'] 
+      },
+      { 
+        name: 'Tableau', 
+        icon: (
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M2,10H22L20,12H4L2,10M6,6H18L16,8H8L6,6M10,2H14L12,4H12L10,2M7,14H17L15,16H9L7,14M11,18H13L11.5,20H12.5L11,18M8.5,22H15.5L14,20H10L8.5,22Z"/>
+          </svg>
+        ), 
+        categories: ['data-science', 'visualization'] 
+      },
+      { 
+        name: 'Power BI', 
+        icon: (
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19,3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3M9,17H7V10H9M13,17H11V7H13M17,17H15V14H17V17Z"/>
+          </svg>
+        ), 
+        categories: ['data-science', 'visualization'] 
+      },
+      { 
+        name: 'Foundry', 
+        icon: (
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M9,2V8L14,18H22L17,8V2H9M11,4H15V8.25L19.38,17H15.62L11,8.25V4M2,20V22H7V20H2Z"/>
+          </svg>
+        ), 
+        categories: ['data-science', 'backend'] 
+      },
+      { 
+        name: 'Salesforce', 
+        icon: (
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M6.5 14.5V16H3V14.5C3 13.12 4.12 12 5.5 12S8 13.12 8 14.5"/>
+          </svg>
+        ), 
+        categories: ['tools'] 
+      },
+      { 
+        name: 'API Integration', 
+        icon: (
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M8,3A2,2 0 0,0 6,5V9A2,2 0 0,1 4,11H3V13H4A2,2 0 0,1 6,15V19A2,2 0 0,0 8,21H10V19H8V14A2,2 0 0,0 6,12A2,2 0 0,0 8,10V5H10V3M16,3A2,2 0 0,1 18,5V9A2,2 0 0,0 20,11H21V13H20A2,2 0 0,0 18,15V19A2,2 0 0,1 16,21H14V19H16V14A2,2 0 0,1 18,12A2,2 0 0,1 16,10V5H14V3"/>
+          </svg>
+        ), 
+        categories: ['backend', 'tools'] 
+      }
     ],
     'Specialized Skills': [
-      { name: 'Prompt Engineering', icon: '✍️', categories: ['ml'] },
-      { name: 'Bayesian Optimization', icon: '📊', categories: ['ml', 'data-science'] },
-      { name: 'Financial Modeling', icon: '💰', categories: ['finance'] },
-      { name: 'SEO/A/B Testing', icon: '🔍', categories: ['marketing'] },
-      { name: 'CRM Analytics', icon: '📊', categories: ['data-science'] }
+      { 
+        name: 'Prompt Engineering', 
+        icon: (
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M16,6L18.29,8.29L13.41,13.17L9.41,9.17L2,16.59L3.41,18L9.41,12L13.41,16L19.71,9.7L22,12V6"/>
+          </svg>
+        ), 
+        categories: ['ml'] 
+      },
+      { 
+        name: 'Bayesian Optimization', 
+        icon: (
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M2,10H22L20,12H4L2,10M6,6H18L16,8H8L6,6M10,2H14L12,4H12L10,2M7,14H17L15,16H9L7,14M11,18H13L11.5,20H12.5L11,18M8.5,22H15.5L14,20H10L8.5,22Z"/>
+          </svg>
+        ), 
+        categories: ['ml', 'data-science'] 
+      },
+      { 
+        name: 'Financial Modeling', 
+        icon: (
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M7,15H9C9,16.08 10.37,17 12,17C13.63,17 15,16.08 15,15C15,13.9 13.96,13.5 11.76,12.97C9.64,12.44 7,11.78 7,9C7,7.21 8.47,5.69 10.5,5.18V3H13.5V5.18C15.53,5.69 17,7.21 17,9H15C15,7.92 13.63,7 12,7C10.37,7 9,7.92 9,9C9,10.1 10.04,10.5 12.24,11.03C14.36,11.56 17,12.22 17,15C17,16.79 15.53,18.31 13.5,18.82V21H10.5V18.82C8.47,18.31 7,16.79 7,15Z"/>
+          </svg>
+        ), 
+        categories: ['finance'] 
+      },
+      { 
+        name: 'SEO/A/B Testing', 
+        icon: (
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M15.5,14H20.5L22,15.5V9A2,2 0 0,0 20,7H4A2,2 0 0,0 2,9V17A2,2 0 0,0 4,19H15.5M14,17V15.5H15.5V17"/>
+          </svg>
+        ), 
+        categories: ['marketing'] 
+      },
+      { 
+        name: 'CRM Analytics', 
+        icon: (
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19,3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3M9,17H7V10H9M13,17H11V7H13M17,17H15V14H17V17Z"/>
+          </svg>
+        ), 
+        categories: ['data-science'] 
+      }
     ]
   }
 
   const skillCategories = [
-    { id: 'all', name: 'All Skills', icon: '🎯' },
-    { id: 'frontend', name: 'Frontend', icon: '🎨' },
-    { id: 'backend', name: 'Backend', icon: '⚙️' },
-    { id: 'data-science', name: 'Data Science', icon: '📊' },
-    { id: 'ml', name: 'AI/ML', icon: '🤖' },
-    { id: 'cloud', name: 'Cloud', icon: '☁️' },
-    { id: 'tools', name: 'Tools', icon: '🔧' }
+    { 
+      id: 'all', 
+      name: 'All Skills', 
+      icon: (
+        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2L13.09 8.26L20 9L13.09 9.74L12 16L10.91 9.74L4 9L10.91 8.26L12 2Z"/>
+        </svg>
+      )
+    },
+    { 
+      id: 'frontend', 
+      name: 'Frontend', 
+      icon: (
+        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12,17.56L16.07,16.43L16.62,10.33H9.38L9.2,8.3H16.8L17,6.31H7L7.56,12.32H14.45L14.22,14.9L12,15.5L9.78,14.9L9.64,13.24H7.64L7.93,16.43L12,17.56M4.07,3H19.93L18.5,19.2L12,21L5.5,19.2L4.07,3Z"/>
+        </svg>
+      )
+    },
+    { 
+      id: 'backend', 
+      name: 'Backend', 
+      icon: (
+        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12,1.85C11.73,1.85 11.45,1.92 11.22,2.05L3.78,6.35C3.32,6.61 3,7.11 3,7.65V16.35C3,16.89 3.32,17.39 3.78,17.65L11.22,21.95C11.45,22.08 11.73,22.15 12,22.15C12.27,22.15 12.55,22.08 12.78,21.95L20.22,17.65C20.68,17.39 21,16.89 21,16.35V7.65C21,7.11 20.68,6.61 20.22,6.35L12.78,2.05C12.55,1.92 12.27,1.85 12,1.85M12,3.05L19,7L12,11L5,7L12,3.05M5,8.6L11,12.4V19.9L5,16.1V8.6M13,12.4L19,8.6V16.1L13,19.9V12.4Z"/>
+        </svg>
+      )
+    },
+    { 
+      id: 'data-science', 
+      name: 'Data Science', 
+      icon: (
+        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M2,10H22L20,12H4L2,10M6,6H18L16,8H8L6,6M10,2H14L12,4H12L10,2M7,14H17L15,16H9L7,14M11,18H13L11.5,20H12.5L11,18M8.5,22H15.5L14,20H10L8.5,22Z"/>
+        </svg>
+      )
+    },
+    { 
+      id: 'ml', 
+      name: 'AI/ML', 
+      icon: (
+        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2L13.09 8.26L20 9L13.09 9.74L12 16L10.91 9.74L4 9L10.91 8.26L12 2M12 18L10.91 14.26L4 13.5L10.91 12.74L12 6L13.09 12.74L20 13.5L13.09 14.26L12 18M12 12C13.66 12 15 10.66 15 9S13.66 6 12 6 9 7.34 9 9 10.34 12 12 12Z"/>
+        </svg>
+      )
+    },
+    { 
+      id: 'cloud', 
+      name: 'Cloud', 
+      icon: (
+        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M6.5 14.5V16H3V14.5C3 13.12 4.12 12 5.5 12S8 13.12 8 14.5M12 3V7H9V3C9 1.62 10.12 0.5 11.5 0.5S14 1.62 14 3M17.5 12C18.88 12 20 13.12 20 14.5V16H16.5V14.5C16.5 13.12 17.62 12 19 12H17.5M3 18H21V20H3V18M6 8H18V10H6V8M9 14H15V16H9V14Z"/>
+        </svg>
+      )
+    },
+    { 
+      id: 'tools', 
+      name: 'Tools', 
+      icon: (
+        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M2.6,10.59L8.38,4.8L10.07,6.5C9.83,7.35 10.22,8.28 11,8.73V14.27C10.4,14.61 10,15.26 10,16A2,2 0 0,0 12,18A2,2 0 0,0 14,16C14,15.26 13.6,14.61 13,14.27V9.41L15.07,11.5C15,11.65 15,11.82 15,12A2,2 0 0,0 17,14A2,2 0 0,0 19,12A2,2 0 0,0 17,10C16.82,10 16.65,10 16.5,10.07L13.93,7.5C14.19,6.57 13.71,5.55 12.78,5.16C11.85,4.77 10.83,5.25 10.44,6.18C10.05,7.11 10.53,8.13 11.46,8.52L8.4,11.58C7.57,11.58 6.8,12.18 6.61,13C6.42,13.83 6.84,14.7 7.65,15.05C8.46,15.4 9.4,15.05 9.75,14.24C10.1,13.43 9.75,12.5 8.94,12.15L2.6,10.59Z"/>
+        </svg>
+      )
+    }
   ]
 
   const [activeTab, setActiveTab] = useState('work')
@@ -2182,78 +2534,115 @@ export default function Home() {
         )
 
     return (
-      <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div className="bg-card/95 backdrop-blur-sm border border-border rounded-2xl max-w-4xl w-full max-h-[80vh] overflow-hidden">
-          <div className="p-6 border-b border-border">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-2xl font-bold text-foreground">My Skills & Expertise</h2>
-                <p className="text-muted-foreground mt-1">Technologies and tools I work with</p>
-              </div>
-              <button
-                onClick={() => setShowSkillsModal(false)}
-                className="p-2 rounded-full hover:bg-accent/50 transition-colors"
-              >
-                <svg className="h-5 w-5 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            
-            {/* Category Filters */}
-            <div className="flex flex-wrap gap-2 mt-4">
-              {skillCategories.map((category) => (
-                <button
-                  key={category.id}
-                  onClick={() => setSelectedSkillCategory(category.id)}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
-                    selectedSkillCategory === category.id
-                      ? 'bg-primary text-primary-foreground shadow-lg'
-                      : 'bg-accent/50 text-muted-foreground hover:bg-accent/80 hover:text-foreground'
-                  }`}
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
+        <div className="bg-background/95 backdrop-blur-xl border border-border/30 rounded-3xl max-w-6xl w-full max-h-[90vh] overflow-hidden shadow-2xl animate-in slide-in-from-bottom-4 duration-500">
+          {/* Enhanced Header */}
+          <div className="relative bg-gradient-to-r from-primary/5 via-primary/8 to-primary/5 border-b border-border/30">
+            <div className="p-8">
+              <div className="flex items-start justify-between">
+                <div className="space-y-3">
+                  <h2 className="text-4xl font-bold bg-gradient-to-r from-foreground via-foreground/90 to-foreground/70 bg-clip-text text-transparent">
+                    Technical Expertise
+                  </h2>
+                  <p className="text-muted-foreground text-lg leading-relaxed max-w-3xl">
+                    Comprehensive showcase of technologies, frameworks, and specialized skills developed through 
+                    professional experience, academic projects, and continuous learning
+                  </p>
+                </div>
+                <button 
+                  onClick={() => setShowSkillsModal(false)}
+                  className="group p-3 rounded-2xl bg-background/60 border border-border/40 text-muted-foreground hover:text-foreground hover:bg-background/80 transition-all duration-300 hover:scale-110 hover:shadow-lg"
                 >
-                  <span>{category.icon}</span>
-                  {category.name}
+                  <svg className="h-6 w-6 transition-transform group-hover:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
                 </button>
-              ))}
+              </div>
+
+              {/* Enhanced Category Filters */}
+              <div className="flex flex-wrap gap-3 mt-8">
+                {skillCategories.map((category) => (
+                  <button
+                    key={category.id}
+                    onClick={() => setSelectedSkillCategory(category.id)}
+                    className={`group flex items-center gap-3 px-5 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 ${
+                      selectedSkillCategory === category.id
+                        ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/25 scale-105 border-2 border-primary/20'
+                        : 'bg-background/60 hover:bg-background/80 border-2 border-border/30 text-muted-foreground hover:text-foreground hover:border-primary/30 hover:scale-105 hover:shadow-md'
+                    }`}
+                  >
+                    <div className={`transition-colors ${selectedSkillCategory === category.id ? 'text-primary-foreground' : 'text-primary group-hover:text-primary'}`}>
+                      {category.icon}
+                    </div>
+                    <span className="font-medium">{category.name}</span>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
-          
-          <div className="p-6 overflow-y-auto max-h-[60vh]">
-            <div className="grid gap-6">
-              {selectedSkillCategory === 'all' ? (
-                Object.entries(skillsData).map(([categoryName, skills]) => (
-                  <div key={categoryName}>
-                    <h3 className="text-lg font-semibold text-foreground mb-3">{categoryName}</h3>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                      {skills.map((skill) => (
-                        <div
+
+          {/* Enhanced Content */}
+          <div className="p-8 overflow-y-auto max-h-[calc(90vh-280px)] scrollbar-thin scrollbar-thumb-border/50 scrollbar-track-transparent">
+            <div className="space-y-10">
+              {filteredSkills.length > 0 ? (
+                Object.entries(
+                  filteredSkills.reduce((acc, skill) => {
+                    const category = skill.category || 'Other';
+                    if (!acc[category]) acc[category] = [];
+                    acc[category].push(skill);
+                    return acc;
+                  }, {} as Record<string, typeof filteredSkills>)
+                ).map(([categoryName, skills]) => (
+                  <div key={categoryName} className="group/section">
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className="flex items-center gap-3">
+                        <h3 className="text-2xl font-bold text-foreground">
+                          {categoryName}
+                        </h3>
+                        <div className="px-3 py-1 bg-primary/10 text-primary text-sm font-medium rounded-full border border-primary/20">
+                          {skills.length} skill{skills.length > 1 ? 's' : ''}
+                        </div>
+                      </div>
+                      <div className="flex-1 h-px bg-gradient-to-r from-border via-border/60 to-transparent"></div>
+                    </div>
+                    
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                      {skills.map((skill, index) => (
+                        <div 
                           key={skill.name}
-                          className="flex items-center gap-3 p-3 rounded-lg bg-background/50 border border-border/50 hover:bg-accent/20 hover:scale-105 transition-all duration-300"
+                          className="group/item relative flex items-center gap-4 p-5 rounded-2xl bg-card/40 border border-border/40 hover:border-primary/30 hover:bg-card/60 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 hover:scale-105 cursor-pointer"
+                          style={{
+                            animationDelay: `${index * 75}ms`,
+                          }}
                         >
-                          <span className="text-xl">{skill.icon}</span>
-                          <span className="text-sm font-medium text-foreground">{skill.name}</span>
+                          {/* Skill Icon */}
+                          <div className="flex-shrink-0 p-3 rounded-xl bg-primary/10 text-primary group-hover/item:bg-primary/20 group-hover/item:scale-110 transition-all duration-300 border border-primary/20">
+                            {skill.icon}
+                          </div>
+                          
+                          {/* Skill Name */}
+                          <div className="min-w-0 flex-1">
+                            <span className="text-base font-semibold text-foreground group-hover/item:text-primary transition-colors duration-300 line-clamp-2">
+                              {skill.name}
+                            </span>
+                          </div>
+
+                          {/* Subtle hover effect */}
+                          <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-primary/5 to-transparent opacity-0 group-hover/item:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                         </div>
                       ))}
                     </div>
                   </div>
                 ))
               ) : (
-                <div>
-                  <h3 className="text-lg font-semibold text-foreground mb-3">
-                    {skillCategories.find(cat => cat.id === selectedSkillCategory)?.name} Skills
-                  </h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                    {filteredSkills.map((skill, index) => (
-                      <div
-                        key={`${skill.name}-${index}`}
-                        className="flex items-center gap-3 p-3 rounded-lg bg-background/50 border border-border/50 hover:bg-accent/20 hover:scale-105 transition-all duration-300"
-                      >
-                        <span className="text-xl">{skill.icon}</span>
-                        <span className="text-sm font-medium text-foreground">{skill.name}</span>
-                      </div>
-                    ))}
+                <div className="text-center py-20">
+                  <div className="mx-auto w-20 h-20 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full flex items-center justify-center mb-6">
+                    <svg className="h-10 w-10 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                    </svg>
                   </div>
+                  <h3 className="text-xl font-semibold text-muted-foreground mb-2">No skills found</h3>
+                  <p className="text-muted-foreground/70">Try selecting a different category to explore more skills</p>
                 </div>
               )}
             </div>
@@ -2623,9 +3012,12 @@ export default function Home() {
                      <h3 className="text-xs font-medium text-foreground">Core Technologies</h3>
                      <button
                        onClick={() => setShowSkillsModal(true)}
-                       className="text-xs text-primary hover:text-primary/80 transition-colors font-medium"
+                       className="group flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-all duration-300"
                      >
-                       View More
+                       <span className="text-xs">View More</span>
+                       <svg className="h-3 w-3 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                       </svg>
                      </button>
                    </div>
                    <div className="grid grid-cols-4 gap-1.5">
