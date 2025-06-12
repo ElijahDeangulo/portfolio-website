@@ -520,6 +520,8 @@ const CustomCursor = () => {
 
     const handleMouseEnter = (e: Event) => {
       const target = e.target as HTMLElement
+      
+      // Only trigger for truly interactive elements
       if (target.tagName === 'BUTTON' || target.classList.contains('btn')) {
         setCursorType('button')
         setIsHovering(true)
@@ -529,7 +531,17 @@ const CustomCursor = () => {
       } else if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
         setCursorType('input')
         setIsHovering(true)
-      } else if (target.style.cursor === 'pointer' || window.getComputedStyle(target).cursor === 'pointer') {
+      } else if (
+        // More precise detection - only for elements with explicit pointer cursor AND interactive roles
+        (target.style.cursor === 'pointer' || window.getComputedStyle(target).cursor === 'pointer') &&
+        (
+          target.hasAttribute('onclick') ||
+          target.hasAttribute('role') ||
+          target.classList.contains('cursor-pointer') ||
+          target.classList.contains('hover:') ||
+          target.closest('button, a, [role="button"], [tabindex]')
+        )
+      ) {
         setCursorType('hover')
         setIsHovering(true)
       }
@@ -1653,6 +1665,7 @@ export default function Home() {
       /* Ultra-smooth scroll behavior with performance optimizations */
       html {
         scroll-behavior: smooth;
+        scroll-padding-top: 80px;
         /* transform-style: preserve-3d; TEMPORARILY DISABLED FOR TESTING */
       }
 
@@ -1674,6 +1687,7 @@ export default function Home() {
       * {
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
+        scroll-behavior: inherit;
       }
 
       /* Optimized sections for hardware acceleration */
@@ -1682,22 +1696,32 @@ export default function Home() {
         backface-visibility: hidden;
       }
 
-      /* Custom scrollbar for modern look */
+      /* Enhanced Custom scrollbar for ultra-smooth scrolling */
       ::-webkit-scrollbar {
-        width: 8px;
+        width: 10px;
       }
 
       ::-webkit-scrollbar-track {
-        background: rgba(0, 0, 0, 0.1);
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 5px;
       }
 
       ::-webkit-scrollbar-thumb {
-        background: linear-gradient(180deg, #3b82f6, #1e40af);
-        border-radius: 4px;
+        background: linear-gradient(180deg, rgba(59, 130, 246, 0.8), rgba(30, 64, 175, 0.9));
+        border-radius: 5px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
       }
 
       ::-webkit-scrollbar-thumb:hover {
-        background: linear-gradient(180deg, #1e40af, #1e3a8a);
+        background: linear-gradient(180deg, rgba(30, 64, 175, 0.9), rgba(30, 58, 138, 1));
+        transform: scale(1.1);
+      }
+
+      /* Smooth scrolling for Firefox */
+      html {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(59, 130, 246, 0.8) rgba(0, 0, 0, 0.05);
       }
 
       /* Force hardware acceleration for transitions */
@@ -2153,6 +2177,62 @@ export default function Home() {
         ), 
         categories: ['data-science'] 
       }
+    ],
+    'AI Agents & Protocols': [
+      { 
+        name: 'Multi-Agent Systems', 
+        icon: (
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M16,4C16.88,4 17.67,4.38 18.18,5C18.69,4.38 19.48,4 20.36,4C21.8,4 23,5.2 23,6.64C23,8.09 21.8,9.29 20.36,9.29C19.48,9.29 18.69,8.91 18.18,8.29C17.67,8.91 16.88,9.29 16,9.29C14.56,9.29 13.36,8.09 13.36,6.64C13.36,5.2 14.56,4 16,4M6,12C6.88,12 7.67,12.38 8.18,13C8.69,12.38 9.48,12 10.36,12C11.8,12 13,13.2 13,14.64C13,16.09 11.8,17.29 10.36,17.29C9.48,17.29 8.69,16.91 8.18,16.29C7.67,16.91 6.88,17.29 6,17.29C4.56,17.29 3.36,16.09 3.36,14.64C3.36,13.2 4.56,12 6,12M16,12C16.88,12 17.67,12.38 18.18,13C18.69,12.38 19.48,12 20.36,12C21.8,12 23,13.2 23,14.64C23,16.09 21.8,17.29 20.36,17.29C19.48,17.29 18.69,16.91 18.18,16.29C17.67,16.91 16.88,17.29 16,17.29C14.56,17.29 13.36,16.09 13.36,14.64C13.36,13.2 14.56,12 16,12M6,4C6.88,4 7.67,4.38 8.18,5C8.69,4.38 9.48,4 10.36,4C11.8,4 13,5.2 13,6.64C13,8.09 11.8,9.29 10.36,9.29C9.48,9.29 8.69,8.91 8.18,8.29C7.67,8.91 6.88,9.29 6,9.29C4.56,9.29 3.36,8.09 3.36,6.64C3.36,5.2 4.56,4 6,4M16,20C16.88,20 17.67,20.38 18.18,21C18.69,20.38 19.48,20 20.36,20C21.8,20 23,21.2 23,22.64C23,24.09 21.8,25.29 20.36,25.29C19.48,25.29 18.69,24.91 18.18,24.29C17.67,24.91 16.88,25.29 16,25.29C14.56,25.29 13.36,24.09 13.36,22.64C13.36,21.2 14.56,20 16,20Z"/>
+          </svg>
+        ), 
+        categories: ['ml', 'ai-agents'] 
+      },
+      { 
+        name: 'LLM Orchestration', 
+        icon: (
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12,2A2,2 0 0,1 14,4C14,4.74 13.6,5.39 13,5.73V7.27C13.6,7.61 14,8.26 14,9A2,2 0 0,1 12,11A2,2 0 0,1 10,9C10,8.26 10.4,7.61 11,7.27V5.73C10.4,5.39 10,4.74 10,4A2,2 0 0,1 12,2M21,9A2,2 0 0,1 23,11A2,2 0 0,1 21,13A2,2 0 0,1 19,11A2,2 0 0,1 21,9M3,9A2,2 0 0,1 5,11A2,2 0 0,1 3,13A2,2 0 0,1 1,11A2,2 0 0,1 3,9M15.71,10.29L18.29,7.71A1,1 0 0,1 19.71,9.12L17.12,11.71C16.95,11.89 16.69,12 16.41,12C16.13,12 15.87,11.89 15.71,11.71C15.32,11.32 15.32,10.68 15.71,10.29M8.29,10.29C8.68,10.68 8.68,11.32 8.29,11.71C8.12,11.89 7.87,12 7.59,12C7.31,12 7.05,11.89 6.88,11.71L4.29,9.12A1,1 0 0,1 5.71,7.71L8.29,10.29M12,14A2,2 0 0,1 14,16C14,16.74 13.6,17.39 13,17.73V19.27C13.6,19.61 14,20.26 14,21A2,2 0 0,1 12,23A2,2 0 0,1 10,21C10,20.26 10.4,19.61 11,19.27V17.73C10.4,17.39 10,16.74 10,16A2,2 0 0,1 12,14Z"/>
+          </svg>
+        ), 
+        categories: ['ml', 'ai-agents'] 
+      },
+      { 
+        name: 'MCP (Model Context Protocol)', 
+        icon: (
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M8,3A2,2 0 0,0 6,5V9A2,2 0 0,1 4,11H3V13H4A2,2 0 0,1 6,15V19A2,2 0 0,0 8,21H10V19H8V14A2,2 0 0,0 6,12A2,2 0 0,0 8,10V5H10V3M16,3A2,2 0 0,1 18,5V9A2,2 0 0,0 20,11H21V13H20A2,2 0 0,0 18,15V19A2,2 0 0,1 16,21H14V19H16V14A2,2 0 0,1 18,12A2,2 0 0,1 16,10V5H14V3"/>
+          </svg>
+        ), 
+        categories: ['ml', 'ai-agents', 'backend'] 
+      },
+      { 
+        name: 'Agent Workflow Design', 
+        icon: (
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M2,2V4H20V2H2M2,6V8H20V6H2M5,10V12H19V10H5M5,14V16H19V14H5M8,18V20H16V18H8Z"/>
+          </svg>
+        ), 
+        categories: ['ml', 'ai-agents'] 
+      },
+      { 
+        name: 'Tool Calling & Function Execution', 
+        icon: (
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M22.61,19L13.61,10L14.61,9C15.61,8 16.61,7.5 17.61,7.5C18.61,7.5 19.61,8 20.61,9C21.61,10 22.11,11 22.11,12C22.11,13 21.61,14 20.61,15L19.61,16L22.61,19M9.61,5L5.61,9L6.61,10L10.61,6L9.61,5M21.61,3L18.61,6L19.61,7L22.61,4L21.61,3M3.61,17L6.61,20L9.61,17L6.61,14L3.61,17M5.61,2L2.61,5L5.61,8L8.61,5L5.61,2Z"/>
+          </svg>
+        ), 
+        categories: ['ml', 'ai-agents', 'backend'] 
+      },
+      { 
+        name: 'Claude MCP Integration', 
+        icon: (
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12,2C13.1,2 14,2.9 14,4C14,5.1 13.1,6 12,6C10.9,6 10,5.1 10,4C10,2.9 10.9,2 12,2M21,9V7L15,1H5C3.89,1 3,1.89 3,3V21A2,2 0 0,0 5,23H19A2,2 0 0,0 21,21V9M19,9H14V4L19,9Z"/>
+          </svg>
+        ), 
+        categories: ['ml', 'ai-agents'] 
+      }
     ]
   }
 
@@ -2203,6 +2283,15 @@ export default function Home() {
       )
     },
     { 
+      id: 'ai-agents', 
+      name: 'AI Agents', 
+      icon: (
+        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M16,4C16.88,4 17.67,4.38 18.18,5C18.69,4.38 19.48,4 20.36,4C21.8,4 23,5.2 23,6.64C23,8.09 21.8,9.29 20.36,9.29C19.48,9.29 18.69,8.91 18.18,8.29C17.67,8.91 16.88,9.29 16,9.29C14.56,9.29 13.36,8.09 13.36,6.64C13.36,5.2 14.56,4 16,4M6,12C6.88,12 7.67,12.38 8.18,13C8.69,12.38 9.48,12 10.36,12C11.8,12 13,13.2 13,14.64C13,16.09 11.8,17.29 10.36,17.29C9.48,17.29 8.69,16.91 8.18,16.29C7.67,16.91 6.88,17.29 6,17.29C4.56,17.29 3.36,16.09 3.36,14.64C3.36,13.2 4.56,12 6,12Z"/>
+        </svg>
+      )
+    },
+    { 
       id: 'cloud', 
       name: 'Cloud', 
       icon: (
@@ -2237,26 +2326,37 @@ export default function Home() {
       
       const carouselElement = document.querySelector('[data-carousel="featured-projects"]')
       if (carouselElement) {
-        carouselElement.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'center' // Center the carousel in the viewport
+        // Use requestAnimationFrame to ensure smooth scrolling after state updates
+        requestAnimationFrame(() => {
+          carouselElement.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center'
+          })
         })
       } else {
         // Fallback if carousel element not found
         console.log('Carousel element not found, using fallback scroll')
         const scrollTarget = document.documentElement.scrollHeight - window.innerHeight * 0.6
-        window.scrollTo({
-          top: scrollTarget,
-          behavior: 'smooth'
+        requestAnimationFrame(() => {
+          window.scrollTo({
+            top: scrollTarget,
+            behavior: 'smooth'
+          })
         })
       }
       return
     }
     
-    // Standard scrolling for other sections
+    // Standard scrolling for other sections - stabilized
     const element = document.getElementById(sectionId)
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      // Use requestAnimationFrame to prevent scroll jumping during parallax animations
+      requestAnimationFrame(() => {
+        element.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start'
+        })
+      })
     } else {
       console.log(`Element with id '${sectionId}' not found`)
     }
@@ -2266,7 +2366,13 @@ export default function Home() {
     // Close any open modals when going home
     setShowAboutModal(false)
     setShowContactModal(false)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    setShowDownloadConfirm(false)
+    setSelectedProject(null)
+    
+    // Use requestAnimationFrame to prevent scroll jumping during parallax animations
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    })
   }
 
   const handleAboutClick = () => {
@@ -2524,6 +2630,25 @@ export default function Home() {
 
   // Skills Modal Component
   const SkillsModal = () => {
+    // Prevent background scrolling and force focus
+    React.useEffect(() => {
+      const originalOverflow = document.body.style.overflow
+      const originalPosition = document.body.style.position
+      
+      document.body.style.overflow = 'hidden'
+      document.body.style.position = 'fixed'
+      document.body.style.width = '100%'
+      document.body.style.top = `-${window.scrollY}px`
+      
+      return () => {
+        document.body.style.overflow = originalOverflow
+        document.body.style.position = originalPosition
+        document.body.style.width = ''
+        document.body.style.top = ''
+        window.scrollTo(0, parseInt(document.body.style.top || '0') * -1)
+      }
+    }, [])
+
     const filteredSkills = selectedSkillCategory === 'all' 
       ? Object.entries(skillsData).flatMap(([category, skills]) => 
           skills.map(skill => ({ ...skill, category }))
@@ -2534,41 +2659,40 @@ export default function Home() {
         )
 
     return (
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
-        <div className="bg-background/95 backdrop-blur-xl border border-border/30 rounded-3xl max-w-6xl w-full max-h-[90vh] overflow-hidden shadow-2xl animate-in slide-in-from-bottom-4 duration-500">
-          {/* Enhanced Header */}
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-in fade-in duration-300 overflow-hidden">
+        <div className="bg-background/95 backdrop-blur-xl border border-border/30 rounded-3xl max-w-4xl w-full max-h-[85vh] overflow-hidden shadow-2xl animate-in slide-in-from-bottom-4 duration-500 flex flex-col">
+          {/* Enhanced Header - Condensed */}
           <div className="relative bg-gradient-to-r from-primary/5 via-primary/8 to-primary/5 border-b border-border/30">
-            <div className="p-8">
-              <div className="flex items-start justify-between">
-                <div className="space-y-3">
-                  <h2 className="text-4xl font-bold bg-gradient-to-r from-foreground via-foreground/90 to-foreground/70 bg-clip-text text-transparent">
+            <div className="p-5">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <h2 className="text-2xl font-bold bg-gradient-to-r from-foreground via-foreground/90 to-foreground/70 bg-clip-text text-transparent">
                     Technical Expertise
                   </h2>
-                  <p className="text-muted-foreground text-lg leading-relaxed max-w-3xl">
-                    Comprehensive showcase of technologies, frameworks, and specialized skills developed through 
-                    professional experience, academic projects, and continuous learning
+                  <p className="text-muted-foreground text-sm leading-relaxed max-w-none mt-1">
+                    Technologies, frameworks, and specialized skills from professional and academic experience
                   </p>
                 </div>
                 <button 
                   onClick={() => setShowSkillsModal(false)}
-                  className="group p-3 rounded-2xl bg-background/60 border border-border/40 text-muted-foreground hover:text-foreground hover:bg-background/80 transition-all duration-300 hover:scale-110 hover:shadow-lg"
+                  className="group p-2 rounded-xl bg-background/60 border border-border/40 text-muted-foreground hover:text-foreground hover:bg-background/80 transition-all duration-300 hover:scale-110 hover:shadow-lg"
                 >
-                  <svg className="h-6 w-6 transition-transform group-hover:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <svg className="h-5 w-5 transition-transform group-hover:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
               </div>
 
-              {/* Enhanced Category Filters */}
-              <div className="flex flex-wrap gap-3 mt-8">
+              {/* Enhanced Category Filters - More Compact */}
+              <div className="flex flex-wrap gap-2 mt-4">
                 {skillCategories.map((category) => (
                   <button
                     key={category.id}
                     onClick={() => setSelectedSkillCategory(category.id)}
-                    className={`group flex items-center gap-3 px-5 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 ${
+                    className={`group flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium transition-all duration-200 ease-out ${
                       selectedSkillCategory === category.id
-                        ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/25 scale-105 border-2 border-primary/20'
-                        : 'bg-background/60 hover:bg-background/80 border-2 border-border/30 text-muted-foreground hover:text-foreground hover:border-primary/30 hover:scale-105 hover:shadow-md'
+                        ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20 scale-105 border border-primary/30 transform'
+                        : 'bg-background/60 hover:bg-background/80 border border-border/30 text-muted-foreground hover:text-foreground hover:border-primary/30 hover:scale-[1.02] hover:shadow-sm transform'
                     }`}
                   >
                     <div className={`transition-colors ${selectedSkillCategory === category.id ? 'text-primary-foreground' : 'text-primary group-hover:text-primary'}`}>
@@ -2582,8 +2706,8 @@ export default function Home() {
           </div>
 
           {/* Enhanced Content */}
-          <div className="p-8 overflow-y-auto max-h-[calc(90vh-280px)] scrollbar-thin scrollbar-thumb-border/50 scrollbar-track-transparent">
-            <div className="space-y-10">
+          <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-border/50 scrollbar-track-transparent">
+            <div className="p-6 space-y-8">
               {filteredSkills.length > 0 ? (
                 Object.entries(
                   filteredSkills.reduce((acc, skill) => {
@@ -2594,41 +2718,41 @@ export default function Home() {
                   }, {} as Record<string, typeof filteredSkills>)
                 ).map(([categoryName, skills]) => (
                   <div key={categoryName} className="group/section">
-                    <div className="flex items-center gap-4 mb-6">
-                      <div className="flex items-center gap-3">
-                        <h3 className="text-2xl font-bold text-foreground">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-xl font-bold text-foreground">
                           {categoryName}
                         </h3>
-                        <div className="px-3 py-1 bg-primary/10 text-primary text-sm font-medium rounded-full border border-primary/20">
+                        <div className="px-2 py-1 bg-primary/10 text-primary text-xs font-medium rounded-full border border-primary/20">
                           {skills.length} skill{skills.length > 1 ? 's' : ''}
                         </div>
                       </div>
                       <div className="flex-1 h-px bg-gradient-to-r from-border via-border/60 to-transparent"></div>
                     </div>
                     
-                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-4">
                       {skills.map((skill, index) => (
                         <div 
                           key={skill.name}
-                          className="group/item relative flex items-center gap-4 p-5 rounded-2xl bg-card/40 border border-border/40 hover:border-primary/30 hover:bg-card/60 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 hover:scale-105 cursor-pointer"
+                          className="group/item relative flex items-center gap-2 p-3 rounded-lg bg-card/40 border border-border/40 hover:border-primary/30 hover:bg-card/60 transition-all duration-200 hover:shadow-md hover:shadow-primary/10 hover:scale-[1.02] cursor-pointer"
                           style={{
-                            animationDelay: `${index * 75}ms`,
+                            animationDelay: `${index * 30}ms`,
                           }}
                         >
                           {/* Skill Icon */}
-                          <div className="flex-shrink-0 p-3 rounded-xl bg-primary/10 text-primary group-hover/item:bg-primary/20 group-hover/item:scale-110 transition-all duration-300 border border-primary/20">
+                          <div className="flex-shrink-0 p-1.5 rounded-md bg-primary/10 text-primary group-hover/item:bg-primary/20 group-hover/item:scale-110 transition-all duration-200 border border-primary/20">
                             {skill.icon}
                           </div>
                           
                           {/* Skill Name */}
                           <div className="min-w-0 flex-1">
-                            <span className="text-base font-semibold text-foreground group-hover/item:text-primary transition-colors duration-300 line-clamp-2">
+                            <span className="text-xs font-medium text-foreground group-hover/item:text-primary transition-colors duration-200 line-clamp-1">
                               {skill.name}
                             </span>
                           </div>
 
                           {/* Subtle hover effect */}
-                          <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-primary/5 to-transparent opacity-0 group-hover/item:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                          <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary/5 to-transparent opacity-0 group-hover/item:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                         </div>
                       ))}
                     </div>
@@ -3003,24 +3127,24 @@ export default function Home() {
                   </div>
                 </div>
 
-                                 {/* Tech Stack Preview */}
+                                 {/* Tech Stack Preview - Improved Visual Hierarchy */}
                  <div 
-                   className="rounded-lg bg-card/50 backdrop-blur-sm border border-border/50 p-2"
+                   className="rounded-xl bg-card/60 backdrop-blur-sm border border-border/60 p-4 shadow-lg shadow-background/20"
                    style={getHeroElementTransform('right', 0.6)}
                  >
-                   <div className="flex items-center justify-between mb-1.5">
-                     <h3 className="text-xs font-medium text-foreground">Core Technologies</h3>
+                   <div className="flex items-center justify-between mb-3">
+                     <h3 className="text-sm font-semibold text-foreground">Core Technologies</h3>
                      <button
                        onClick={() => setShowSkillsModal(true)}
-                       className="group flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-all duration-300"
+                       className="group flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-all duration-300 hover:scale-105"
                      >
-                       <span className="text-xs">View More</span>
-                       <svg className="h-3 w-3 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                       <span className="text-xs font-medium">View All</span>
+                       <svg className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                        </svg>
                      </button>
                    </div>
-                   <div className="grid grid-cols-4 gap-1.5">
+                   <div className="grid grid-cols-4 gap-2">
                      {[
                        { 
                          name: 'Python', 
@@ -3089,15 +3213,15 @@ export default function Home() {
                                             ].map((tech, index) => (
                          <div 
                            key={tech.name}
-                           className="group flex flex-col items-center gap-0.5 p-1 rounded-lg bg-background/50 border border-border/50 transition-all duration-300 hover:scale-110 hover:bg-accent/20"
+                           className="group flex flex-col items-center gap-1 p-2 rounded-lg bg-background/60 border border-border/60 transition-all duration-300 hover:scale-105 hover:bg-accent/30 hover:border-border hover:shadow-lg"
                            style={{
                              animationDelay: `${index * 100}ms`
                            }}
                          >
-                           <div className="text-muted-foreground group-hover:text-primary transition-colors">
+                           <div className="text-muted-foreground group-hover:text-primary transition-colors duration-300">
                              {tech.icon}
                            </div>
-                           <div className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">{tech.name}</div>
+                           <div className="text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors duration-300">{tech.name}</div>
                          </div>
                        ))}
                    </div>
@@ -3628,13 +3752,13 @@ export default function Home() {
 
         {/* About Modal */}
         {showAboutModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pt-20">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pt-20 overflow-hidden">
             <div 
               className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-in fade-in duration-300" 
               onClick={() => setShowAboutModal(false)} 
             />
-            <div className="relative bg-background rounded-xl border border-border shadow-2xl p-6 max-w-4xl w-full max-h-[85vh] overflow-y-auto animate-in zoom-in-95 slide-in-from-bottom-8 duration-300">
-              <div className="flex justify-between items-center mb-6">
+            <div className="relative bg-background rounded-xl border border-border shadow-2xl max-w-4xl w-full max-h-[85vh] animate-in zoom-in-95 slide-in-from-bottom-8 duration-300 flex flex-col overflow-hidden">
+              <div className="flex justify-between items-center p-6 border-b border-border/30">
                 <h2 className="text-2xl font-bold text-foreground">About Me</h2>
                 <button 
                   onClick={() => setShowAboutModal(false)} 
@@ -3644,7 +3768,8 @@ export default function Home() {
                 </button>
               </div>
               
-              <div className="space-y-6">
+              <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-border/50 scrollbar-track-transparent">
+                <div className="p-6 space-y-6">
                 {/* Personal Story */}
                 <div>
                   <h3 className="text-xl font-semibold text-foreground mb-4">My Journey</h3>
@@ -3722,6 +3847,7 @@ export default function Home() {
                     </div>
                   </div>
                 </div>
+                </div>
               </div>
             </div>
           </div>
@@ -3729,13 +3855,13 @@ export default function Home() {
 
         {/* Contact Modal */}
         {showContactModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pt-20">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pt-20 overflow-hidden">
             <div 
               className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-in fade-in duration-300" 
               onClick={() => setShowContactModal(false)} 
             />
-            <div className="relative bg-background rounded-xl border border-border shadow-2xl p-6 max-w-4xl w-full max-h-[85vh] overflow-y-auto animate-in zoom-in-95 slide-in-from-bottom-8 duration-300">
-              <div className="flex justify-between items-center mb-6">
+            <div className="relative bg-background rounded-xl border border-border shadow-2xl max-w-4xl w-full max-h-[85vh] animate-in zoom-in-95 slide-in-from-bottom-8 duration-300 flex flex-col overflow-hidden">
+              <div className="flex justify-between items-center p-6 border-b border-border/30">
                 <h2 className="text-2xl font-bold text-foreground">Get in Touch 📧</h2>
                 <button 
                   onClick={() => setShowContactModal(false)} 
@@ -3745,7 +3871,8 @@ export default function Home() {
                 </button>
               </div>
               
-              <div className="grid gap-8 lg:grid-cols-2">
+              <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-border/50 scrollbar-track-transparent">
+                <div className="p-6 grid gap-8 lg:grid-cols-2">
                 {/* Contact Form */}
                 <div>
                   <p className="mb-6 text-muted-foreground">
@@ -3891,6 +4018,7 @@ export default function Home() {
                       </div>
                     </a>
                   </div>
+                </div>
                 </div>
               </div>
             </div>
