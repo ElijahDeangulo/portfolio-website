@@ -6,39 +6,22 @@ import { motion, PanInfo } from 'framer-motion'
 // ... existing imports and components remain the same ...
 // I'll add the basic structure for now, then copy the components
 
-const ModernThemeToggle = ({ isDark, toggleDarkMode, isClient, isSpotifyExpanded }: { 
-  isDark: boolean
-  toggleDarkMode: () => void
-  isClient: boolean 
-  isSpotifyExpanded: boolean
-}) => {
-  return (
-    <div className={`fixed bottom-6 right-6 z-50 transition-all duration-300 ${isSpotifyExpanded ? 'translate-x-[-320px]' : ''}`}>
-      <button
-        onClick={toggleDarkMode}
-        className="group relative overflow-hidden rounded-full bg-background/90 backdrop-blur-md border border-border/50 p-3 shadow-lg shadow-black/10 transition-all duration-300 hover:scale-110 hover:shadow-xl hover:shadow-black/20"
-        aria-label="Toggle dark mode"
-      >
-        <div className="relative z-10">
-          {isDark ? (
-            <svg className="h-5 w-5 text-yellow-500 transition-transform duration-300 group-hover:rotate-12" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.59a.75.75 0 001.06 1.061l1.591-1.59zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.697 7.757a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 00-1.061 1.06l1.59 1.591z"/>
-            </svg>
-          ) : (
-            <svg className="h-5 w-5 text-slate-600 transition-transform duration-300 group-hover:rotate-12" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M9.528 1.718a.75.75 0 01.162.819A8.97 8.97 0 009 6a9 9 0 009 9 8.97 8.97 0 003.463-.69.75.75 0 01.981.98 10.503 10.503 0 01-9.694 6.46c-5.799 0-10.5-4.701-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 01.818.162z"/>
-            </svg>
-          )}
-        </div>
-        
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100 rounded-full" />
-      </button>
-    </div>
-  )
+interface Project {
+  title: string;
+  emoji: string;
+  description: string;
+  fullDescription: string;
+  technologies: string[];
+  features: string[];
+  impact: string;
+  github?: string;
+  demo?: string;
+  website?: string;
 }
 
-// Project data for modals
-const projectDetails = {
+type ProjectId = 'ar-automation' | 'pricing-intelligence' | 'revenue-intelligence' | 'special-miracle';
+
+const projectDetails: Record<ProjectId, Project> = {
   'ar-automation': {
     title: 'AR Automation Platform',
     emoji: '🤖',
@@ -112,10 +95,41 @@ const projectDetails = {
   }
 }
 
+const ModernThemeToggle = ({ isDark, toggleDarkMode, isClient, isSpotifyExpanded }: { 
+  isDark: boolean
+  toggleDarkMode: () => void
+  isClient: boolean 
+  isSpotifyExpanded: boolean
+}) => {
+  return (
+    <div className={`fixed bottom-6 right-6 z-50 transition-all duration-300 ${isSpotifyExpanded ? 'translate-x-[-320px]' : ''}`}>
+      <button
+        onClick={toggleDarkMode}
+        className="group relative overflow-hidden rounded-full bg-background/90 backdrop-blur-md border border-border/50 p-3 shadow-lg shadow-black/10 transition-all duration-300 hover:scale-110 hover:shadow-xl hover:shadow-black/20"
+        aria-label="Toggle dark mode"
+      >
+        <div className="relative z-10">
+          {isDark ? (
+            <svg className="h-5 w-5 text-yellow-500 transition-transform duration-300 group-hover:rotate-12" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.59a.75.75 0 001.06 1.061l1.591-1.59zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.697 7.757a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 00-1.061 1.06l1.59 1.591z"/>
+            </svg>
+          ) : (
+            <svg className="h-5 w-5 text-slate-600 transition-transform duration-300 group-hover:rotate-12" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M9.528 1.718a.75.75 0 01.162.819A8.97 8.97 0 009 6a9 9 0 009 9 8.97 8.97 0 003.463-.69.75.75 0 01.981.98 10.503 10.503 0 01-9.694 6.46c-5.799 0-10.5-4.701-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 01.818.162z"/>
+            </svg>
+          )}
+        </div>
+        
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100 rounded-full" />
+      </button>
+    </div>
+  )
+}
+
 export default function Home() {
   // State management
   const [showAboutModal, setShowAboutModal] = useState(false)
-  const [selectedProject, setSelectedProject] = useState<string | null>(null)
+  const [selectedProject, setSelectedProject] = useState<ProjectId | null>(null)
   const [activeTab, setActiveTab] = useState('work')
   const [activeTimelineItem, setActiveTimelineItem] = useState<string | null>('palantir')
   const [isSpotifyExpanded, setIsSpotifyExpanded] = useState(false)
@@ -133,7 +147,7 @@ export default function Home() {
   }
 
   // Project click handler
-  const handleProjectClick = (projectId: string) => {
+  const handleProjectClick = (projectId: ProjectId) => {
     setSelectedProject(projectId)
   }
 
@@ -230,7 +244,7 @@ export default function Home() {
               {Object.entries(projectDetails).map(([key, project]) => (
                 <div 
                   key={key}
-                  onClick={() => handleProjectClick(key)}
+                  onClick={() => handleProjectClick(key as ProjectId)}
                   className="rounded-lg border border-border bg-card p-6 transition-all duration-300 hover:bg-accent/50 transform hover:scale-105 cursor-pointer"
                 >
                   <div className="mb-4 text-4xl">{project.emoji}</div>
@@ -349,14 +363,14 @@ export default function Home() {
       )}
 
       {/* Project Detail Modal */}
-      {selectedProject && projectDetails[selectedProject] && (
+      {selectedProject && projectDetails[selectedProject as ProjectId] && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setSelectedProject(null)} />
           <div className="relative bg-background rounded-xl border border-border shadow-2xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
               <div className="flex items-center gap-3">
-                <span className="text-3xl">{projectDetails[selectedProject].emoji}</span>
-                <h2 className="text-2xl font-bold text-foreground">{projectDetails[selectedProject].title}</h2>
+                <span className="text-3xl">{projectDetails[selectedProject as ProjectId].emoji}</span>
+                <h2 className="text-2xl font-bold text-foreground">{projectDetails[selectedProject as ProjectId].title}</h2>
               </div>
               <button onClick={() => setSelectedProject(null)} className="text-muted-foreground hover:text-foreground">
                 ✕
@@ -366,14 +380,14 @@ export default function Home() {
             <div className="space-y-6">
               <div>
                 <h3 className="text-lg font-semibold mb-3">Overview</h3>
-                <p className="text-muted-foreground">{projectDetails[selectedProject].fullDescription}</p>
+                <p className="text-muted-foreground">{projectDetails[selectedProject as ProjectId].fullDescription}</p>
               </div>
 
-              {projectDetails[selectedProject].features && (
+              {projectDetails[selectedProject as ProjectId].features && (
                 <div>
                   <h3 className="text-lg font-semibold mb-3">Key Features</h3>
                   <ul className="space-y-2">
-                    {projectDetails[selectedProject].features.map((feature, index) => (
+                    {projectDetails[selectedProject as ProjectId].features.map((feature, index) => (
                       <li key={index} className="flex items-start gap-2">
                         <span className="text-primary">•</span>
                         <span className="text-sm text-muted-foreground">{feature}</span>
@@ -386,7 +400,7 @@ export default function Home() {
               <div>
                 <h3 className="text-lg font-semibold mb-3">Technologies</h3>
                 <div className="flex flex-wrap gap-2">
-                  {projectDetails[selectedProject].technologies.map((tech) => (
+                  {projectDetails[selectedProject as ProjectId].technologies.map((tech) => (
                     <span key={tech} className="rounded-md bg-secondary px-3 py-1 text-sm text-secondary-foreground">
                       {tech}
                     </span>
@@ -394,28 +408,28 @@ export default function Home() {
                 </div>
               </div>
 
-              {projectDetails[selectedProject].impact && (
+              {projectDetails[selectedProject as ProjectId].impact && (
                 <div>
                   <h3 className="text-lg font-semibold mb-3">Impact</h3>
                   <p className="text-sm text-muted-foreground bg-primary/10 p-3 rounded-lg">
-                    {projectDetails[selectedProject].impact}
+                    {projectDetails[selectedProject as ProjectId].impact}
                   </p>
                 </div>
               )}
 
               <div className="flex gap-4 pt-4">
-                {projectDetails[selectedProject].github && (
-                  <a href={projectDetails[selectedProject].github} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
+                {projectDetails[selectedProject as ProjectId].github && (
+                  <a href={projectDetails[selectedProject as ProjectId].github} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
                     🐙 View Code
                   </a>
                 )}
-                {projectDetails[selectedProject].demo && (
-                  <a href={projectDetails[selectedProject].demo} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2 border border-border rounded-lg hover:bg-accent transition-colors">
+                {projectDetails[selectedProject as ProjectId].demo && (
+                  <a href={projectDetails[selectedProject as ProjectId].demo} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2 border border-border rounded-lg hover:bg-accent transition-colors">
                     🚀 Live Demo
                   </a>
                 )}
-                {projectDetails[selectedProject].website && (
-                  <a href={projectDetails[selectedProject].website} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2 border border-border rounded-lg hover:bg-accent transition-colors">
+                {projectDetails[selectedProject as ProjectId].website && (
+                  <a href={projectDetails[selectedProject as ProjectId].website} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2 border border-border rounded-lg hover:bg-accent transition-colors">
                     🌐 Visit Website
                   </a>
                 )}
