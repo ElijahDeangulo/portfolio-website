@@ -647,26 +647,28 @@ body * {
   will-change: transform;
 }
 
-/* Default cursor state */
+/* Default cursor state - More subtle */
 .custom-cursor--default {
-  width: 20px;
-  height: 20px;
-  background: rgba(0, 0, 0, 0.05);
-  border: 2px solid hsl(var(--foreground));
+  width: 18px;
+  height: 18px;
+  background: rgba(0, 0, 0, 0.03);
+  border: 1.5px solid hsl(var(--foreground) / 0.3);
 }
 
-/* Button hover state */
+/* Button hover state - More responsive */
 .custom-cursor--button {
-  width: 32px;
-  height: 32px;
-  background: rgba(34, 211, 238, 0.1);
+  width: 28px;
+  height: 28px;
+  background: rgba(34, 211, 238, 0.08);
   border: 2px solid rgb(34, 211, 238);
+  transition: all 0.2s ease;
 }
 
 .custom-cursor-dot--button {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
   background: rgb(34, 211, 238);
+  transition: all 0.2s ease;
 }
 
 /* Link hover state */
