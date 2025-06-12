@@ -520,8 +520,6 @@ const CustomCursor = () => {
 
     const handleMouseEnter = (e: Event) => {
       const target = e.target as HTMLElement
-      
-      // Only trigger for truly interactive elements
       if (target.tagName === 'BUTTON' || target.classList.contains('btn')) {
         setCursorType('button')
         setIsHovering(true)
@@ -531,17 +529,7 @@ const CustomCursor = () => {
       } else if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
         setCursorType('input')
         setIsHovering(true)
-      } else if (
-        // More precise detection - only for elements with explicit pointer cursor AND interactive roles
-        (target.style.cursor === 'pointer' || window.getComputedStyle(target).cursor === 'pointer') &&
-        (
-          target.hasAttribute('onclick') ||
-          target.hasAttribute('role') ||
-          target.classList.contains('cursor-pointer') ||
-          target.classList.contains('hover:') ||
-          target.closest('button, a, [role="button"], [tabindex]')
-        )
-      ) {
+      } else if (target.style.cursor === 'pointer' || window.getComputedStyle(target).cursor === 'pointer') {
         setCursorType('hover')
         setIsHovering(true)
       }
@@ -1665,7 +1653,6 @@ export default function Home() {
       /* Ultra-smooth scroll behavior with performance optimizations */
       html {
         scroll-behavior: smooth;
-        scroll-padding-top: 80px;
         /* transform-style: preserve-3d; TEMPORARILY DISABLED FOR TESTING */
       }
 
@@ -1687,7 +1674,6 @@ export default function Home() {
       * {
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
-        scroll-behavior: inherit;
       }
 
       /* Optimized sections for hardware acceleration */
@@ -1696,32 +1682,22 @@ export default function Home() {
         backface-visibility: hidden;
       }
 
-      /* Enhanced Custom scrollbar for ultra-smooth scrolling */
+      /* Custom scrollbar for modern look */
       ::-webkit-scrollbar {
-        width: 10px;
+        width: 8px;
       }
 
       ::-webkit-scrollbar-track {
-        background: rgba(0, 0, 0, 0.05);
-        border-radius: 5px;
+        background: rgba(0, 0, 0, 0.1);
       }
 
       ::-webkit-scrollbar-thumb {
-        background: linear-gradient(180deg, rgba(59, 130, 246, 0.8), rgba(30, 64, 175, 0.9));
-        border-radius: 5px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        transition: all 0.3s ease;
+        background: linear-gradient(180deg, #3b82f6, #1e40af);
+        border-radius: 4px;
       }
 
       ::-webkit-scrollbar-thumb:hover {
-        background: linear-gradient(180deg, rgba(30, 64, 175, 0.9), rgba(30, 58, 138, 1));
-        transform: scale(1.1);
-      }
-
-      /* Smooth scrolling for Firefox */
-      html {
-        scrollbar-width: thin;
-        scrollbar-color: rgba(59, 130, 246, 0.8) rgba(0, 0, 0, 0.05);
+        background: linear-gradient(180deg, #1e40af, #1e3a8a);
       }
 
       /* Force hardware acceleration for transitions */
@@ -1762,7 +1738,19 @@ export default function Home() {
   const [selectedSkillCategory, setSelectedSkillCategory] = useState('all')
   
   // Project data for modals
-  const projectDetails = {
+  interface Project {
+    title: string;
+    logo: string;
+    description: string;
+    fullDescription: string;
+    technologies: string[];
+    features: string[];
+    impact: string;
+    github?: string;
+    website?: string;
+  }
+
+  const projectDetails: Record<string, Project> = {
     'ar-automation': {
       title: 'AR Automation Platform',
       logo: '/images/logos/palantir.jpg',
@@ -1777,7 +1765,7 @@ export default function Home() {
         'Automated invoice matching and dispute resolution'
       ],
       impact: 'Reduced manual processing time by 85% and improved cash flow by $2.3M annually',
-      github: 'https://github.com/ElijahDeangulo/ar-automation',
+      github: 'https://github.com/ElijahDeangulo',
       website: undefined
     },
     'pricing-intelligence': {
@@ -1794,7 +1782,7 @@ export default function Home() {
         'Revenue impact forecasting'
       ],
       impact: 'Generated $10M+ in projected revenue impact with 23% improvement in pricing accuracy',
-      github: 'https://github.com/ElijahDeangulo/pricing-intelligence',
+      github: 'https://github.com/ElijahDeangulo',
       website: undefined
     },
     'revenue-intelligence': {
@@ -1811,7 +1799,7 @@ export default function Home() {
         'Real-time sales performance dashboards'
       ],
       impact: 'Improved forecast accuracy by 34% and increased sales team productivity by 28%',
-      github: 'https://github.com/ElijahDeangulo/revenue-intelligence'
+      github: 'https://github.com/ElijahDeangulo'
     },
     'special-miracle': {
       title: 'Non-Profit Organization',
@@ -2060,7 +2048,7 @@ export default function Home() {
         name: 'Docker', 
         icon: (
           <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M21.3,9.9C21.2,9.8 21.1,9.7 21,9.6C20.3,9.1 19.4,8.9 18.6,9C18.5,8.5 18.3,8.1 18,7.7C17.3,6.9 16.2,6.5 15.1,6.7C14.9,6.5 14.6,6.3 14.3,6.2C13.1,5.7 11.8,5.9 10.8,6.7C10.4,6.3 9.9,6 9.4,5.9C8.1,5.5 6.7,5.9 5.8,6.9C5.6,6.7 5.4,6.5 5.1,6.4C3.9,5.9 2.6,6.1 1.7,7C1.4,7.3 1.2,7.7 1.1,8.1C0.9,8.8 1,9.6 1.4,10.2C1.6,10.6 1.9,10.9 2.3,11.1C2.8,11.4 3.4,11.5 4,11.4C4.3,11.8 4.7,12.1 5.2,12.3C6.4,12.8 7.7,12.6 8.7,11.8C9.1,12.2 9.6,12.5 10.1,12.6C11.4,13 12.8,12.6 13.7,11.6C13.9,11.8 14.2,12 14.5,12.1C15.7,12.6 17,12.4 17.9,11.5C18.1,11.7 18.3,11.9 18.6,12C19.8,12.5 21.1,12.3 22,11.4C22.3,11.1 22.5,10.7 22.6,10.3C22.8,9.6 22.7,8.8 22.3,8.2C22.1,7.8 21.8,7.5 21.4,7.3C20.9,7 20.3,6.9 19.7,7C19.4,6.6 19,6.3 18.5,6.1C17.3,5.6 16,5.8 15.1,6.7C14.7,6.3 14.2,6 13.7,5.9C12.4,5.5 11,5.9 10.1,6.9C9.9,6.7 9.7,6.5 9.4,6.4C8.2,5.9 6.9,6.1 6,7C5.7,7.3 5.5,7.7 5.4,8.1C5.2,8.8 5.3,9.6 5.7,10.2C5.9,10.6 6.2,10.9 6.6,11.1C7.1,11.4 7.7,11.5 8.3,11.4C8.6,11.8 9,12.1 9.5,12.3C10.7,12.8 12,12.6 13,11.8C13.4,12.2 13.9,12.5 14.4,12.6C15.7,13 17.1,12.6 18,11.6C18.2,11.8 18.5,12 18.8,12.1C20,12.6 21.3,12.4 22.2,11.5C22.5,11.2 22.7,10.8 22.8,10.4C23,9.7 22.9,8.9 22.5,8.3C22.3,7.9 22,7.6 21.6,7.4C21.1,7.1 20.5,7 19.9,7.1C19.6,6.7 19.2,6.4 18.7,6.2C17.5,5.7 16.2,5.9 15.3,6.8C14.9,6.4 14.4,6.1 13.9,6C12.6,5.6 11.2,6 10.3,7C10.1,6.8 9.9,6.6 9.6,6.5C8.4,6 7.1,6.2 6.2,7.1C5.9,7.4 5.7,7.8 5.6,8.2C5.4,8.9 5.5,9.7 5.9,10.3C6.1,10.7 6.4,11 6.8,11.2C7.3,11.5 7.9,11.6 8.5,11.5C8.8,11.9 9.2,12.2 9.7,12.4C10.9,12.9 12.2,12.7 13.2,11.9C13.6,12.3 14.1,12.6 14.6,12.7C15.9,13.1 17.3,12.7 18.2,11.7C18.4,11.9 18.7,12.1 19,12.2C20.2,12.7 21.5,12.5 22.4,11.6C22.7,11.3 22.9,10.9 23,10.5C23.2,9.8 23.1,9 22.7,8.4C22.5,8 22.2,7.7 21.8,7.5C21.3,7.2 20.7,7.1 20.1,7.2C19.8,6.8 19.4,6.5 18.9,6.3C17.7,5.8 16.4,6 15.5,6.9C15.1,6.5 14.6,6.2 14.1,6.1C12.8,5.7 11.4,6.1 10.5,7.1C10.3,6.9 10.1,6.7 9.8,6.6C8.6,6.1 7.3,6.3 6.4,7.2C6.1,7.5 5.9,7.9 5.8,8.3C5.6,9 5.7,9.8 6.1,10.4C6.3,10.8 6.6,11.1 7,11.3C7.5,11.6 8.1,11.7 8.7,11.6C9,12 9.4,12.3 9.9,12.5C11.1,13 12.4,12.8 13.4,12C13.8,12.4 14.3,12.7 14.8,12.8C16.1,13.2 17.5,12.8 18.4,11.8C18.6,12 18.9,12.2 19.2,12.3C20.4,12.8 21.7,12.6 22.6,11.7C22.9,11.4 23.1,11 23.2,10.6C23.4,9.9 23.3,9.1 22.9,8.5C22.7,8.1 22.4,7.8 22,7.6C21.5,7.3 20.9,7.2 20.3,7.3C20,6.9 19.6,6.6 19.1,6.4C17.9,5.9 16.6,6.1 15.7,7C15.3,6.6 14.8,6.3 14.3,6.2C13,5.8 11.6,6.2 10.7,7.2C10.5,7 10.3,6.8 10,6.7C8.8,6.2 7.5,6.4 6.6,7.3C6.3,7.6 6.1,8 6,8.4C5.8,9.1 5.9,9.9 6.3,10.5C6.5,10.9 6.8,11.2 7.2,11.4C7.7,11.7 8.3,11.8 8.9,11.7C9.2,12.1 9.6,12.4 10.1,12.6C11.3,13.1 12.6,12.9 13.6,12.1C14,12.5 14.5,12.8 15,12.9C16.3,13.3 17.7,12.9 18.6,11.9C18.8,12.1 19.1,12.3 19.4,12.4C20.6,12.9 21.9,12.7 22.8,11.8C23.1,11.5 23.3,11.1 23.4,10.7C23.6,10 23.5,9.2 23.1,8.6C22.9,8.2 22.6,7.9 22.2,7.7C21.7,7.4 21.1,7.3 20.5,7.4C20.2,7 19.8,6.7 19.3,6.5C18.1,6 16.8,6.2 15.9,7.1C15.5,6.7 15,6.4 14.5,6.3C13.2,5.9 11.8,6.3 10.9,7.3C10.7,7.1 10.5,6.9 10.2,6.8C9,6.3 7.7,6.5 6.8,7.4C6.5,7.7 6.3,8.1 6.2,8.5C6,9.2 6.1,10 6.5,10.6C6.7,11 7,11.3 7.4,11.5C7.9,11.8 8.5,11.9 9.1,11.8C9.4,12.2 9.8,12.5 10.3,12.7C11.5,13.2 12.8,13 13.8,12.2C14.2,12.6 14.7,12.9 15.2,13C16.5,13.4 17.9,13 18.8,12C19,12.2 19.3,12.4 19.6,12.5C20.8,13 22.1,12.8 23,11.9C23.3,11.6 23.5,11.2 23.6,10.8C23.8,10.1 23.7,9.3 23.3,8.7C23.1,8.3 22.8,8 22.4,7.8C21.9,7.5 21.3,7.4 20.7,7.5C20.4,7.1 20,6.8 19.5,6.6C18.3,6.1 17,6.3 16.1,7.2C15.7,6.8 15.2,6.5 14.7,6.4C13.4,6 12,6.4 11.1,7.4C10.9,7.2 10.7,7 10.4,6.9C9.2,6.4 7.9,6.6 7,7.5C6.7,7.8 6.5,8.2 6.4,8.6C6.2,9.3 6.3,10.1 6.7,10.7C6.9,11.1 7.2,11.4 7.6,11.6C8.1,11.9 8.7,12 9.3,11.9C9.6,12.3 10,12.6 10.5,12.8C11.7,13.3 13,13.1 14,12.3C14.4,12.7 14.9,13 15.4,13.1C16.7,13.5 18.1,13.1 19,12.1C19.2,12.3 19.5,12.5 19.8,12.6C21,13.1 22.3,12.9 23.2,12C23.5,11.7 23.7,11.3 23.8,10.9C24,10.2 23.9,9.4 23.5,8.8C23.3,8.4 23,8.1 22.6,7.9C22.1,7.6 21.5,7.5 20.9,7.6C20.6,7.2 20.2,6.9 19.7,6.7C18.5,6.2 17.2,6.4 16.3,7.3C15.9,6.9 15.4,6.6 14.9,6.5C13.6,6.1 12.2,6.5 11.3,7.5C11.1,7.3 10.9,7.1 10.6,7C9.4,6.5 8.1,6.7 7.2,7.6C6.9,7.9 6.7,8.3 6.6,8.7C6.4,9.4 6.5,10.2 6.9,10.8C7.1,11.2 7.4,11.5 7.8,11.7C8.3,12 8.9,12.1 9.5,12C9.8,12.4 10.2,12.7 10.7,12.9C11.9,13.4 13.2,13.2 14.2,12.4C14.6,12.8 15.1,13.1 15.6,13.2C16.9,13.6 18.3,13.2 19.2,12.2C19.4,12.4 19.7,12.6 20,12.7C21.2,13.2 22.5,13 23.4,12.1C23.7,11.8 23.9,11.4 24,11C24.2,10.3 24.1,9.5 23.7,8.9Z"/>
+            <path d="M21.3,9.9C21.2,9.8 21.1,9.7 21,9.6C20.3,9.1 19.4,8.9 18.6,9C18.5,8.5 18.3,8.1 18,7.7C17.3,6.9 16.2,6.5 15.1,6.7C14.9,6.5 14.6,6.3 14.3,6.2C13.1,5.7 11.8,5.9 10.8,6.7C10.4,6.3 9.9,6 9.4,5.9C8.1,5.5 6.7,5.9 5.8,6.9C5.6,6.7 5.4,6.5 5.1,6.4C3.9,5.9 2.6,6.1 1.7,7C1.4,7.3 1.2,7.7 1.1,8.1C0.9,8.8 1,9.6 1.4,10.2C1.6,10.6 1.9,10.9 2.3,11.1C2.8,11.4 3.4,11.5 4,11.4C4.3,11.8 4.7,12.1 5.2,12.3C6.4,12.8 7.7,12.6 8.7,11.8C9.1,12.2 9.6,12.5 10.1,12.6C11.4,13 12.8,12.6 13.7,11.6C13.9,11.8 14.2,12 14.5,12.1C15.7,12.6 17,12.4 17.9,11.5C18.1,11.7 18.3,11.9 18.6,12C19.8,12.5 21.1,12.3 22,11.4C22.3,11.1 22.5,10.7 22.6,10.3C22.8,9.6 22.7,8.8 22.3,8.2C22.1,7.8 21.8,7.5 21.4,7.3C20.9,7 20.3,6.9 19.7,7C19.4,6.6 19,6.3 18.5,6.1C17.3,5.6 16,5.8 15.1,6.7C14.7,6.3 14.2,6 13.7,5.9C12.4,5.5 11,5.9 10.1,6.9C9.9,6.7 9.7,6.5 9.4,6.4C8.2,5.9 6.9,6.1 6,7C5.7,7.3 5.5,7.7 5.4,8.1C5.2,8.8 5.3,9.6 5.7,10.2C5.9,10.6 6.2,10.9 6.6,11.1C7.1,11.4 7.7,11.5 8.3,11.4C8.6,11.8 9,12.1 9.5,12.3C10.7,12.8 12,12.6 13,11.8C13.4,12.2 13.9,12.5 14.4,12.6C15.7,13 17.1,12.6 18,11.6C18.2,11.8 18.5,12 18.8,12.1C20,12.6 21.3,12.4 22.2,11.5C22.5,11.2 22.7,10.8 22.8,10.4C23,9.7 22.9,8.9 22.5,8.3C22.3,7.9 22,7.6 21.6,7.4C21.1,7.1 20.5,7 19.9,7.1C19.6,6.7 19.2,6.4 18.7,6.2C17.5,5.7 16.2,5.9 15.3,6.8C14.9,6.4 14.4,6.1 13.9,6C12.6,5.6 11.2,6 10.3,7C10.1,6.8 9.9,6.6 9.6,6.5C8.4,6 7.1,6.2 6.2,7.1C5.9,7.4 5.7,7.8 5.6,8.2C5.4,8.9 5.5,9.7 5.9,10.3C6.1,10.7 6.4,11 6.8,11.2C7.3,11.5 7.9,11.6 8.5,11.5C8.8,11.9 9.2,12.2 9.7,12.4C10.9,12.9 12.2,12.7 13.2,11.9C13.6,12.3 14.1,12.6 14.6,12.7C15.9,13.1 17.3,12.7 18.2,11.7C18.4,11.9 18.7,12.1 19,12.2C20.2,12.7 21.5,12.5 22.4,11.6C22.7,11.3 22.9,10.9 23,10.5C23.2,9.8 23.1,9 22.7,8.4C22.5,8 22.2,7.7 21.8,7.5C21.3,7.2 20.7,7.1 20.1,7.2C19.8,6.8 19.4,6.5 18.9,6.3C17.7,5.8 16.4,6 15.5,6.9C15.1,6.5 14.6,6.2 14.1,6.1C12.8,5.7 11.4,6.1 10.5,7.1C10.3,6.9 10.1,6.7 9.8,6.6C8.6,6.1 7.3,6.3 6.4,7.2C6.1,7.5 5.9,7.9 5.8,8.3C5.6,9 5.7,9.8 6.1,10.4C6.3,10.8 6.6,11.1 7,11.3C7.5,11.6 8.1,11.7 8.7,11.6C9,12 9.4,12.3 9.9,12.5C11.1,13 12.4,12.8 13.4,12C13.8,12.4 14.3,12.7 14.8,12.8C16.1,13.2 17.5,12.8 18.4,11.8C18.6,12 18.9,12.2 19.2,12.3C20.4,12.8 21.7,12.6 22.6,11.7C22.9,11.4 23.1,11 23.2,10.6C23.4,9.9 23.3,9.1 22.9,8.5C22.7,8.1 22.4,7.8 22,7.6C21.5,7.3 20.9,7.2 20.3,7.3C20,6.9 19.6,6.6 19.1,6.4C17.9,5.9 16.6,6.1 15.7,7C15.3,6.6 14.8,6.3 14.3,6.2C13,5.8 11.6,6.2 10.7,7.2C10.5,7 10.3,6.8 10,6.7C8.8,6.2 7.5,6.4 6.6,7.3C6.3,7.6 6.1,8 6,8.4C5.8,9.1 5.9,9.9 6.3,10.5C6.5,10.9 6.8,11.2 7.2,11.4C7.7,11.7 8.3,11.8 8.9,11.7C9.2,12.1 9.6,12.4 10.1,12.6C11.3,13.1 12.6,12.9 13.6,12.1C14,12.5 14.5,12.8 15,12.9C16.3,13.3 17.7,12.9 18.6,11.9C18.8,12.1 19.1,12.3 19.4,12.4C20.6,12.9 21.9,12.7 22.8,11.8C23.1,11.5 23.3,11.1 23.4,10.7C23.6,10 23.5,9.2 23.1,8.6C22.9,8.2 22.6,7.9 22.2,7.7C21.7,7.4 21.1,7.3 20.5,7.4C20.2,7 19.8,6.7 19.3,6.5C18.1,6 16.8,6.2 15.9,7.1C15.5,6.7 15,6.4 14.5,6.3C13.2,5.9 11.8,6.3 10.9,7.3C10.7,7.1 10.5,6.9 10.2,6.8C9,6.3 7.7,6.5 6.8,7.4C6.5,7.7 6.3,8.1 6.2,8.5C6,9.2 6.1,10 6.5,10.6C6.7,11 7,11.3 7.4,11.5C7.9,11.8 8.5,11.9 9.1,11.8C9.4,12.2 9.8,12.5 10.3,12.7C11.5,13.2 12.8,13 13.8,12.2C14.2,12.6 14.7,12.9 15.2,13C16.5,13.4 17.9,13 18.8,12C19,12.2 19.3,12.4 19.6,12.5C20.8,13 22.1,12.8 23,11.9C23.3,11.6 23.5,11.2 23.6,10.8C23.8,10 23.7,9.2 23.3,8.7C23.1,8.3 22.8,8 22.4,7.8C21.9,7.5 21.3,7.4 20.7,7.5C20.4,7.1 20,6.8 19.5,6.6C18.3,6.1 17,6.3 16.1,7.2C15.7,6.8 15.2,6.5 14.7,6.4C13.4,6 12,6.4 11.1,7.4C10.9,7.2 10.7,7 10.4,6.9C9.2,6.4 7.9,6.6 7,7.5C6.7,7.8 6.5,8.2 6.4,8.6C6.2,9.3 6.3,10.1 6.7,10.7C6.9,11.1 7.2,11.4 7.6,11.6C8.1,11.9 8.7,12 9.3,11.9C9.6,12.3 10,12.6 10.5,12.8C11.7,13.3 13,13.1 14,12.3C14.4,12.7 14.9,13 15.4,13.1C16.7,13.5 18.1,13.1 19,12.1C19.2,12.3 19.5,12.5 19.8,12.6C21,13.1 22.3,12.9 23.2,12C23.5,11.7 23.7,11.3 23.8,10.9C24,10.2 23.9,9.4 23.5,8.8C23.3,8.4 23,8.1 22.6,7.9C22.1,7.6 21.5,7.5 20.9,7.6C20.6,7.2 20.2,6.9 19.7,6.7C18.5,6.2 17.2,6.4 16.3,7.3C15.9,6.9 15.4,6.6 14.9,6.5C13.6,6.1 12.2,6.5 11.3,7.5C11.1,7.3 10.9,7.1 10.6,7C9.4,6.5 8.1,6.7 7.2,7.6C6.9,7.9 6.7,8.3 6.6,8.7C6.4,9.4 6.5,10.2 6.9,10.8C7.1,11.2 7.4,11.5 7.8,11.7C8.3,12 8.9,12.1 9.5,12C9.8,12.4 10.2,12.7 10.7,12.9C11.9,13.4 13.2,13.2 14.2,12.4C14.6,12.8 15.1,13.1 15.6,13.2C16.9,13.6 18.3,13.2 19.2,12.2C19.4,12.4 19.7,12.6 20,12.7C21.2,13.2 22.5,13 23.4,12.1C23.7,11.8 23.9,11.4 24,11C24.2,10.3 24.1,9.5 23.7,8.9Z"/>
           </svg>
         ), 
         categories: ['backend', 'devops'] 
@@ -2326,37 +2314,26 @@ export default function Home() {
       
       const carouselElement = document.querySelector('[data-carousel="featured-projects"]')
       if (carouselElement) {
-        // Use requestAnimationFrame to ensure smooth scrolling after state updates
-        requestAnimationFrame(() => {
-          carouselElement.scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'center'
-          })
+        carouselElement.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center' // Center the carousel in the viewport
         })
       } else {
         // Fallback if carousel element not found
         console.log('Carousel element not found, using fallback scroll')
         const scrollTarget = document.documentElement.scrollHeight - window.innerHeight * 0.6
-        requestAnimationFrame(() => {
-          window.scrollTo({
-            top: scrollTarget,
-            behavior: 'smooth'
-          })
+        window.scrollTo({
+          top: scrollTarget,
+          behavior: 'smooth'
         })
       }
       return
     }
     
-    // Standard scrolling for other sections - stabilized
+    // Standard scrolling for other sections
     const element = document.getElementById(sectionId)
     if (element) {
-      // Use requestAnimationFrame to prevent scroll jumping during parallax animations
-      requestAnimationFrame(() => {
-        element.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'start'
-        })
-      })
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' })
     } else {
       console.log(`Element with id '${sectionId}' not found`)
     }
@@ -2366,13 +2343,7 @@ export default function Home() {
     // Close any open modals when going home
     setShowAboutModal(false)
     setShowContactModal(false)
-    setShowDownloadConfirm(false)
-    setSelectedProject(null)
-    
-    // Use requestAnimationFrame to prevent scroll jumping during parallax animations
-    requestAnimationFrame(() => {
-      window.scrollTo({ top: 0, behavior: 'smooth' })
-    })
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const handleAboutClick = () => {
@@ -3127,30 +3098,30 @@ export default function Home() {
                   </div>
                 </div>
 
-                                 {/* Tech Stack Preview - Improved Visual Hierarchy */}
+                                 {/* Tech Stack Preview */}
                  <div 
-                   className="rounded-xl bg-card/60 backdrop-blur-sm border border-border/60 p-4 shadow-lg shadow-background/20"
+                   className="rounded-lg bg-card/50 backdrop-blur-sm border border-border/50 p-2"
                    style={getHeroElementTransform('right', 0.6)}
                  >
-                   <div className="flex items-center justify-between mb-3">
-                     <h3 className="text-sm font-semibold text-foreground">Core Technologies</h3>
+                   <div className="flex items-center justify-between mb-1.5">
+                     <h3 className="text-xs font-medium text-foreground">Core Technologies</h3>
                      <button
                        onClick={() => setShowSkillsModal(true)}
-                       className="group flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-all duration-300 hover:scale-105"
+                       className="group flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-all duration-300"
                      >
-                       <span className="text-xs font-medium">View All</span>
-                       <svg className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                       <span className="text-xs">View More</span>
+                       <svg className="h-3 w-3 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                        </svg>
                      </button>
                    </div>
-                   <div className="grid grid-cols-4 gap-2">
+                   <div className="grid grid-cols-4 gap-1.5">
                      {[
                        { 
                          name: 'Python', 
                          icon: (
                            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
-                             <path d="M14.25.18l.9.2.73.26.59.3.45.32.34.34.25.34.16.33.1.3.04.26.02.2-.01.13V8.5l-.05.63-.13.55-.21.46-.26.38-.3.31-.33.25-.35.19-.35.14-.33.1-.3.07-.26.04-.21.02H8.77l-.69.05-.59.14-.5.22-.41.27-.33.32-.27.35-.2.36-.15.37-.1.35-.07.32-.04.27-.02.21v3.06H3.17l-.21-.03-.28-.07-.32-.12-.35-.18-.36-.26-.36-.36-.35-.46-.32-.59-.28-.73-.21-.88-.14-1.05-.05-1.23.06-1.22.16-1.04.24-.87.32-.71.36-.57.4-.44.42-.33.42-.24.4-.16.36-.1.32-.05.24-.01h.16l.06.01h8.16v-.83H6.18l-.01-2.75-.02-.37.05-.34.11-.31.17-.28.25-.26.31-.23.38-.2.44-.18.51-.15.58-.12.64-.1.71-.06.77-.04.84-.02 1.27.05zm-6.3 1.98l-.23.33-.08.41.08.41.23.34.33.22.41.09.41-.09.33-.22.23-.34.08-.41-.08-.41-.23-.33-.33-.22-.41-.09-.41.09zm13.09 3.95l.28.06.32.12.35.18.36.27.36.35.35.47.32.59.28.73.21.88.14 1.04.05 1.23-.06 1.23-.16 1.04-.24.86-.32.71-.36.57-.4.45-.42.33-.42.24-.4.16-.36.09-.32.05-.24.02-.16-.01h-8.22v.82h5.84l.01 2.76.02.36-.05.34-.11.31-.17.29-.25.25-.31.24-.38.2-.44.17-.51.15-.58.13-.64.09-.71.07-.77.04-.84.01-1.27-.04-1.07-.14-.9-.2-.73-.25-.59-.3-.45-.33-.34-.34-.25-.34-.16-.33-.1-.3-.04-.25-.02-.2.01-.13v-5.34l.05-.64.13-.54.21-.46.26-.38.3-.32.33-.24.35-.2.35-.14.33-.1.3-.06.26-.04.21-.02.13-.01h5.84l.69-.05.59-.14.5-.21.41-.28.33-.32.27-.35.2-.36.15-.36.1-.35.07-.32.04-.28.02-.21V6.07h2.09l.14.01zm-6.47 14.25l-.23.33-.08.41.08.41.23.33.33.23.41.08.41-.08.33-.23.23-.33.08-.41-.08-.41-.23-.33-.33-.23-.41-.08-.41.08z"/>
+                             <path d="M14.25.18l.9.2.73.26.59.3.45.32.34.34.25.34.16.33.1.3.04.26.02.2-.01.13V8.5l-.05.63-.13.55-.21.46-.26.38-.3.31-.33.25-.35.19-.35.14-.33.1-.3.07-.26.04-.21.02H8.77l-.69.05-.59.14-.5.22-.41.27-.33.32-.27.35-.2.36-.15.37-.1.35-.07.32-.04.27-.02.21v3.06H3.17l-.21-.03-.28-.07-.32-.12-.35-.18-.36-.26-.36-.36-.35-.46-.32-.59-.28-.73-.21-.88-.14-1.05-.05-1.23.06-1.22.16-1.04.24-.87.32-.71.36-.57.4-.44.42-.33.42-.24.4-.16.36-.1.32-.05.24-.02-.16-.01h.16l.06.01h8.16v-.83H6.18l-.01-2.75-.02-.37.05-.34.11-.31.17-.28.25-.26.31-.23.38-.2.44-.18.51-.15.58-.12.64-.1.71-.06.77-.04.84-.02 1.27.05zm-6.3 1.98l-.23.33-.08.41.08.41.23.34.33.22.41.09.41-.09.33-.22.23-.34.08-.41-.08-.41-.23-.33-.33-.22-.41-.09-.41.09zm13.09 3.95l.28.06.32.12.35.18.36.27.36.35.35.47.32.59.28.73.21.88.14 1.04.05 1.23-.06 1.23-.16 1.04-.24.86-.32.71-.36.57-.4.45-.42.33-.42.24-.4.16-.36.09-.32.05-.24.02-.16-.01h-8.22v.82h5.84l.01 2.76.02.36-.05.34-.11.31-.17.29-.25.25-.31.24-.38.2-.44.17-.51.15-.58.13-.64.09-.71.07-.77.04-.84.01-1.27-.04-1.07-.14-.9-.2-.73-.25-.59-.3-.45-.33-.34-.34-.25-.34-.16-.33-.1-.3-.04-.25-.02-.2.01-.13v-5.34l.05-.64.13-.54.21-.46.26-.38.3-.32.33-.24.35-.2.35-.14.33-.1.3-.06.26-.04.21-.02.13-.01h5.84l.69-.05.59-.14.5-.21.41-.28.33-.32.27-.35.2-.36.15-.36.1-.35.07-.32.04-.28.02-.21V6.07h2.09l.14.01zm-6.47 14.25l-.23.33-.08.41.08.41.23.33.33.23.41.08.41-.08.33-.23.23-.33.08-.41-.08-.41-.23-.33-.33-.23-.41-.08-.41.08z"/>
                            </svg>
                          )
                        },
@@ -3213,15 +3184,15 @@ export default function Home() {
                                             ].map((tech, index) => (
                          <div 
                            key={tech.name}
-                           className="group flex flex-col items-center gap-1 p-2 rounded-lg bg-background/60 border border-border/60 transition-all duration-300 hover:scale-105 hover:bg-accent/30 hover:border-border hover:shadow-lg"
+                           className="group flex flex-col items-center gap-0.5 p-1 rounded-lg bg-background/50 border border-border/50 transition-all duration-300 hover:scale-110 hover:bg-accent/20"
                            style={{
                              animationDelay: `${index * 100}ms`
                            }}
                          >
-                           <div className="text-muted-foreground group-hover:text-primary transition-colors duration-300">
+                           <div className="text-muted-foreground group-hover:text-primary transition-colors">
                              {tech.icon}
                            </div>
-                           <div className="text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors duration-300">{tech.name}</div>
+                           <div className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">{tech.name}</div>
                          </div>
                        ))}
                    </div>
