@@ -1118,10 +1118,12 @@ const FloatingElements = ({ section }: { section: string }) => {
 // Featured Projects Carousel Component
 const FeaturedProjectsCarousel = ({ 
   mousePosition, 
-  getSectionTransform
+  getSectionTransform,
+  onProjectClick
 }: { 
   mousePosition: { x: number; y: number }; 
   getSectionTransform: (speed: number) => any;
+  onProjectClick?: (projectId: string) => void;
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isVisible, setIsVisible] = useState(false)
@@ -1135,7 +1137,7 @@ const FeaturedProjectsCarousel = ({
   const getCurrentProjectColors = () => {
     const currentProject = projects[currentIndex]
     
-    // Extract colors from project data
+    // Extract colors from project data  
     const colorMap: Record<string, { from: string; to: string; shadow: string }> = {
       'text-cyan-400': { from: 'rgb(34, 211, 238)', to: 'rgb(6, 182, 212)', shadow: 'rgba(34, 211, 238, 0.4)' },
       'text-emerald-400': { from: 'rgb(52, 211, 153)', to: 'rgb(16, 185, 129)', shadow: 'rgba(52, 211, 153, 0.4)' },
@@ -1150,9 +1152,11 @@ const FeaturedProjectsCarousel = ({
   const projects = [
     {
       id: 1,
-      emoji: '🤖',
+      projectId: 'ar-automation',
+      logo: '/images/logos/palantir.jpg',
       title: 'AR Automation Platform',
       description: 'End-to-end accounts receivable automation using multi-agent LLM orchestration, RAG techniques, and real-time payment processing.',
+      briefDescription: 'AI-powered system using LLM orchestration and RAG techniques to automate accounts receivable, reducing manual work by 85%.',
       tags: ['PySpark', 'LLM', 'RAG', 'Foundry', 'TypeScript'],
       gradient: 'from-blue-500/20 to-cyan-500/20',
       accentColor: 'text-cyan-400',
@@ -1160,19 +1164,23 @@ const FeaturedProjectsCarousel = ({
     },
     {
       id: 2,
-      emoji: '📈',
+      projectId: 'pricing-intelligence',
+      logo: '/images/logos/palantir.jpg',
       title: 'Pricing Intelligence Platform',
       description: 'Bayesian optimization models with demand curve simulation and real-time anomaly detection driving $10M+ revenue impact.',
+      briefDescription: 'ML platform using Bayesian optimization and demand simulation to optimize pricing strategies, driving $10M+ revenue impact.',
       tags: ['Bayesian Optimization', 'Python', 'Real-time Analytics', 'ML Models'],
-      gradient: 'from-emerald-500/20 to-green-500/20',
-      accentColor: 'text-emerald-400',
-      shadowColor: 'shadow-emerald-500/20'
+      gradient: 'from-orange-500/20 to-red-500/20',
+      accentColor: 'text-orange-400',
+      shadowColor: 'shadow-orange-500/20'
     },
     {
       id: 3,
-      emoji: '🏆',
-      title: 'A Special Miracle',
+      projectId: 'special-miracle',
+      logo: '/images/logos/asm.jpg',
+      title: 'Non-Profit Organization',
       description: 'Founded a non-profit organization focused on community impact and social good initiatives.',
+      briefDescription: 'Non-profit supporting families with children with Down Syndrome through community resources, educational programs, and advocacy.',
       tags: ['Leadership', 'Non-Profit', 'Community Impact'],
       gradient: 'from-purple-500/20 to-pink-500/20',
       accentColor: 'text-purple-400',
@@ -1181,13 +1189,15 @@ const FeaturedProjectsCarousel = ({
     },
     {
       id: 4,
-      emoji: '💼',
+      projectId: 'revenue-intelligence',
+      logo: '/images/logos/inselligence.jpg',
       title: 'Revenue Intelligence Suite',
       description: 'ML-driven sales forecasting and CRM optimization platform improving pipeline hygiene and customer engagement.',
+      briefDescription: 'Sales intelligence platform using ML to predict revenue trends, optimize CRM processes, and enhance customer engagement.',
       tags: ['ML Forecasting', 'CRM', 'Python', 'API Integration'],
-      gradient: 'from-orange-500/20 to-red-500/20',
-      accentColor: 'text-orange-400',
-      shadowColor: 'shadow-orange-500/20'
+      gradient: 'from-emerald-500/20 to-green-500/20',
+      accentColor: 'text-emerald-400',
+      shadowColor: 'shadow-emerald-500/20'
     }
   ]
 
@@ -1255,7 +1265,7 @@ const FeaturedProjectsCarousel = ({
       normalizedOffset = offset + totalProjects
     }
 
-    const translateX = normalizedOffset * 320 + (isDragging ? 0 : 0)
+    const translateX = normalizedOffset * 550 + (isDragging ? 0 : 0)
     const scale = Math.max(0.7, 1 - Math.abs(normalizedOffset) * 0.15)
     const opacity = Math.max(0.3, 1 - Math.abs(normalizedOffset) * 0.3)
     const rotateY = normalizedOffset * -15
@@ -1412,7 +1422,7 @@ const FeaturedProjectsCarousel = ({
             return (
               <motion.div
                 key={project.id}
-                className="absolute left-1/2 top-1/2 w-72 cursor-grab active:cursor-grabbing"
+                className="absolute left-1/2 top-1/2 w-[520px] cursor-grab active:cursor-grabbing"
                 style={{
                   zIndex: transform.zIndex,
                   transformOrigin: 'center center',
@@ -1445,67 +1455,121 @@ const FeaturedProjectsCarousel = ({
                 whileTap={{ scale: transform.scale * 0.95 }}
               >
                 <div 
-                  className={`relative rounded-2xl border border-border/50 bg-gradient-to-br ${project.gradient} backdrop-blur-sm p-6 transition-all duration-300 hover:border-border group ${project.shadowColor} shadow-xl`}
+                  className={`relative rounded-2xl border border-border/50 bg-gradient-to-br ${project.gradient} backdrop-blur-sm p-6 transition-all duration-300 hover:border-border group ${project.shadowColor} shadow-xl cursor-pointer h-64`}
                   style={{
                     transform: `translate3d(${mousePosition.x * 0.005}px, ${mousePosition.y * 0.005}px, 0)`,
                     background: `linear-gradient(135deg, hsl(var(--card) / 0.8), hsl(var(--card) / 0.4))`,
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onProjectClick?.(project.projectId)
                   }}
                 >
                   {/* Accent gradient overlay */}
                   <div className={`absolute inset-0 rounded-2xl bg-gradient-to-r ${project.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none`} />
                   
                   {/* Content */}
-                  <div className="relative z-10">
-                    <motion.div 
-                      className="mb-4 text-4xl"
-                      whileHover={{ scale: 1.2, rotate: 10 }}
-                      transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                    >
-                      {project.emoji}
-                    </motion.div>
+                  <div className="relative z-10 h-full flex flex-col">
+                    {/* Header with logo and title */}
+                    <div className="flex items-start gap-4 mb-3">
+                      <motion.div 
+                        className="w-12 h-12 flex-shrink-0 rounded-lg overflow-hidden bg-white/10 backdrop-blur-sm border border-white/20"
+                        whileHover={{ scale: 1.1, rotate: 5 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                      >
+                        <img 
+                          src={project.logo} 
+                          alt={project.title}
+                          className="w-full h-full object-contain p-1"
+                        />
+                      </motion.div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className={`text-lg font-bold ${project.accentColor} group-hover:text-foreground transition-colors leading-tight`}>
+                          {project.title}
+                        </h3>
+                        <p className="text-xs text-muted-foreground/70 mt-1">
+                          {project.id === 1 ? 'Palantir Technologies' :
+                           project.id === 2 ? 'Palantir Technologies' :
+                           project.id === 3 ? 'A Special Miracle' :
+                           'Inselligence'}
+                        </p>
+                      </div>
+                    </div>
                     
-                    <h3 className={`mb-3 text-xl font-bold ${project.accentColor} group-hover:text-foreground transition-colors`}>
-                      {project.title}
-                    </h3>
-                    
-                    <p className="mb-4 text-sm text-muted-foreground leading-relaxed line-clamp-3">
-                      {project.description}
+                    {/* Brief Description */}
+                    <p className="mb-4 text-sm text-muted-foreground leading-relaxed line-clamp-2 flex-1">
+                      {project.briefDescription}
                     </p>
                     
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {project.tags.map((tag, tagIndex) => (
+                    {/* Tags */}
+                    <div className="flex flex-wrap gap-1.5 mb-4">
+                      {project.tags.slice(0, 4).map((tag, tagIndex) => (
                         <motion.span
                           key={tagIndex}
-                          className="rounded-full bg-secondary/80 px-3 py-1 text-xs text-secondary-foreground backdrop-blur-sm border border-border/30"
+                          className="rounded-full bg-secondary/80 px-2.5 py-1 text-xs text-secondary-foreground backdrop-blur-sm border border-border/30"
                           whileHover={{ scale: 1.05, y: -2 }}
                           transition={{ type: "spring", stiffness: 400, damping: 10 }}
                         >
                           {tag}
                         </motion.span>
                       ))}
+                      {project.tags.length > 4 && (
+                        <span className="rounded-full bg-secondary/60 px-2.5 py-1 text-xs text-secondary-foreground/60">
+                          +{project.tags.length - 4}
+                        </span>
+                      )}
                     </div>
 
-                    {project.link && (
-                      <motion.a
-                        href={project.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={`inline-flex items-center gap-2 text-sm ${project.accentColor} hover:text-foreground transition-colors group/link`}
-                        whileHover={{ x: 5 }}
+                    {/* Action buttons */}
+                    <div className="flex items-center justify-between">
+                      {/* View More Button */}
+                      <motion.button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          onProjectClick?.(project.projectId)
+                        }}
+                        className={`inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r ${project.gradient.replace('/20', '/40')} border border-border/30 text-sm font-medium ${project.accentColor} hover:text-foreground transition-all duration-300 backdrop-blur-sm hover:scale-105 hover:shadow-lg group/btn`}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
                         transition={{ type: "spring", stiffness: 400, damping: 10 }}
                       >
-                        <span>🌐 Visit Website</span>
+                        <span>View More</span>
                         <motion.svg 
                           className="w-4 h-4" 
                           fill="none" 
                           stroke="currentColor" 
                           viewBox="0 0 24 24"
-                          whileHover={{ x: 3, y: -3 }}
+                          whileHover={{ x: 2 }}
+                          transition={{ type: "spring", stiffness: 400, damping: 10 }}
                         >
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                         </motion.svg>
-                      </motion.a>
-                    )}
+                      </motion.button>
+
+                      {/* Website link (if available) */}
+                      {project.link && (
+                        <motion.a
+                          href={project.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className={`inline-flex items-center gap-1 text-sm ${project.accentColor} hover:text-foreground transition-colors group/link opacity-70 hover:opacity-100`}
+                          whileHover={{ x: 3 }}
+                          transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                        >
+                          <span>🌐</span>
+                          <motion.svg 
+                            className="w-3 h-3" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                            whileHover={{ x: 2, y: -2 }}
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                          </motion.svg>
+                        </motion.a>
+                      )}
+                    </div>
                   </div>
                 </div>
               </motion.div>
@@ -1670,12 +1734,14 @@ export default function Home() {
   const [showAboutModal, setShowAboutModal] = useState(false)
   const [showContactModal, setShowContactModal] = useState(false)
   const [selectedProject, setSelectedProject] = useState<string | null>(null)
+  const [showSkillsModal, setShowSkillsModal] = useState(false)
+  const [selectedSkillCategory, setSelectedSkillCategory] = useState('all')
   
   // Project data for modals
   const projectDetails = {
     'ar-automation': {
       title: 'AR Automation Platform',
-      emoji: '🤖',
+      logo: '/images/logos/palantir.jpg',
       description: 'End-to-end accounts receivable automation using multi-agent LLM orchestration, RAG techniques, and real-time payment processing.',
       fullDescription: 'A comprehensive AI-powered platform that revolutionizes accounts receivable processes through intelligent automation. The system leverages multi-agent LLM orchestration to handle complex business logic, RAG techniques for contextual decision-making, and real-time payment processing.',
       technologies: ['PySpark', 'LLM', 'RAG', 'Foundry', 'TypeScript', 'Python', 'Apache Kafka'],
@@ -1687,11 +1753,12 @@ export default function Home() {
         'Automated invoice matching and dispute resolution'
       ],
       impact: 'Reduced manual processing time by 85% and improved cash flow by $2.3M annually',
-      github: 'https://github.com/ElijahDeangulo/ar-automation'
+      github: 'https://github.com/ElijahDeangulo/ar-automation',
+      website: undefined
     },
     'pricing-intelligence': {
       title: 'Pricing Intelligence Platform',
-      emoji: '📈',
+      logo: '/images/logos/palantir.jpg',
       description: 'Bayesian optimization models with demand curve simulation and real-time anomaly detection. Drove $10M+ in projected revenue impact.',
       fullDescription: 'An advanced ML-driven pricing platform that uses Bayesian optimization to determine optimal pricing strategies. The system simulates demand curves, detects market anomalies in real-time, and provides actionable insights.',
       technologies: ['Bayesian Optimization', 'Python', 'Real-time Analytics', 'ML Models', 'TensorFlow', 'Redis'],
@@ -1703,11 +1770,12 @@ export default function Home() {
         'Revenue impact forecasting'
       ],
       impact: 'Generated $10M+ in projected revenue impact with 23% improvement in pricing accuracy',
-      github: 'https://github.com/ElijahDeangulo/pricing-intelligence'
+      github: 'https://github.com/ElijahDeangulo/pricing-intelligence',
+      website: undefined
     },
     'revenue-intelligence': {
       title: 'Revenue Intelligence Suite',
-      emoji: '💼',
+      logo: '/images/logos/inselligence.jpg',
       description: 'ML-driven sales forecasting and CRM optimization platform improving pipeline hygiene and customer engagement.',
       fullDescription: 'A comprehensive revenue intelligence platform that combines ML-driven sales forecasting with CRM optimization. The system analyzes customer behavior patterns and predicts sales outcomes.',
       technologies: ['ML Forecasting', 'CRM', 'Python', 'API Integration', 'Salesforce', 'React'],
@@ -1722,8 +1790,8 @@ export default function Home() {
       github: 'https://github.com/ElijahDeangulo/revenue-intelligence'
     },
     'special-miracle': {
-      title: 'A Special Miracle',
-      emoji: '🏆',
+      title: 'Non-Profit Organization',
+      logo: '/images/logos/asm.jpg',
       description: 'Founded a non-profit organization focused on community impact and social good initiatives. Supporting families with children with Down Syndrome.',
       fullDescription: 'A Special Miracle is a non-profit organization dedicated to supporting families with children with Down Syndrome. The platform provides resources, community support, and educational content.',
       technologies: ['Leadership', 'Non-Profit', 'Community Impact', 'React', 'Node.js'],
@@ -1738,6 +1806,70 @@ export default function Home() {
       website: 'https://aspecialmiracle.org'
     }
   }
+
+  // Skills data organized by categories
+  const skillsData = {
+    'Programming Languages': [
+      { name: 'Python', icon: '🐍', categories: ['backend', 'data-science', 'ml'] },
+      { name: 'TypeScript', icon: '🔷', categories: ['frontend', 'backend'] },
+      { name: 'JavaScript', icon: '💛', categories: ['frontend', 'backend'] },
+      { name: 'Java', icon: '☕', categories: ['backend'] },
+      { name: 'R', icon: '📊', categories: ['data-science', 'ml'] },
+      { name: 'SQL', icon: '🗃️', categories: ['backend', 'data-science'] }
+    ],
+    'AI/ML & Data Science': [
+      { name: 'Machine Learning', icon: '🤖', categories: ['ml', 'data-science'] },
+      { name: 'TensorFlow', icon: '🧠', categories: ['ml'] },
+      { name: 'Keras', icon: '🔥', categories: ['ml'] },
+      { name: 'scikit-learn', icon: '📈', categories: ['ml', 'data-science'] },
+      { name: 'Pandas', icon: '🐼', categories: ['data-science', 'backend'] },
+      { name: 'NumPy', icon: '🔢', categories: ['data-science', 'ml'] },
+      { name: 'PySpark', icon: '⚡', categories: ['data-science', 'backend'] },
+      { name: 'NLP', icon: '💬', categories: ['ml', 'data-science'] },
+      { name: 'RAG', icon: '🔍', categories: ['ml'] },
+      { name: 'LLM', icon: '🧠', categories: ['ml'] }
+    ],
+    'Frontend Development': [
+      { name: 'React.js', icon: '⚛️', categories: ['frontend'] },
+      { name: 'Next.js', icon: '🔺', categories: ['frontend'] },
+      { name: 'HTML/CSS', icon: '🎨', categories: ['frontend'] },
+      { name: 'Tailwind CSS', icon: '💨', categories: ['frontend'] }
+    ],
+    'Backend & Cloud': [
+      { name: 'Node.js', icon: '🟢', categories: ['backend'] },
+      { name: 'Flask', icon: '🌶️', categories: ['backend'] },
+      { name: 'AWS', icon: '☁️', categories: ['backend', 'cloud'] },
+      { name: 'Apache Spark', icon: '⚡', categories: ['backend', 'data-science'] },
+      { name: 'Docker', icon: '🐳', categories: ['backend', 'devops'] },
+      { name: 'Redis', icon: '🔴', categories: ['backend'] }
+    ],
+    'Tools & Platforms': [
+      { name: 'Git/GitHub', icon: '🔀', categories: ['tools'] },
+      { name: 'Tableau', icon: '📊', categories: ['data-science', 'visualization'] },
+      { name: 'Power BI', icon: '📈', categories: ['data-science', 'visualization'] },
+      { name: 'Foundry', icon: '🔨', categories: ['data-science', 'backend'] },
+      { name: 'Salesforce', icon: '☁️', categories: ['tools'] },
+      { name: 'API Integration', icon: '🔗', categories: ['backend', 'tools'] }
+    ],
+    'Specialized Skills': [
+      { name: 'Prompt Engineering', icon: '✍️', categories: ['ml'] },
+      { name: 'Bayesian Optimization', icon: '📊', categories: ['ml', 'data-science'] },
+      { name: 'Financial Modeling', icon: '💰', categories: ['finance'] },
+      { name: 'SEO/A/B Testing', icon: '🔍', categories: ['marketing'] },
+      { name: 'CRM Analytics', icon: '📊', categories: ['data-science'] }
+    ]
+  }
+
+  const skillCategories = [
+    { id: 'all', name: 'All Skills', icon: '🎯' },
+    { id: 'frontend', name: 'Frontend', icon: '🎨' },
+    { id: 'backend', name: 'Backend', icon: '⚙️' },
+    { id: 'data-science', name: 'Data Science', icon: '📊' },
+    { id: 'ml', name: 'AI/ML', icon: '🤖' },
+    { id: 'cloud', name: 'Cloud', icon: '☁️' },
+    { id: 'tools', name: 'Tools', icon: '🔧' }
+  ]
+
   const [activeTab, setActiveTab] = useState('work')
 
   // Smooth scroll functions
@@ -1749,6 +1881,7 @@ export default function Home() {
       setShowAboutModal(false)
       setShowContactModal(false)
       setShowDownloadConfirm(false)
+      setSelectedProject(null)
       
       const carouselElement = document.querySelector('[data-carousel="featured-projects"]')
       if (carouselElement) {
@@ -2036,6 +2169,99 @@ export default function Home() {
       setThemeToggleContainer(null)
     }
   }, [])
+
+  // Skills Modal Component
+  const SkillsModal = () => {
+    const filteredSkills = selectedSkillCategory === 'all' 
+      ? Object.entries(skillsData).flatMap(([category, skills]) => 
+          skills.map(skill => ({ ...skill, category }))
+        )
+      : Object.entries(skillsData).flatMap(([category, skills]) => 
+          skills.filter(skill => skill.categories.includes(selectedSkillCategory))
+            .map(skill => ({ ...skill, category }))
+        )
+
+    return (
+      <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="bg-card/95 backdrop-blur-sm border border-border rounded-2xl max-w-4xl w-full max-h-[80vh] overflow-hidden">
+          <div className="p-6 border-b border-border">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold text-foreground">My Skills & Expertise</h2>
+                <p className="text-muted-foreground mt-1">Technologies and tools I work with</p>
+              </div>
+              <button
+                onClick={() => setShowSkillsModal(false)}
+                className="p-2 rounded-full hover:bg-accent/50 transition-colors"
+              >
+                <svg className="h-5 w-5 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            {/* Category Filters */}
+            <div className="flex flex-wrap gap-2 mt-4">
+              {skillCategories.map((category) => (
+                <button
+                  key={category.id}
+                  onClick={() => setSelectedSkillCategory(category.id)}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+                    selectedSkillCategory === category.id
+                      ? 'bg-primary text-primary-foreground shadow-lg'
+                      : 'bg-accent/50 text-muted-foreground hover:bg-accent/80 hover:text-foreground'
+                  }`}
+                >
+                  <span>{category.icon}</span>
+                  {category.name}
+                </button>
+              ))}
+            </div>
+          </div>
+          
+          <div className="p-6 overflow-y-auto max-h-[60vh]">
+            <div className="grid gap-6">
+              {selectedSkillCategory === 'all' ? (
+                Object.entries(skillsData).map(([categoryName, skills]) => (
+                  <div key={categoryName}>
+                    <h3 className="text-lg font-semibold text-foreground mb-3">{categoryName}</h3>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                      {skills.map((skill) => (
+                        <div
+                          key={skill.name}
+                          className="flex items-center gap-3 p-3 rounded-lg bg-background/50 border border-border/50 hover:bg-accent/20 hover:scale-105 transition-all duration-300"
+                        >
+                          <span className="text-xl">{skill.icon}</span>
+                          <span className="text-sm font-medium text-foreground">{skill.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div>
+                  <h3 className="text-lg font-semibold text-foreground mb-3">
+                    {skillCategories.find(cat => cat.id === selectedSkillCategory)?.name} Skills
+                  </h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                    {filteredSkills.map((skill, index) => (
+                      <div
+                        key={`${skill.name}-${index}`}
+                        className="flex items-center gap-3 p-3 rounded-lg bg-background/50 border border-border/50 hover:bg-accent/20 hover:scale-105 transition-all duration-300"
+                      >
+                        <span className="text-xl">{skill.icon}</span>
+                        <span className="text-sm font-medium text-foreground">{skill.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div>
@@ -2393,8 +2619,16 @@ export default function Home() {
                    className="rounded-lg bg-card/50 backdrop-blur-sm border border-border/50 p-2"
                    style={getHeroElementTransform('right', 0.6)}
                  >
-                   <h3 className="text-xs font-medium text-foreground mb-1.5">Core Technologies</h3>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 <div className="grid grid-cols-4 gap-1.5">
+                   <div className="flex items-center justify-between mb-1.5">
+                     <h3 className="text-xs font-medium text-foreground">Core Technologies</h3>
+                     <button
+                       onClick={() => setShowSkillsModal(true)}
+                       className="text-xs text-primary hover:text-primary/80 transition-colors font-medium"
+                     >
+                       View More
+                     </button>
+                   </div>
+                   <div className="grid grid-cols-4 gap-1.5">
                      {[
                        { 
                          name: 'Python', 
@@ -2647,7 +2881,7 @@ export default function Home() {
                     </div>
                     <div className="flex-1 pt-1 max-w-lg">
                       <div className="mb-1 text-sm text-muted-foreground">Jan 2025 - Present</div>
-                      <h3 className="mb-1 text-lg font-semibold text-foreground">Palantir</h3>
+                                              <h3 className="mb-1 text-lg font-semibold text-foreground">Palantir Technologies</h3>
                       <div className="text-sm text-muted-foreground">Deployment Strategist Intern</div>
                       <p className="mt-2 text-sm text-muted-foreground">
                         Building enterprise-scale AI solutions and deployment strategies for Fortune 500 companies, focusing on data integration and business transformation.
@@ -2683,8 +2917,8 @@ export default function Home() {
                     </div>
                     <div className="flex-1 pt-1 max-w-lg">
                       <div className="mb-1 text-sm text-muted-foreground">May 2024 - Aug 2024</div>
-                      <h3 className="mb-1 text-lg font-semibold text-foreground">Inselligence (Revenue Intelligence)</h3>
-                      <div className="text-sm text-muted-foreground">Product Manager and Data Analyst Intern</div>
+                                              <h3 className="mb-1 text-lg font-semibold text-foreground">Inselligence</h3>
+                                              <div className="text-sm text-muted-foreground">Product Manager and Software Engineer Intern</div>
                       <p className="mt-2 text-sm text-muted-foreground">
                         Developed AI-powered revenue intelligence platform using LLM orchestration to transform fragmented sales data into actionable insights.
                       </p>
@@ -2975,6 +3209,7 @@ export default function Home() {
             <FeaturedProjectsCarousel 
               mousePosition={mousePosition}
               getSectionTransform={getSectionTransform}
+              onProjectClick={handleProjectClick}
             />
           </div>
         </section>
@@ -2995,6 +3230,9 @@ export default function Home() {
           </div>
         </footer>
         </div>
+
+        {/* Skills Modal */}
+        {showSkillsModal && <SkillsModal />}
 
         {/* About Modal */}
         {showAboutModal && (
@@ -3277,7 +3515,13 @@ export default function Home() {
             <div className="relative bg-background rounded-xl border border-border shadow-2xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto animate-in zoom-in-95 slide-in-from-bottom-8 duration-300">
               <div className="flex justify-between items-center mb-6">
                 <div className="flex items-center gap-3">
-                  <span className="text-3xl">{projectDetails[selectedProject as keyof typeof projectDetails].emoji}</span>
+                  <div className="w-10 h-10 rounded-lg overflow-hidden bg-white/10 backdrop-blur-sm border border-white/20">
+                    <img 
+                      src={projectDetails[selectedProject as keyof typeof projectDetails].logo} 
+                      alt={projectDetails[selectedProject as keyof typeof projectDetails].title}
+                      className="w-full h-full object-contain p-1"
+                    />
+                  </div>
                   <h2 className="text-2xl font-bold text-foreground">{projectDetails[selectedProject as keyof typeof projectDetails].title}</h2>
                 </div>
                 <button 
