@@ -1126,8 +1126,25 @@ const FeaturedProjectsCarousel = ({
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isVisible, setIsVisible] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
+  const [progressWidth, setProgressWidth] = useState(0)
   const sectionRef = useRef<HTMLElement>(null)
   const dragX = useMotionValue(0)
+  const progressIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  
+  // Helper function to get current project colors
+  const getCurrentProjectColors = () => {
+    const currentProject = projects[currentIndex]
+    
+    // Extract colors from project data
+    const colorMap: Record<string, { from: string; to: string; shadow: string }> = {
+      'text-cyan-400': { from: 'rgb(34, 211, 238)', to: 'rgb(6, 182, 212)', shadow: 'rgba(34, 211, 238, 0.4)' },
+      'text-emerald-400': { from: 'rgb(52, 211, 153)', to: 'rgb(16, 185, 129)', shadow: 'rgba(52, 211, 153, 0.4)' },
+      'text-purple-400': { from: 'rgb(196, 181, 253)', to: 'rgb(168, 85, 247)', shadow: 'rgba(196, 181, 253, 0.4)' },
+      'text-orange-400': { from: 'rgb(251, 146, 60)', to: 'rgb(249, 115, 22)', shadow: 'rgba(251, 146, 60, 0.4)' }
+    }
+    
+    return colorMap[currentProject.accentColor as keyof typeof colorMap] || colorMap['text-cyan-400']
+  }
   
   // Project data
   const projects = [
@@ -1190,16 +1207,40 @@ const FeaturedProjectsCarousel = ({
     return () => observer.disconnect()
   }, [])
 
-  // Auto-advance carousel when visible
+  // Auto-advance carousel when visible with progress bar
   useEffect(() => {
-    if (!isVisible || isDragging) return
+    if (!isVisible || isDragging) {
+      setProgressWidth(0)
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current)
+      }
+      return
+    }
 
-    const interval = setInterval(() => {
+    // Reset progress and start new cycle
+    setProgressWidth(0)
+    
+    // Progress bar animation (updates every 100ms for smooth but stable animation)
+    const progressInterval = setInterval(() => {
+      setProgressWidth((prev) => {
+        const increment = (100 / 4000) * 100 // 100% over 4000ms, updated every 100ms
+        return prev >= 100 ? 0 : prev + increment
+      })
+    }, 100)
+    
+    progressIntervalRef.current = progressInterval
+
+    // Main carousel advance (every 4 seconds)
+    const carouselInterval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % projects.length)
+      setProgressWidth(0) // Reset progress when advancing
     }, 4000)
 
-    return () => clearInterval(interval)
-  }, [isVisible, isDragging, projects.length])
+    return () => {
+      clearInterval(carouselInterval)
+      clearInterval(progressInterval)
+    }
+  }, [isVisible, isDragging, projects.length, currentIndex])
 
   // Calculate transforms for infinite loop effect
   const getProjectTransform = (index: number) => {
@@ -1257,6 +1298,9 @@ const FeaturedProjectsCarousel = ({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, ease: "easeOut" }}
     >
+      {/* Scroll anchor for direct targeting */}
+      <div id="carousel-anchor" className="absolute -top-16 left-0 w-1 h-1 opacity-0 pointer-events-none" />
+      
       <FloatingElements section="projects" />
       
       {/* Header */}
@@ -1266,48 +1310,101 @@ const FeaturedProjectsCarousel = ({
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2, duration: 0.6 }}
       >
-        <h2 className="text-3xl font-bold text-foreground bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text">
-          Featured Projects
-        </h2>
+        <div className="relative">
+          <h2 className="text-3xl font-bold text-foreground bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text">
+            Featured Projects
+          </h2>
+          {/* Scroll-triggered sliding underline */}
+          <motion.div 
+            className="absolute -bottom-2 left-0 h-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full shadow-lg shadow-blue-500/30"
+            style={{
+              width: "100%",
+              opacity: isVisible ? 1 : 0,
+              transform: isVisible ? "translateX(0%)" : "translateX(-100%)",
+              transition: "all 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) 1s"
+            }}
+          />
+          {/* Pulsing glow effect that follows */}
+          <motion.div 
+            className="absolute -bottom-2 left-0 h-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full blur-sm"
+            style={{
+              width: "100%",
+              opacity: isVisible ? 0.6 : 0,
+              transform: isVisible ? "translateX(0%) scale(1)" : "translateX(-100%) scale(0.8)",
+              transition: "all 1.4s cubic-bezier(0.34, 1.56, 0.64, 1) 1.2s"
+            }}
+          />
+          {/* Scroll-triggered bouncing particles */}
+          <motion.div 
+            className="absolute -bottom-1 left-1/4 w-1 h-1 bg-blue-400 rounded-full"
+            style={{
+              opacity: isVisible ? 1 : 0,
+              transform: isVisible ? "translateY(-12px) scale(1)" : "translateY(0px) scale(0)",
+              transition: "all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 2.5s"
+            }}
+          />
+          <motion.div 
+            className="absolute -bottom-1 right-1/3 w-1 h-1 bg-blue-500 rounded-full"
+            style={{
+              opacity: isVisible ? 1 : 0,
+              transform: isVisible ? "translateY(-8px) scale(1)" : "translateY(0px) scale(0)",
+              transition: "all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 2.7s"
+            }}
+          />
+          <motion.div 
+            className="absolute -bottom-1 right-1/4 w-1 h-1 bg-purple-500 rounded-full"
+            style={{
+              opacity: isVisible ? 1 : 0,
+              transform: isVisible ? "translateY(-15px) scale(1)" : "translateY(0px) scale(0)",
+              transition: "all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 2.9s"
+            }}
+          />
+        </div>
         <div className="flex items-center gap-4">
-          {/* Progress indicator */}
+          {/* Progress indicator with countdown */}
           <div className="flex gap-2">
             {projects.map((_, index) => (
               <motion.div
                 key={index}
-                className={`h-2 rounded-full cursor-pointer transition-all duration-300 ${
+                className={`relative h-2 rounded-full cursor-pointer transition-all duration-300 ${
                   index === currentIndex 
-                    ? 'w-8 bg-gradient-to-r from-cyan-400 to-blue-500' 
+                    ? 'w-8' 
                     : 'w-2 bg-muted-foreground/30 hover:bg-muted-foreground/50'
                 }`}
-                onClick={() => setCurrentIndex(index)}
+                onClick={() => {
+                  setCurrentIndex(index)
+                  setProgressWidth(0) // Reset progress on manual click
+                }}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
-              />
+              >
+                {index === currentIndex ? (
+                  <>
+                    {/* Background track */}
+                    <div className="absolute inset-0 bg-muted-foreground/30 rounded-full" />
+                    {/* Progress fill with dynamic gradient matching current project */}
+                    <div 
+                      className="absolute inset-0 rounded-full overflow-hidden"
+                      style={{ 
+                        width: `${Math.min(progressWidth, 100)}%`,
+                        background: `linear-gradient(90deg, ${getCurrentProjectColors().from}, ${getCurrentProjectColors().to})`,
+                        boxShadow: `0 0 8px ${getCurrentProjectColors().shadow}`,
+                        transition: 'width 0.1s linear',
+                      }}
+                    />
+                  </>
+                ) : null}
+              </motion.div>
             ))}
           </div>
-          
-          <a href="#" className="group flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground">
-            <span>View all</span>
-            <motion.span 
-              className="relative"
-              whileHover={{ scale: 1.1, rotate: 5 }}
-              transition={{ type: "spring", stiffness: 400, damping: 10 }}
-            >
-              <svg className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" viewBox="0 0 24 24" fill="currentColor">
-                <path className="origin-[12px_12px] transition-transform duration-300 group-hover:rotate-12" d="M4 8c0-2 2-4 8-4s8 2 8 4v2H4V8z"/>
-                <path className="origin-[12px_12px] transition-transform duration-300 group-hover:-rotate-12" d="M4 14c0 2 2 4 8 4s8-2 8-4v-2H4v2z"/>
-                <path className="opacity-80" d="M6 10h1v2H6v-2zm2 0h1v2H8v-2zm2 0h1v2h-1v-2zm2 0h1v2h-1v-2zm2 0h1v2h-1v-2zm2 0h1v2h-1v-2z"/>
-                <circle cx="8" cy="6" r="1"/>
-                <circle cx="16" cy="6" r="1"/>
-              </svg>
-            </motion.span>
-          </a>
         </div>
       </motion.div>
 
       {/* Carousel Container */}
-      <div className="relative h-80 flex items-center justify-center perspective-1000">
+      <div 
+        data-carousel="featured-projects"
+        className="relative h-80 flex items-center justify-center perspective-1000"
+      >
         <div className="relative w-full max-w-6xl">
           {projects.map((project, index) => {
             const transform = getProjectTransform(index)
@@ -1645,9 +1742,38 @@ export default function Home() {
 
   // Smooth scroll functions
   const scrollToSection = (sectionId: string) => {
+    // For featured projects - close all modals first, then scroll to carousel section
+    if (sectionId === 'featured-projects') {
+      console.log('Scrolling to featured projects carousel')
+      // Close any open modals/popups
+      setShowAboutModal(false)
+      setShowContactModal(false)
+      setShowDownloadConfirm(false)
+      
+      const carouselElement = document.querySelector('[data-carousel="featured-projects"]')
+      if (carouselElement) {
+        carouselElement.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center' // Center the carousel in the viewport
+        })
+      } else {
+        // Fallback if carousel element not found
+        console.log('Carousel element not found, using fallback scroll')
+        const scrollTarget = document.documentElement.scrollHeight - window.innerHeight * 0.6
+        window.scrollTo({
+          top: scrollTarget,
+          behavior: 'smooth'
+        })
+      }
+      return
+    }
+    
+    // Standard scrolling for other sections
     const element = document.getElementById(sectionId)
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    } else {
+      console.log(`Element with id '${sectionId}' not found`)
     }
   }
 
@@ -1949,7 +2075,7 @@ export default function Home() {
           <nav className="flex items-center justify-between py-6">
             <ul className="flex items-center space-x-8">
               <li><button onClick={scrollToTop} className="text-sm transition-colors hover:text-foreground/80 text-muted-foreground hover:text-foreground">Home</button></li>
-              <li><button onClick={() => scrollToSection('projects')} className="text-sm transition-colors hover:text-foreground text-muted-foreground hover:text-foreground">Projects</button></li>
+              <li><button onClick={() => scrollToSection('featured-projects')} className="text-sm transition-colors hover:text-foreground text-muted-foreground hover:text-foreground">Projects</button></li>
                               <li><button onClick={handleAboutClick} className="text-sm transition-colors hover:text-foreground text-muted-foreground hover:text-foreground">About</button></li>
                 <li><button onClick={handleContactClick} className="text-sm transition-colors hover:text-foreground text-muted-foreground hover:text-foreground">Contact</button></li>
         </ul>
@@ -2042,7 +2168,7 @@ export default function Home() {
                         
                         <li>
                           <button 
-                            onClick={() => scrollToSection('projects')} 
+                            onClick={() => scrollToSection('featured-projects')} 
                             className="relative px-2.5 py-1 text-sm font-medium transition-all duration-200 hover:scale-105 group/item text-muted-foreground hover:text-cyan-300"
                           >
                             Projects
@@ -2842,12 +2968,16 @@ export default function Home() {
       </section>
 
               {/* Featured Projects - Advanced Carousel */}
-        <div style={getFeaturedProjectsFadeTransform()}>
-          <FeaturedProjectsCarousel 
-            mousePosition={mousePosition}
-            getSectionTransform={getSectionTransform}
-          />
-        </div>
+        <section id="featured-projects" className="py-16 scroll-mt-24" style={getFeaturedProjectsFadeTransform()}>
+          <div className="relative">
+            {/* Anchor point for better scrolling */}
+            <div id="projects-anchor" className="absolute -top-24 left-0 w-1 h-1 opacity-0 pointer-events-none" />
+            <FeaturedProjectsCarousel 
+              mousePosition={mousePosition}
+              getSectionTransform={getSectionTransform}
+            />
+          </div>
+        </section>
 
 
           </div>
