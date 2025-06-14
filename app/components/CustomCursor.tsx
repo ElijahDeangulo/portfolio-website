@@ -27,36 +27,88 @@ export const CustomCursor = () => {
       setTimeout(() => setIsVisible(true), 100)
     }
 
-    const handleMouseEnter = (e: Event) => {
+    // Improved hover detection that works with dynamic content
+    const handleMouseOver = (e: Event) => {
       const target = e.target as HTMLElement
-      if (
+      if (target && (
         target.tagName === 'BUTTON' ||
         target.tagName === 'A' ||
         target.role === 'button' ||
         target.classList.contains('cursor-pointer') ||
+        target.closest('button') ||
+        target.closest('a') ||
+        target.closest('[role="button"]') ||
+        target.closest('.cursor-pointer') ||
         window.getComputedStyle(target).cursor === 'pointer'
-      ) {
+      )) {
         setIsHovering(true)
+      } else {
+        setIsHovering(false)
       }
     }
 
-    const handleMouseLeave = () => {
-      setIsHovering(false)
+    // Global mouse leave detection
+    const handleMouseOut = (e: Event) => {
+      const target = e.target as HTMLElement
+      const relatedTarget = (e as MouseEvent).relatedTarget as HTMLElement
+      
+      // Check if we're leaving a clickable element and not entering another one
+      if (target && !relatedTarget || 
+          (relatedTarget && 
+           relatedTarget.tagName !== 'BUTTON' &&
+           relatedTarget.tagName !== 'A' &&
+           relatedTarget.role !== 'button' &&
+           !relatedTarget.classList.contains('cursor-pointer') &&
+           !relatedTarget.closest('button') &&
+           !relatedTarget.closest('a') &&
+           !relatedTarget.closest('[role="button"]') &&
+           !relatedTarget.closest('.cursor-pointer') &&
+           window.getComputedStyle(relatedTarget).cursor !== 'pointer')) {
+        setIsHovering(false)
+      }
     }
 
     const handleMouseDown = () => setIsPressed(true)
-    const handleMouseUp = () => setIsPressed(false)
+    const handleMouseUp = () => {
+      setIsPressed(false)
+      // Reset hover state on mouse up to prevent stuck states
+      setTimeout(() => {
+        const elementUnderCursor = document.elementFromPoint(position.x, position.y) as HTMLElement
+        if (elementUnderCursor && !(
+          elementUnderCursor.tagName === 'BUTTON' ||
+          elementUnderCursor.tagName === 'A' ||
+          elementUnderCursor.role === 'button' ||
+          elementUnderCursor.classList.contains('cursor-pointer') ||
+          elementUnderCursor.closest('button') ||
+          elementUnderCursor.closest('a') ||
+          elementUnderCursor.closest('[role="button"]') ||
+          elementUnderCursor.closest('.cursor-pointer') ||
+          window.getComputedStyle(elementUnderCursor).cursor === 'pointer'
+        )) {
+          setIsHovering(false)
+        }
+      }, 50)
+    }
 
-    const addEventListeners = () => {
-      window.addEventListener('mousemove', updateMousePosition, { passive: true })
-      window.addEventListener('scroll', handleScroll, { passive: true })
-      window.addEventListener('mousedown', handleMouseDown)
-      window.addEventListener('mouseup', handleMouseUp)
-      
-      document.querySelectorAll('button, a, [role="button"], .cursor-pointer').forEach(el => {
-        el.addEventListener('mouseenter', handleMouseEnter)
-        el.addEventListener('mouseleave', handleMouseLeave)
-      })
+    // Force reset cursor state periodically to prevent stuck states
+    const resetCursorState = () => {
+      const elementUnderCursor = document.elementFromPoint(position.x, position.y) as HTMLElement
+      if (elementUnderCursor) {
+        const shouldHover = !!(
+          elementUnderCursor.tagName === 'BUTTON' ||
+          elementUnderCursor.tagName === 'A' ||
+          elementUnderCursor.role === 'button' ||
+          elementUnderCursor.classList.contains('cursor-pointer') ||
+          elementUnderCursor.closest('button') ||
+          elementUnderCursor.closest('a') ||
+          elementUnderCursor.closest('[role="button"]') ||
+          elementUnderCursor.closest('.cursor-pointer') ||
+          window.getComputedStyle(elementUnderCursor).cursor === 'pointer'
+        )
+        setIsHovering(shouldHover)
+      } else {
+        setIsHovering(false)
+      }
     }
 
     const animateCursor = () => {
@@ -70,7 +122,19 @@ export const CustomCursor = () => {
       requestAnimationFrame(animateCursor)
     }
 
-    addEventListeners()
+    // Use event delegation for better dynamic content support
+    window.addEventListener('mousemove', updateMousePosition, { passive: true })
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    window.addEventListener('mousedown', handleMouseDown)
+    window.addEventListener('mouseup', handleMouseUp)
+    
+    // Use event delegation on document for dynamic content
+    document.addEventListener('mouseover', handleMouseOver, { passive: true })
+    document.addEventListener('mouseout', handleMouseOut, { passive: true })
+    
+    // Reset cursor state periodically to prevent stuck states
+    const resetInterval = setInterval(resetCursorState, 500)
+
     animateCursor()
 
     return () => {
@@ -78,11 +142,9 @@ export const CustomCursor = () => {
       window.removeEventListener('scroll', handleScroll)
       window.removeEventListener('mousedown', handleMouseDown)
       window.removeEventListener('mouseup', handleMouseUp)
-      
-      document.querySelectorAll('button, a, [role="button"], .cursor-pointer').forEach(el => {
-        el.removeEventListener('mouseenter', handleMouseEnter)
-        el.removeEventListener('mouseleave', handleMouseLeave)
-      })
+      document.removeEventListener('mouseover', handleMouseOver)
+      document.removeEventListener('mouseout', handleMouseOut)
+      clearInterval(resetInterval)
     }
   }, [position])
 
