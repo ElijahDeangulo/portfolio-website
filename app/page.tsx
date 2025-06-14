@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence, useMotionValue, useTransform, PanInfo } from 'framer-motion'
+import { resetCursorState } from './components/CustomCursor'
 
 // Modern Theme Toggle Component
 const ModernThemeToggle = ({ isDark, toggleDarkMode, isClient, isSpotifyExpanded }: { 
@@ -2501,17 +2502,22 @@ export default function Home() {
     document.dispatchEvent(new CustomEvent('resetCursor'))
   }, [showAboutModal, showContactModal, showDownloadConfirm, selectedProject, showSkillsModal])
 
-  // Reset cursor on ESC key press
+  // Reset cursor on ESC key press and modal state changes
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        document.dispatchEvent(new CustomEvent('resetCursor'))
+        resetCursorState()
       }
     }
 
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [])
+
+  // Reset cursor when any modal state changes
+  useEffect(() => {
+    resetCursorState()
+  }, [showAboutModal, showContactModal, showDownloadConfirm, selectedProject, showSkillsModal])
 
   const handleDownloadClick = () => {
     setShowDownloadConfirm(true)
@@ -2712,7 +2718,10 @@ export default function Home() {
                   </p>
                 </div>
                 <button 
-                  onClick={() => setShowSkillsModal(false)}
+                  onClick={() => {
+                    setShowSkillsModal(false)
+                    resetCursorState()
+                  }}
                   className="group p-2 rounded-xl bg-background/60 border border-border/40 text-muted-foreground hover:text-foreground hover:bg-background/80 transition-all duration-300 hover:scale-110 hover:shadow-lg"
                 >
                   <svg className="h-5 w-5 transition-transform group-hover:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -3842,13 +3851,19 @@ export default function Home() {
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pt-20 overflow-hidden">
             <div 
               className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-in fade-in duration-300" 
-              onClick={() => setShowAboutModal(false)} 
+              onClick={() => {
+                setShowAboutModal(false)
+                resetCursorState()
+              }} 
             />
             <div className="relative bg-background rounded-xl border border-border shadow-2xl max-w-4xl w-full max-h-[85vh] animate-in zoom-in-95 slide-in-from-bottom-8 duration-300 flex flex-col overflow-hidden">
               <div className="flex justify-between items-center p-6 border-b border-border/30">
                 <h2 className="text-2xl font-bold text-foreground">About Me</h2>
                 <button 
-                  onClick={() => setShowAboutModal(false)} 
+                  onClick={() => {
+                    setShowAboutModal(false)
+                    resetCursorState()
+                  }} 
                   className="text-muted-foreground hover:text-foreground transition-colors text-xl"
                 >
                   ✕
@@ -3945,13 +3960,19 @@ export default function Home() {
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pt-20 overflow-hidden">
             <div 
               className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-in fade-in duration-300" 
-              onClick={() => setShowContactModal(false)} 
+              onClick={() => {
+                setShowContactModal(false)
+                resetCursorState()
+              }} 
             />
             <div className="relative bg-background rounded-xl border border-border shadow-2xl max-w-4xl w-full max-h-[85vh] animate-in zoom-in-95 slide-in-from-bottom-8 duration-300 flex flex-col overflow-hidden">
               <div className="flex justify-between items-center p-6 border-b border-border/30">
                 <h2 className="text-2xl font-bold text-foreground">Get in Touch 📧</h2>
                 <button 
-                  onClick={() => setShowContactModal(false)} 
+                  onClick={() => {
+                    setShowContactModal(false)
+                    resetCursorState()
+                  }} 
                   className="text-muted-foreground hover:text-foreground transition-colors text-xl"
                 >
                   ✕

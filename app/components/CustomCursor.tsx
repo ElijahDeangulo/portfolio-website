@@ -3,6 +3,14 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 
+// Global cursor reset event for modal/popup closures
+const CURSOR_RESET_EVENT = 'cursorReset'
+
+// Global function to trigger cursor reset (can be called from anywhere)
+export const resetCursorState = () => {
+  window.dispatchEvent(new CustomEvent(CURSOR_RESET_EVENT))
+}
+
 export const CustomCursor = () => {
   const [position, setPosition] = useState({ x: 0, y: 0 })
   const [isVisible, setIsVisible] = useState(true)
@@ -111,6 +119,16 @@ export const CustomCursor = () => {
       }
     }
 
+    // Global cursor reset handler for modal/popup closures
+    const handleGlobalCursorReset = () => {
+      setIsHovering(false)
+      setIsPressed(false)
+      // Wait a bit then check if we should be hovering over current element
+      setTimeout(() => {
+        resetCursorState()
+      }, 100)
+    }
+
     const animateCursor = () => {
       if (cursorRef.current) {
         const { x, y } = position
@@ -132,6 +150,9 @@ export const CustomCursor = () => {
     document.addEventListener('mouseover', handleMouseOver, { passive: true })
     document.addEventListener('mouseout', handleMouseOut, { passive: true })
     
+    // Listen for global cursor reset events (triggered when modals close)
+    window.addEventListener(CURSOR_RESET_EVENT, handleGlobalCursorReset)
+    
     // Reset cursor state periodically to prevent stuck states
     const resetInterval = setInterval(resetCursorState, 500)
 
@@ -144,6 +165,7 @@ export const CustomCursor = () => {
       window.removeEventListener('mouseup', handleMouseUp)
       document.removeEventListener('mouseover', handleMouseOver)
       document.removeEventListener('mouseout', handleMouseOut)
+      window.removeEventListener(CURSOR_RESET_EVENT, handleGlobalCursorReset)
       clearInterval(resetInterval)
     }
   }, [position])
