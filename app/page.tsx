@@ -540,6 +540,12 @@ const CustomCursor = () => {
       setIsHovering(false)
     }
 
+    const resetCursorState = () => {
+      setCursorType('default')
+      setIsHovering(false)
+      setIsPressed(false)
+    }
+
     const handleMouseDown = () => setIsPressed(true)
     const handleMouseUp = () => setIsPressed(false)
 
@@ -612,6 +618,7 @@ const CustomCursor = () => {
     document.addEventListener('mousedown', handleMouseDown)
     document.addEventListener('mouseup', handleMouseUp)
     window.addEventListener('scroll', handleScroll, { passive: true })
+    document.addEventListener('resetCursor', resetCursorState)
 
     let currentElements = addEventListeners()
     animationRef.current = requestAnimationFrame(animateCursor)
@@ -642,6 +649,7 @@ const CustomCursor = () => {
       document.removeEventListener('mousedown', handleMouseDown)
       document.removeEventListener('mouseup', handleMouseUp)
       window.removeEventListener('scroll', handleScroll)
+      document.removeEventListener('resetCursor', resetCursorState)
       currentElements.forEach(element => {
         element.removeEventListener('mouseenter', handleMouseEnter)
         element.removeEventListener('mouseleave', handleMouseLeave)
@@ -765,20 +773,43 @@ const useParallax = () => {
   const [scrollY, setScrollY] = useState(0)
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const [viewportHeight, setViewportHeight] = useState(1000) // Initialize with a safe default to prevent NaN
+  const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
     setViewportHeight(window.innerHeight)
     
-    let ticking = false
+    // Detect mobile device
+    const detectMobile = () => {
+      const userAgent = navigator.userAgent
+      const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent) || window.innerWidth < 768
+      setIsMobile(isMobileDevice)
+      return isMobileDevice
+    }
     
-    // Ultra-optimized scroll handler with RAF throttling
+    const currentIsMobile = detectMobile()
+    
+    let ticking = false
+    let lastScrollTime = 0
+    let scrollTimeout: NodeJS.Timeout
+    
+    // Ultra-optimized scroll handler with mobile-specific throttling
     const handleScroll = () => {
-      if (!ticking) {
+      const now = performance.now()
+      const mobileDelay = currentIsMobile ? 120 : 0 // 120ms delay for mobile (increased from 50ms)
+      
+      if (!ticking && (now - lastScrollTime) >= mobileDelay) {
         requestAnimationFrame(() => {
           setScrollY(window.scrollY)
           ticking = false
+          lastScrollTime = now
         })
         ticking = true
+      } else if (currentIsMobile) {
+        // For mobile, also set a delayed update to ensure smooth final position
+        clearTimeout(scrollTimeout)
+        scrollTimeout = setTimeout(() => {
+          setScrollY(window.scrollY)
+        }, 200) // Increased from 100ms to 200ms
       }
     }
 
@@ -790,6 +821,7 @@ const useParallax = () => {
 
     const handleResize = () => {
       setViewportHeight(window.innerHeight)
+      detectMobile() // Re-detect mobile on resize
     }
 
     window.addEventListener('scroll', handleScroll, { passive: true })
@@ -800,18 +832,24 @@ const useParallax = () => {
       window.removeEventListener('scroll', handleScroll)
       window.removeEventListener('mousemove', handleMouseMove)
       window.removeEventListener('resize', handleResize)
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout)
+      }
     }
   }, [])
 
-  // Calculate parallax transforms for sections
+  // Calculate parallax transforms for sections with mobile optimization
   const getSectionTransform = (speed: number) => {
-    return `translate3d(0, ${scrollY * speed}px, 0)`
+    const adjustedSpeed = isMobile ? speed * 0.2 : speed // Further reduced intensity on mobile (from 0.5 to 0.2)
+    return `translate3d(0, ${scrollY * adjustedSpeed}px, 0)`
   }
 
   const getElementTransform = (speed: number, mouseMultiplier: number = 1) => {
-    const scrollOffset = scrollY * speed
-    const mouseX = mousePosition.x * mouseMultiplier
-    const mouseY = mousePosition.y * mouseMultiplier
+    const adjustedSpeed = isMobile ? speed * 0.1 : speed // Much more gentle on mobile (from 0.3 to 0.1)
+    const adjustedMouseMultiplier = isMobile ? mouseMultiplier * 0.1 : mouseMultiplier // Further reduce mouse effects on mobile (from 0.2 to 0.1)
+    const scrollOffset = scrollY * adjustedSpeed
+    const mouseX = mousePosition.x * adjustedMouseMultiplier
+    const mouseY = mousePosition.y * adjustedMouseMultiplier
     return `translate3d(${mouseX}px, ${-scrollOffset + mouseY}px, 0)`
   }
 
@@ -820,7 +858,9 @@ const useParallax = () => {
     // Safety check to prevent division by zero
     if (viewportHeight === 0) return { opacity: 1 }
     
-    const progress = Math.min(scrollY / (viewportHeight * 0.6), 1) // Medium scroll distance
+    // Mobile-specific slower exit - hero stays longer on mobile
+    const scrollMultiplier = isMobile ? 15.0 : 0.6 // 15.0x longer on mobile vs 0.6x on desktop
+    const progress = Math.min(scrollY / (viewportHeight * scrollMultiplier), 1)
     
     // Two clear phases: gentle movement, then violent sideways ripping
     const gentlePhase = Math.min(progress / 0.4, 1) // First 40% - gentle movement
@@ -886,7 +926,9 @@ const useParallax = () => {
     // Safety check to prevent division by zero
     if (viewportHeight === 0) return { opacity: 1 }
     
-    const startPoint = viewportHeight * 0.1 // Start earlier - reduced from 0.15 to 0.1
+    // Mobile-specific delayed entrance - starts later to allow hero more time
+    const startMultiplier = isMobile ? 1.0 : 0.1 // Start later but not too late for better visibility
+    const startPoint = viewportHeight * startMultiplier
     const progress = Math.max(0, Math.min((scrollY - startPoint) / (viewportHeight * 0.12), 1)) // Faster entrance - reduced from 0.15 to 0.12
     const adjustedProgress = Math.max(0, progress - (delay * 0.03)) // Faster stagger - reduced from 0.05 to 0.03
     
@@ -921,8 +963,10 @@ const useParallax = () => {
     // Safety check to prevent division by zero
     if (viewportHeight === 0) return { transform: 'translate3d(0, 0, 0)' }
     
-    const parallaxProgress = Math.min(scrollY / (viewportHeight * 0.4), 1) // Start even earlier - reduced from 0.5 to 0.4
-    const pushUpAmount = parallaxProgress * viewportHeight * 0.5 // Further reduced movement - decreased from 0.65 to 0.5
+    // Mobile-specific delayed entrance - allows hero to stay much longer for interaction
+    const pushScrollMultiplier = isMobile ? 2.5 : 0.4 // Start much later on mobile to allow hero interaction
+    const parallaxProgress = Math.min(scrollY / (viewportHeight * pushScrollMultiplier), 1)
+    const pushUpAmount = parallaxProgress * viewportHeight * (isMobile ? 0.7 : 0.5) // Less aggressive movement on mobile
     
     // Smooth parallax easing - no dramatic acceleration
     const smoothEase = 1 - Math.pow(1 - parallaxProgress, 2) // Simple quadratic ease-out
@@ -940,7 +984,9 @@ const useParallax = () => {
     // Safety check to prevent division by zero
     if (viewportHeight === 0) return { opacity: 1 }
     
-    const exitProgress = Math.min(scrollY / (viewportHeight * 0.6), 1) // Medium scroll distance
+    // Mobile-specific slower exit - hero section stays much longer on mobile for interaction
+    const exitScrollMultiplier = isMobile ? 20.0 : 0.6 // 33x longer on mobile for full interaction time
+    const exitProgress = Math.min(scrollY / (viewportHeight * exitScrollMultiplier), 1)
     
     // Two phases: gentle start, then violent sideways ripping
     const gentlePhase = Math.min(exitProgress / 0.5, 1) // First 50% - gentle movement
@@ -1007,6 +1053,7 @@ const useParallax = () => {
     scrollY, 
     mousePosition, 
     viewportHeight,
+    isMobile,
     getSectionTransform, 
     getElementTransform,
     getHeroElementTransform,
@@ -1119,11 +1166,13 @@ const FloatingElements = ({ section }: { section: string }) => {
 const FeaturedProjectsCarousel = ({ 
   mousePosition, 
   getSectionTransform,
-  onProjectClick
+  onProjectClick,
+  isMobile
 }: { 
   mousePosition: { x: number; y: number }; 
   getSectionTransform: (speed: number) => any;
   onProjectClick?: (projectId: string) => void;
+  isMobile: boolean;
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isVisible, setIsVisible] = useState(false)
@@ -1296,7 +1345,7 @@ const FeaturedProjectsCarousel = ({
   return (
     <motion.section 
       ref={sectionRef}
-      className="relative py-8 -mt-64 overflow-hidden"
+      className="relative py-4 sm:py-8 -mt-32 sm:-mt-64 overflow-hidden"
       style={{ 
         transform: getSectionTransform(-0.015),
         background: `linear-gradient(135deg, 
@@ -1315,13 +1364,13 @@ const FeaturedProjectsCarousel = ({
       
       {/* Header */}
       <motion.div 
-        className="mb-12 flex items-center justify-between"
+        className="mb-6 sm:mb-12 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2, duration: 0.6 }}
       >
         <div className="relative">
-          <h2 className="text-3xl font-bold text-foreground bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text">
+          <h2 className="text-2xl sm:text-3xl font-bold text-foreground bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text">
             Featured Projects
           </h2>
           {/* Scroll-triggered sliding underline */}
@@ -1370,9 +1419,9 @@ const FeaturedProjectsCarousel = ({
             }}
           />
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4">
           {/* Progress indicator with countdown */}
-          <div className="flex gap-2">
+          <div className="flex gap-1 sm:gap-2">
             {projects.map((_, index) => (
               <motion.div
                 key={index}
@@ -1413,7 +1462,7 @@ const FeaturedProjectsCarousel = ({
       {/* Carousel Container */}
       <div 
         data-carousel="featured-projects"
-        className="relative h-80 flex items-center justify-center perspective-1000"
+        className="relative h-64 sm:h-80 flex items-center justify-center perspective-1000"
       >
         <div className="relative w-full max-w-6xl">
           {projects.map((project, index) => {
@@ -1422,7 +1471,7 @@ const FeaturedProjectsCarousel = ({
             return (
               <motion.div
                 key={project.id}
-                className="absolute left-1/2 top-1/2 w-[520px] cursor-grab active:cursor-grabbing"
+                className="absolute left-1/2 top-1/2 w-[300px] sm:w-[520px] cursor-grab active:cursor-grabbing"
                 style={{
                   zIndex: transform.zIndex,
                   transformOrigin: 'center center',
@@ -1471,9 +1520,9 @@ const FeaturedProjectsCarousel = ({
                   {/* Content */}
                   <div className="relative z-10 h-full flex flex-col">
                     {/* Header with logo and title */}
-                    <div className="flex items-start gap-4 mb-3">
+                    <div className="flex items-start gap-2 sm:gap-4 mb-2 sm:mb-3">
                       <motion.div 
-                        className="w-12 h-12 flex-shrink-0 rounded-lg overflow-hidden bg-white/10 backdrop-blur-sm border border-white/20"
+                        className="w-8 h-8 sm:w-12 sm:h-12 flex-shrink-0 rounded-lg overflow-hidden bg-white/10 backdrop-blur-sm border border-white/20"
                         whileHover={{ scale: 1.1, rotate: 5 }}
                         transition={{ type: "spring", stiffness: 400, damping: 10 }}
                       >
@@ -1484,10 +1533,10 @@ const FeaturedProjectsCarousel = ({
                         />
                       </motion.div>
                       <div className="flex-1 min-w-0">
-                        <h3 className={`text-lg font-bold ${project.accentColor} group-hover:text-foreground transition-colors leading-tight`}>
+                        <h3 className={`text-sm sm:text-lg font-bold ${project.accentColor} group-hover:text-foreground transition-colors leading-tight`}>
                           {project.title}
                         </h3>
-                        <p className="text-xs text-muted-foreground/70 mt-1">
+                        <p className="text-xs text-muted-foreground/70 mt-0.5 sm:mt-1">
                           {project.id === 1 ? 'Palantir Technologies' :
                            project.id === 2 ? 'Palantir Technologies' :
                            project.id === 3 ? 'A Special Miracle' :
@@ -1497,16 +1546,16 @@ const FeaturedProjectsCarousel = ({
                     </div>
                     
                     {/* Brief Description */}
-                    <p className="mb-4 text-sm text-muted-foreground leading-relaxed line-clamp-2 flex-1">
+                    <p className="mb-2 sm:mb-4 text-xs sm:text-sm text-muted-foreground leading-relaxed line-clamp-2 flex-1">
                       {project.briefDescription}
                     </p>
                     
                     {/* Tags */}
-                    <div className="flex flex-wrap gap-1.5 mb-4">
-                      {project.tags.slice(0, 4).map((tag, tagIndex) => (
+                    <div className="flex flex-wrap gap-1 sm:gap-1.5 mb-2 sm:mb-4">
+                      {project.tags.slice(0, isMobile ? 3 : 4).map((tag, tagIndex) => (
                         <motion.span
                           key={tagIndex}
-                          className="rounded-full bg-secondary/80 px-2.5 py-1 text-xs text-secondary-foreground backdrop-blur-sm border border-border/30"
+                          className="rounded-full bg-secondary/80 px-1.5 sm:px-2.5 py-0.5 sm:py-1 text-xs text-secondary-foreground backdrop-blur-sm border border-border/30"
                           whileHover={{ scale: 1.05, y: -2 }}
                           transition={{ type: "spring", stiffness: 400, damping: 10 }}
                         >
@@ -1528,7 +1577,7 @@ const FeaturedProjectsCarousel = ({
                           e.stopPropagation()
                           onProjectClick?.(project.projectId)
                         }}
-                        className={`inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r ${project.gradient.replace('/20', '/40')} border border-border/30 text-sm font-medium ${project.accentColor} hover:text-foreground transition-all duration-300 backdrop-blur-sm hover:scale-105 hover:shadow-lg group/btn`}
+                        className={`inline-flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1 sm:py-2 rounded-full bg-gradient-to-r ${project.gradient.replace('/20', '/40')} border border-border/30 text-xs sm:text-sm font-medium ${project.accentColor} hover:text-foreground transition-all duration-300 backdrop-blur-sm hover:scale-105 hover:shadow-lg group/btn`}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         transition={{ type: "spring", stiffness: 400, damping: 10 }}
@@ -1579,27 +1628,27 @@ const FeaturedProjectsCarousel = ({
       </div>
 
       {/* Navigation Arrows */}
-      <div className="absolute left-8 top-1/2 -translate-y-1/2">
+      <div className="absolute left-2 sm:left-8 top-1/2 -translate-y-1/2">
         <motion.button
           onClick={() => setCurrentIndex((prev) => (prev - 1 + projects.length) % projects.length)}
-          className="w-12 h-12 rounded-full bg-background/80 border border-border backdrop-blur-sm flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-background transition-all duration-300 shadow-lg"
+          className="w-8 h-8 sm:w-12 sm:h-12 rounded-full bg-background/80 border border-border backdrop-blur-sm flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-background transition-all duration-300 shadow-lg"
           whileHover={{ scale: 1.1, x: -2 }}
           whileTap={{ scale: 0.95 }}
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
         </motion.button>
       </div>
 
-      <div className="absolute right-8 top-1/2 -translate-y-1/2">
+      <div className="absolute right-2 sm:right-8 top-1/2 -translate-y-1/2">
         <motion.button
           onClick={() => setCurrentIndex((prev) => (prev + 1) % projects.length)}
-          className="w-12 h-12 rounded-full bg-background/80 border border-border backdrop-blur-sm flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-background transition-all duration-300 shadow-lg"
+          className="w-8 h-8 sm:w-12 sm:h-12 rounded-full bg-background/80 border border-border backdrop-blur-sm flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-background transition-all duration-300 shadow-lg"
           whileHover={{ scale: 1.1, x: 2 }}
           whileTap={{ scale: 0.95 }}
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
         </motion.button>
@@ -1853,7 +1902,7 @@ export default function Home() {
         name: 'Java', 
         icon: (
           <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M3,21V19A9,9 0 0,1 12,10A9,9 0 0,1 21,19V21H3M12,2A7,7 0 0,1 19,9A7,7 0 0,1 12,16A7,7 0 0,1 5,9A7,7 0 0,1 12,2M12,4A5,5 0 0,0 7,9A5,5 0 0,0 12,14A5,5 0 0,0 17,9A5,5 0 0,0 12,4Z"/>
+            <path d="M8.851 18.56s-.917.534.653.714c1.902-.229 2.874-.246 4.969-.283 0 0 .552.346 1.321.646-4.699 2.013-10.633-.118-6.943-1.077M8.276 15.933s-1.028.761.542.924c2.032-.24 3.636-.267 6.413-.308 0 0 .384.389.987.602-5.679 1.661-12.007.13-7.942-1.218M13.116 11.475c1.158 1.333-.304 2.533-.304 2.533s2.939-1.518 1.589-3.418c-1.261-1.772-2.228-2.652 3.007-5.688 0-.001-8.216 2.051-4.292 6.573M19.33 20.504s.679.559-.747.991c-2.712.822-11.288 1.069-13.669.033-.856-.373.75-.89 1.254-.998.527-.114.828-.093.828-.093-.953-.671-6.156 1.317-2.643 1.887 9.58 1.553 17.462-.7 14.977-1.82M9.292 13.21s-4.362 1.036-1.544 1.412c1.189.159 3.561.123 5.77-.062 1.806-.152 3.618-.477 3.618-.477s-.637.272-1.098.587c-4.429 1.165-12.986.623-10.522-.568 2.082-1.006 3.776-.892 3.776-.892M17.116 17.584c4.503-2.34 2.421-4.589.968-4.285-.355.074-.515.138-.515.138s.132-.207.385-.297c2.875-1.011 5.086 2.981-.928 4.562 0-.001.07-.062.09-.118M14.401 0s2.494 2.494-2.365 6.33c-3.896 3.077-.888 4.832-.001 6.836-2.274-2.053-3.943-3.858-2.824-5.539 1.644-2.469 6.197-3.665 5.19-7.627M9.734 23.924c4.322.277 10.959-.153 11.116-2.198 0 0-.302.775-3.572 1.391-3.688.694-8.239.613-10.937.168 0-.001.553.457 3.393.639"/>
           </svg>
         ), 
         categories: ['backend'] 
@@ -1862,7 +1911,7 @@ export default function Home() {
         name: 'R', 
         icon: (
           <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 3C7.58 3 4 4.79 4 7C4 9.21 7.58 11 12 11S20 9.21 20 7C20 4.79 16.42 3 12 3M4 9V12C4 14.21 7.58 16 12 16S20 14.21 20 12V9C20 11.21 16.42 13 12 13S4 11.21 4 9M4 14V17C4 19.21 7.58 21 12 21S20 19.21 20 17V14C20 16.21 16.42 18 12 18S4 16.21 4 14Z"/>
+            <path d="M4,3H14A4,4 0 0,1 18,7A4,4 0 0,1 14,11H11V21H7V3M11,7V9H14A1,1 0 0,0 15,8A1,1 0 0,0 14,7H11M15.5,12.5L19,21H14.5L11.5,13.5H15.5V12.5Z"/>
           </svg>
         ), 
         categories: ['data-science', 'ml'] 
@@ -1936,7 +1985,7 @@ export default function Home() {
         name: 'PySpark', 
         icon: (
           <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M8.5,7L10.5,1L11.5,2L12.5,1L14.5,7H8.5M12,8A1,1 0 0,1 13,9A1,1 0 0,1 12,10A1,1 0 0,1 11,9A1,1 0 0,1 12,8M8.75,11.25L12,12L15.25,11.25L16,21H8L8.75,11.25M10,13V19H11V13H10M13,13V19H14V13H13Z"/>
+            <path d="M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.46,13.97L5.82,21L12,17.27Z"/>
           </svg>
         ), 
         categories: ['data-science', 'backend'] 
@@ -1983,7 +2032,7 @@ export default function Home() {
         name: 'Next.js', 
         icon: (
           <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 2L13.09 8.26L20 9L13.09 9.74L12 16L10.91 9.74L4 9L10.91 8.26L12 2Z"/>
+            <path d="M11.572 0c-.176 0-.31.001-.358.007a19.76 19.76 0 0 1-.364.033C7.443.346 4.25 2.185 2.228 5.012a11.875 11.875 0 0 0-2.119 5.243c-.096.659-.108.854-.108 1.747s.012 1.089.108 1.748c.652 4.506 3.86 8.292 8.209 9.695.779.25 1.6.422 2.534.525.363.04 1.935.04 2.299 0 1.611-.178 2.977-.577 4.323-1.264.207-.106.247-.134.219-.158-.02-.013-.9-1.193-1.955-2.62l-1.919-2.592-2.404-3.558a338.739 338.739 0 0 0-2.422-3.556c-.009-.002-.018 1.579-.023 3.51-.007 3.38-.01 3.515-.052 3.595a.426.426 0 0 1-.206.214c-.075.037-.14.044-.495.044H7.81l-.108-.068a.438.438 0 0 1-.157-.171l-.05-.106.006-4.703.007-4.705.072-.092a.645.645 0 0 1 .174-.143c.096-.047.134-.051.54-.051.478 0 .558.018.682.154.035.038 1.337 1.999 2.895 4.361a10760.433 10760.433 0 0 0 4.735 7.17l1.9 2.879.096-.063a12.317 12.317 0 0 0 2.466-2.163 11.944 11.944 0 0 0 2.824-6.134c.096-.66.108-.854.108-1.748 0-.893-.012-1.088-.108-1.747C19.146 4.318 16.06 1.693 12.25.297 11.799.126 11.137.017 10.538.005 10.48.003 10.427.001 10.427.001L11.572 0zm4.069 7.217c.347 0 .408.005.486.047a.473.473 0 0 1 .237.277c.018.06.023 1.365.018 4.304l-.006 4.218-.744-1.14-.746-1.14v-3.066c0-1.982.01-3.097.023-3.15a.478.478 0 0 1 .233-.296c.096-.05.13-.054.5-.054z"/>
           </svg>
         ), 
         categories: ['frontend'] 
@@ -2039,7 +2088,7 @@ export default function Home() {
         name: 'Apache Spark', 
         icon: (
           <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M8.5,7L10.5,1L11.5,2L12.5,1L14.5,7H8.5M12,8A1,1 0 0,1 13,9A1,1 0 0,1 12,10A1,1 0 0,1 11,9A1,1 0 0,1 12,8M8.75,11.25L12,12L15.25,11.25L16,21H8L8.75,11.25M10,13V19H11V13H10M13,13V19H14V13H13Z"/>
+            <path d="M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.46,13.97L5.82,21L12,17.27Z"/>
           </svg>
         ), 
         categories: ['backend', 'data-science'] 
@@ -2057,7 +2106,7 @@ export default function Home() {
         name: 'Redis', 
         icon: (
           <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M21.5,9.5L20.5,8.5L12,16.5L7.5,12L6.5,13L12,18.5L21.5,9.5Z"/>
+            <path d="M10.5,2.5L5.11,5.55L12,8.95L18.89,5.55L13.5,2.5C12.65,2.07 11.35,2.07 10.5,2.5M5,6.05V10.8C5,11.4 5.25,11.97 5.68,12.38L12,16.9L18.32,12.38C18.75,11.97 19,11.4 19,10.8V6.05L12,9.5L5,6.05M5,12.13V16.88C5,17.48 5.25,18.05 5.68,18.46L12,22.98L18.32,18.46C18.75,18.05 19,17.48 19,16.88V12.13L12,15.58L5,12.13Z"/>
           </svg>
         ), 
         categories: ['backend'] 
@@ -2104,7 +2153,7 @@ export default function Home() {
         name: 'Salesforce', 
         icon: (
           <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M6.5 14.5V16H3V14.5C3 13.12 4.12 12 5.5 12S8 13.12 8 14.5"/>
+            <path d="M6.5,20.5C4,20.5 2,18.5 2,16C2,13.5 4,11.5 6.5,11.5C7.5,9.5 9.5,8 12,8C15,8 17.5,10.5 17.5,13.5C19,13.5 20.5,15 20.5,16.5C20.5,18 19,19.5 17.5,19.5H6.5V20.5M6.5,18.5H17.5C18.3,18.5 19,17.8 19,17C19,16.2 18.3,15.5 17.5,15.5H16V13.5C16,11.6 14.4,10 12.5,10C10.6,10 9,11.6 9,13.5H6.5C5.1,13.5 4,14.6 4,16S5.1,18.5 6.5,18.5Z"/>
           </svg>
         ), 
         categories: ['tools'] 
@@ -2381,6 +2430,7 @@ export default function Home() {
     scrollY, 
     mousePosition, 
     viewportHeight,
+    isMobile,
     getSectionTransform, 
     getElementTransform,
     getHeroElementTransform,
@@ -2445,6 +2495,23 @@ export default function Home() {
     window.addEventListener('scroll', throttledScroll)
     return () => window.removeEventListener('scroll', throttledScroll)
   }, [activeTab])
+
+  // Reset cursor whenever a modal toggles
+  useEffect(() => {
+    document.dispatchEvent(new CustomEvent('resetCursor'))
+  }, [showAboutModal, showContactModal, showDownloadConfirm, selectedProject, showSkillsModal])
+
+  // Reset cursor on ESC key press
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        document.dispatchEvent(new CustomEvent('resetCursor'))
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [])
 
   const handleDownloadClick = () => {
     setShowDownloadConfirm(true)
@@ -2781,13 +2848,13 @@ export default function Home() {
         transform: (scrollY > 100 || activeSection !== 'home') ? 'translateY(0)' : 'translateY(-100%)',
         opacity: (scrollY > 100 || activeSection !== 'home') ? 1 : 0,
       }}>
-        <div className="mx-auto flex max-w-3xl flex-col px-8">
-          <nav className="flex items-center justify-between py-6">
-            <ul className="flex items-center space-x-8">
-              <li><button onClick={scrollToTop} className="text-sm transition-colors hover:text-foreground/80 text-muted-foreground hover:text-foreground">Home</button></li>
-              <li><button onClick={() => scrollToSection('featured-projects')} className="text-sm transition-colors hover:text-foreground text-muted-foreground hover:text-foreground">Projects</button></li>
-                              <li><button onClick={handleAboutClick} className="text-sm transition-colors hover:text-foreground text-muted-foreground hover:text-foreground">About</button></li>
-                <li><button onClick={handleContactClick} className="text-sm transition-colors hover:text-foreground text-muted-foreground hover:text-foreground">Contact</button></li>
+        <div className="mx-auto flex max-w-3xl flex-col px-4 sm:px-8">
+          <nav className="flex items-center justify-between py-4 sm:py-6">
+            <ul className="flex items-center space-x-4 sm:space-x-8">
+              <li><button onClick={scrollToTop} className="text-xs sm:text-sm transition-colors hover:text-foreground/80 text-muted-foreground hover:text-foreground">Home</button></li>
+              <li><button onClick={() => scrollToSection('featured-projects')} className="text-xs sm:text-sm transition-colors hover:text-foreground text-muted-foreground hover:text-foreground">Projects</button></li>
+                              <li><button onClick={handleAboutClick} className="text-xs sm:text-sm transition-colors hover:text-foreground text-muted-foreground hover:text-foreground">About</button></li>
+                <li><button onClick={handleContactClick} className="text-xs sm:text-sm transition-colors hover:text-foreground text-muted-foreground hover:text-foreground">Contact</button></li>
         </ul>
             <div className="flex items-center space-x-3">
             </div>
@@ -2795,13 +2862,13 @@ export default function Home() {
         </div>
       </header>
 
-            <div className="mx-auto max-w-5xl px-6">
+            <div className="mx-auto max-w-5xl px-3 sm:px-6">
         
         {/* Main Content - Continuous Scroll Layout */}
         <div>
         {/* Hero Section */}
         <section 
-          className="relative py-4 overflow-hidden"
+          className="relative py-2 sm:py-4 lg:py-4 overflow-hidden"
           style={{ 
             ...getHeroExitTransform(),
             backfaceVisibility: 'hidden',
@@ -2845,16 +2912,16 @@ export default function Home() {
             />
           </div>
 
-          <div className="relative z-10 max-w-7xl mx-auto px-4">
+          <div className="relative z-10 max-w-7xl mx-auto px-2 sm:px-4">
             {/* Main Content Grid */}
-            <div className="grid gap-3 lg:grid-cols-12 lg:gap-4 items-start">
+            <div className="grid gap-2 sm:gap-3 lg:grid-cols-12 lg:gap-4 items-start">
               
               {/* Left Column - Main Content */}
-              <div className="lg:col-span-7 space-y-3">
+              <div className="lg:col-span-7 space-y-2 sm:space-y-3">
                 
                 {/* Hero Navigation - Sleek & Elegant */}
                 <div 
-                  className="flex justify-center mb-4 transition-all duration-500"
+                  className="flex justify-center mb-2 sm:mb-4 transition-all duration-500"
                   style={{
                     transform: `${scrollY > 100 ? 'translateY(-20px)' : 'translateY(0)'} ${getHeroElementTransform('up', 0.3).transform || ''}`,
                     opacity: scrollY > 100 ? 0 : (getHeroElementTransform('up', 0.3).opacity as number || 1),
@@ -2864,12 +2931,12 @@ export default function Home() {
                     {/* Subtle outer glow */}
                     <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 via-cyan-400/10 to-cyan-500/5 rounded-full blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     
-                    <div className="relative bg-background/10 backdrop-blur-md rounded-full border border-border/20 px-4 py-2 shadow-lg shadow-black/10">
-                      <ul className="flex items-center space-x-4">
+                    <div className="relative bg-background/10 backdrop-blur-md rounded-full border border-border/20 px-2 sm:px-4 py-1.5 sm:py-2 shadow-lg shadow-black/10">
+                      <ul className="flex items-center space-x-2 sm:space-x-4">
                         <li>
                           <button 
                             onClick={scrollToTop} 
-                            className="relative px-2.5 py-1 text-sm font-medium text-muted-foreground hover:text-cyan-300 transition-all duration-200 hover:scale-105 group/item"
+                            className="relative px-1.5 sm:px-2.5 py-1 text-xs sm:text-sm font-medium text-muted-foreground hover:text-cyan-300 transition-all duration-200 hover:scale-105 group/item"
                           >
                             Home
                             <div className="absolute bottom-0 left-1/2 h-px bg-gradient-to-r from-cyan-400 to-cyan-300 w-0 group-hover/item:w-full -translate-x-1/2 transition-all duration-200 shadow-sm shadow-cyan-400/50"></div>
@@ -2879,7 +2946,7 @@ export default function Home() {
                         <li>
                           <button 
                             onClick={() => scrollToSection('featured-projects')} 
-                            className="relative px-2.5 py-1 text-sm font-medium transition-all duration-200 hover:scale-105 group/item text-muted-foreground hover:text-cyan-300"
+                            className="relative px-1.5 sm:px-2.5 py-1 text-xs sm:text-sm font-medium transition-all duration-200 hover:scale-105 group/item text-muted-foreground hover:text-cyan-300"
                           >
                             Projects
                             <div className="absolute bottom-0 left-1/2 h-px bg-gradient-to-r from-cyan-400 to-cyan-300 transition-all duration-200 -translate-x-1/2 shadow-sm shadow-cyan-400/50 w-0 group-hover/item:w-full"></div>
@@ -2889,7 +2956,7 @@ export default function Home() {
                         <li>
                           <button 
                             onClick={handleAboutClick} 
-                            className="relative px-2.5 py-1 text-sm font-medium transition-all duration-200 hover:scale-105 group/item text-muted-foreground hover:text-cyan-300"
+                            className="relative px-1.5 sm:px-2.5 py-1 text-xs sm:text-sm font-medium transition-all duration-200 hover:scale-105 group/item text-muted-foreground hover:text-cyan-300"
                           >
                             About
                             <div className="absolute bottom-0 left-1/2 h-px bg-gradient-to-r from-cyan-400 to-cyan-300 transition-all duration-200 -translate-x-1/2 shadow-sm shadow-cyan-400/50 w-0 group-hover/item:w-full"></div>
@@ -2899,7 +2966,7 @@ export default function Home() {
                         <li>
                           <button 
                             onClick={handleContactClick} 
-                            className="relative px-2.5 py-1 text-sm font-medium transition-all duration-200 hover:scale-105 group/item text-muted-foreground hover:text-cyan-300"
+                            className="relative px-1.5 sm:px-2.5 py-1 text-xs sm:text-sm font-medium transition-all duration-200 hover:scale-105 group/item text-muted-foreground hover:text-cyan-300"
                           >
                             Contact
                             <div className="absolute bottom-0 left-1/2 h-px bg-gradient-to-r from-cyan-400 to-cyan-300 transition-all duration-200 -translate-x-1/2 shadow-sm shadow-cyan-400/50 w-0 group-hover/item:w-full"></div>
@@ -2912,17 +2979,17 @@ export default function Home() {
                 
                 {/* Intro Card */}
                 <div 
-                  className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-card/50 to-card/30 backdrop-blur-sm border border-border/50 p-3 transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl hover:shadow-primary/10 hero-transition"
+                  className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-card/50 to-card/30 backdrop-blur-sm border border-border/50 p-2 sm:p-3 transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl hover:shadow-primary/10 hero-transition"
                   style={getHeroElementTransform('left', 1)}
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   <div className="relative z-10">
-                    <div className="mb-3 flex items-center gap-2">
+                    <div className="mb-2 sm:mb-3 flex items-center gap-2">
                       <div className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
                       <span className="text-xs text-muted-foreground">Actively looking for internships for Fall 2025</span>
                     </div>
                                         <h1 
-                      className="mb-2 text-xl font-bold tracking-tight lg:text-3xl bg-gradient-to-r from-slate-500 via-cyan-300 via-cyan-500 via-blue-400 to-slate-600 bg-clip-text text-transparent"
+                      className="mb-1.5 sm:mb-2 text-lg sm:text-xl font-bold tracking-tight lg:text-3xl bg-gradient-to-r from-slate-500 via-cyan-300 via-cyan-500 via-blue-400 to-slate-600 bg-clip-text text-transparent"
                       style={{
                         backgroundSize: '300% 300%',
                         animation: 'gradient-shift 4s ease infinite'
@@ -2930,7 +2997,7 @@ export default function Home() {
                     >
                       Hi, I'm Elijah Deangulo
                     </h1>
-                    <div className="mb-2 text-sm text-muted-foreground">
+                    <div className="mb-1.5 sm:mb-2 text-xs sm:text-sm text-muted-foreground">
                       <TypingAnimation 
                         texts={[
                           "AI/ML Engineer building intelligent systems",
@@ -2948,13 +3015,13 @@ export default function Home() {
 
                 {/* Stats Cards */}
                 <div 
-                  className="grid gap-2.5 sm:grid-cols-3"
+                  className="grid gap-1.5 sm:gap-2.5 grid-cols-3 sm:grid-cols-3"
                   style={getHeroElementTransform('up', 0.8)}
                 >
                   <div 
-                    className="group relative overflow-hidden rounded-lg bg-card/60 backdrop-blur-sm border border-border/50 p-2.5 transition-all duration-300 hover:scale-105 hover:bg-accent/20"
+                    className="group relative overflow-hidden rounded-lg bg-card/60 backdrop-blur-sm border border-border/50 p-1.5 sm:p-2.5 transition-all duration-300 hover:scale-105 hover:bg-accent/20"
                   >
-                    <div className="text-base font-bold text-primary mb-0.5">4.0</div>
+                    <div className="text-sm sm:text-base font-bold text-primary mb-0.5">4.0</div>
                     <div className="text-xs text-muted-foreground">Current Grad GPA</div>
                     <div className="absolute top-1 right-1 opacity-50 group-hover:opacity-100 transition-opacity">
                       <div className="text-xs transition-transform group-hover:scale-110 group-hover:rotate-6">🐊</div>
@@ -2962,17 +3029,17 @@ export default function Home() {
                   </div>
                   
                   <div 
-                    className="group relative overflow-hidden rounded-lg bg-card/60 backdrop-blur-sm border border-border/50 p-2.5 transition-all duration-300 hover:scale-105 hover:bg-accent/20"
+                    className="group relative overflow-hidden rounded-lg bg-card/60 backdrop-blur-sm border border-border/50 p-1.5 sm:p-2.5 transition-all duration-300 hover:scale-105 hover:bg-accent/20"
                   >
-                    <div className="text-base font-bold text-primary mb-0.5">Florida</div>
+                    <div className="text-sm sm:text-base font-bold text-primary mb-0.5">Florida</div>
                     <div className="text-xs text-muted-foreground">Ft. Lauderdale</div>
                     <div className="absolute top-1 right-1 text-sm opacity-50">🌴</div>
                   </div>
                   
                   <div 
-                    className="group relative overflow-hidden rounded-lg bg-card/60 backdrop-blur-sm border border-border/50 p-2.5 transition-all duration-300 hover:scale-105 hover:bg-accent/20"
+                    className="group relative overflow-hidden rounded-lg bg-card/60 backdrop-blur-sm border border-border/50 p-1.5 sm:p-2.5 transition-all duration-300 hover:scale-105 hover:bg-accent/20"
                   >
-                    <div className="text-base font-bold text-primary mb-0.5">4+</div>
+                    <div className="text-sm sm:text-base font-bold text-primary mb-0.5">4+</div>
                     <div className="text-xs text-muted-foreground">Years Experience</div>
                     <div className="absolute top-1 right-1 text-sm opacity-50">⚡</div>
                   </div>
@@ -2980,10 +3047,10 @@ export default function Home() {
 
                 {/* Description Card */}
                 <div 
-                  className="rounded-lg bg-card/30 backdrop-blur-sm border border-border/50 p-2.5"
+                  className="rounded-lg bg-card/30 backdrop-blur-sm border border-border/50 p-2 sm:p-2.5"
                   style={getHeroElementTransform('down', 0.6)}
                 >
-                  <div className="space-y-3 text-muted-foreground text-sm">
+                  <div className="space-y-2 sm:space-y-3 text-muted-foreground text-xs sm:text-sm">
                     <p className="leading-relaxed">
                       Currently pursuing my <strong className="text-foreground">MS in Business Analytics at UF</strong> while interning as a <strong className="text-foreground">Deployment Strategist at Palantir</strong>. I specialize in building AI-powered solutions that drive measurable business impact.
                     </p>
@@ -2995,14 +3062,14 @@ export default function Home() {
 
                 {/* Action Buttons */}
                 <div 
-                  className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4"
+                  className="flex flex-col gap-2 sm:gap-3 sm:flex-row sm:items-center sm:gap-4"
                   style={getHeroElementTransform('left', 0.7)}
                 >
-                  <div className="flex gap-3">
+                  <div className="flex gap-2 sm:gap-3">
                     <button 
                       onClick={handleDownloadClick}
                       disabled={isDownloading}
-                      className={`group relative overflow-hidden rounded-lg px-3 py-1.5 text-sm font-medium transition-all duration-300 ${
+                      className={`group relative overflow-hidden rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium transition-all duration-300 ${
                         downloadComplete 
                           ? 'bg-green-500 text-white shadow-lg shadow-green-500/25' 
                           : isDownloading 
@@ -3027,7 +3094,7 @@ export default function Home() {
 
                     <button 
                       onClick={() => setActiveSection('contact')}
-                      className="group relative overflow-hidden rounded-lg border border-border bg-background px-3 py-1.5 text-sm font-medium transition-all duration-300 hover:bg-accent hover:scale-105 hover:shadow-lg"
+                      className="group relative overflow-hidden rounded-lg border border-border bg-background px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium transition-all duration-300 hover:bg-accent hover:scale-105 hover:shadow-lg"
                     >
                       <div className="absolute inset-0 bg-gradient-to-r from-primary/0 to-primary/10 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-600" />
                       <div className="relative">💬 Let's Talk</div>
@@ -3035,19 +3102,19 @@ export default function Home() {
                   </div>
                   
                   {/* Social Links */}
-                  <div className="flex items-center gap-2">
-                    <a href="https://www.linkedin.com/in/elijah-deangulo-a26306175" target="_blank" rel="noopener noreferrer" className="group flex items-center justify-center px-3 py-2 rounded-lg border border-border bg-background transition-all duration-300 hover:bg-blue-500 hover:border-blue-500 hover:scale-110 hover:shadow-lg hover:shadow-blue-500/25">
-                      <svg className="h-3.5 w-3.5 text-blue-600 group-hover:text-white transition-colors" fill="currentColor" viewBox="0 0 24 24">
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <a href="https://www.linkedin.com/in/elijah-deangulo-a26306175" target="_blank" rel="noopener noreferrer" className="group flex items-center justify-center px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border border-border bg-background transition-all duration-300 hover:bg-blue-500 hover:border-blue-500 hover:scale-110 hover:shadow-lg hover:shadow-blue-500/25">
+                      <svg className="h-3 sm:h-3.5 w-3 sm:w-3.5 text-blue-600 group-hover:text-white transition-colors" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
                       </svg>
                     </a>
-                    <a href="https://github.com/ElijahDeangulo" target="_blank" rel="noopener noreferrer" className="group flex items-center justify-center px-3 py-2 rounded-lg border border-border bg-background transition-all duration-300 hover:bg-gray-900 hover:border-gray-900 hover:scale-110 hover:shadow-lg hover:shadow-gray-900/25">
-                      <svg className="h-3.5 w-3.5 text-gray-700 group-hover:text-white transition-colors" fill="currentColor" viewBox="0 0 24 24">
+                    <a href="https://github.com/ElijahDeangulo" target="_blank" rel="noopener noreferrer" className="group flex items-center justify-center px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border border-border bg-background transition-all duration-300 hover:bg-gray-900 hover:border-gray-900 hover:scale-110 hover:shadow-lg hover:shadow-gray-900/25">
+                      <svg className="h-3 sm:h-3.5 w-3 sm:w-3.5 text-gray-700 group-hover:text-white transition-colors" fill="currentColor" viewBox="0 0 24 24">
                         <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd"/>
                       </svg>
                     </a>
-                    <a href="mailto:ejdeangulo@gmail.com" className="group flex items-center justify-center px-3 py-2 rounded-lg border border-border bg-background transition-all duration-300 hover:bg-red-500 hover:border-red-500 hover:scale-110 hover:shadow-lg hover:shadow-red-500/25">
-                      <svg className="h-3.5 w-3.5 text-red-600 group-hover:text-white transition-colors" fill="currentColor" viewBox="0 0 24 24">
+                    <a href="mailto:ejdeangulo@gmail.com" className="group flex items-center justify-center px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border border-border bg-background transition-all duration-300 hover:bg-red-500 hover:border-red-500 hover:scale-110 hover:shadow-lg hover:shadow-red-500/25">
+                      <svg className="h-3 sm:h-3.5 w-3 sm:w-3.5 text-red-600 group-hover:text-white transition-colors" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-.904.732-1.636 1.636-1.636h.075L12 13.267 22.289 3.821h.075A1.636 1.636 0 0 1 24 5.457z"/>
                       </svg>
                     </a>
@@ -3056,7 +3123,7 @@ export default function Home() {
               </div>
 
               {/* Right Column - Profile & Tech Stack */}
-              <div className="lg:col-span-5 space-y-2">
+              <div className="lg:col-span-5 space-y-1.5 sm:space-y-2">
                 
                 {/* Profile Image Card */}
                 <div 
@@ -3068,8 +3135,8 @@ export default function Home() {
                     <img 
                       src="/images/profile.jpg" 
                       alt="Elijah DeAngulo" 
-                      className="w-full rounded-md object-cover shadow-sm transition-transform duration-500 group-hover:scale-105"
-                      style={{ aspectRatio: '3/5', objectPosition: 'center 13%', height: '290px', overflow: 'hidden', transform: 'scale(0.95)' }}
+                      className="w-full h-48 sm:h-56 lg:h-72 rounded-md object-cover shadow-sm transition-transform duration-500 group-hover:scale-105"
+                      style={{ objectPosition: 'center 13%', overflow: 'hidden', transform: 'scale(0.95)' }}
                       onError={(e) => {
                         e.currentTarget.src = "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=320&h=400&fit=crop&crop=face"
                       }}
@@ -3080,10 +3147,10 @@ export default function Home() {
 
                 {/* Current Status Card */}
                 <div 
-                  className="rounded-lg bg-card/50 backdrop-blur-sm border border-border/50 p-2"
+                  className="rounded-lg bg-card/50 backdrop-blur-sm border border-border/50 p-1.5 sm:p-2"
                   style={getHeroElementTransform('right', 0.8)}
                 >
-                                    <div className="flex items-center gap-1.5 mb-1.5">
+                                    <div className="flex items-center gap-1.5 mb-1 sm:mb-1.5">
                     <div className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
                     <span className="text-xs font-medium text-foreground">Currently at</span>
                   </div>
@@ -3100,14 +3167,15 @@ export default function Home() {
 
                                  {/* Tech Stack Preview */}
                  <div 
-                   className="rounded-lg bg-card/50 backdrop-blur-sm border border-border/50 p-2"
+                   className="rounded-lg bg-card/50 backdrop-blur-sm border border-border/50 p-1.5 sm:p-2 relative z-20"
                    style={getHeroElementTransform('right', 0.6)}
                  >
-                   <div className="flex items-center justify-between mb-1.5">
+                   <div className="flex items-center justify-between mb-1 sm:mb-1.5">
                      <h3 className="text-xs font-medium text-foreground">Core Technologies</h3>
                      <button
                        onClick={() => setShowSkillsModal(true)}
-                       className="group flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-all duration-300"
+                       className="group relative z-30 flex items-center gap-1 px-2 py-1 text-xs text-muted-foreground hover:text-primary transition-all duration-300 hover:bg-primary/10 rounded-md -mr-1 -my-1 cursor-pointer touch-manipulation"
+                       style={{ pointerEvents: 'auto', touchAction: 'manipulation' }}
                      >
                        <span className="text-xs">View More</span>
                        <svg className="h-3 w-3 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -3115,7 +3183,7 @@ export default function Home() {
                        </svg>
                      </button>
                    </div>
-                   <div className="grid grid-cols-4 gap-1.5">
+                   <div className="grid grid-cols-4 gap-1 sm:gap-1.5">
                      {[
                        { 
                          name: 'Python', 
@@ -3129,7 +3197,7 @@ export default function Home() {
                          name: 'AI/ML', 
                          icon: (
                            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
-                             <path d="M12 2L13.09 8.26L20 9L13.09 9.74L12 16L10.91 9.74L4 9L10.91 8.26L12 2M12 18L10.91 14.26L4 13.5L10.91 12.74L12 6L13.09 12.74L20 13.5L13.09 14.26L12 18M12 12C13.66 12 15 10.66 15 9S13.66 6 12 6 9 7.34 9 9 10.34 12 12 12Z"/>
+                             <path d="M12,2A2,2 0 0,1 14,4C14,4.74 13.6,5.39 13,5.73V7.27C13.6,7.61 14,8.26 14,9A2,2 0 0,1 12,11A2,2 0 0,1 10,9C10,8.26 10.4,7.61 11,7.27V5.73C10.4,5.39 10,4.74 10,4A2,2 0 0,1 12,2M21,9A2,2 0 0,1 23,11A2,2 0 0,1 21,13A2,2 0 0,1 19,11A2,2 0 0,1 21,9M3,9A2,2 0 0,1 5,11A2,2 0 0,1 3,13A2,2 0 0,1 1,11A2,2 0 0,1 3,9M15.71,10.29L18.29,7.71A1,1 0 0,1 19.71,9.12L17.12,11.71C16.95,11.89 16.69,12 16.41,12C16.13,12 15.87,11.89 15.71,11.71C15.32,11.32 15.32,10.68 15.71,10.29M8.29,10.29C8.68,10.68 8.68,11.32 8.29,11.71C8.12,11.89 7.87,12 7.59,12C7.31,12 7.05,11.89 6.88,11.71L4.29,9.12A1,1 0 0,1 5.71,7.71L8.29,10.29M12,14A2,2 0 0,1 14,16C14,16.74 13.6,17.39 13,17.73V19.27C13.6,19.61 14,20.26 14,21A2,2 0 0,1 12,23A2,2 0 0,1 10,21C10,20.26 10.4,19.61 11,19.27V17.73C10.4,17.39 10,16.74 10,16A2,2 0 0,1 12,14Z"/>
                            </svg>
                          )
                        },
@@ -3153,15 +3221,15 @@ export default function Home() {
                          name: 'AWS', 
                          icon: (
                            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
-                             <path d="M6.5 14.5V16H3V14.5C3 13.12 4.12 12 5.5 12S8 13.12 8 14.5M12 3V7H9V3C9 1.62 10.12 0.5 11.5 0.5S14 1.62 14 3M17.5 12C18.88 12 20 13.12 20 14.5V16H16.5V14.5C16.5 13.12 17.62 12 19 12H17.5M3 18H21V20H3V18M6 8H18V10H6V8M9 14H15V16H9V14Z"/>
+                             <path d="M6.5,20.5C4,20.5 2,18.5 2,16C2,13.5 4,11.5 6.5,11.5C7.5,9.5 9.5,8 12,8C15,8 17.5,10.5 17.5,13.5C19,13.5 20.5,15 20.5,16.5C20.5,18 19,19.5 17.5,19.5H6.5M6.5,18.5H17.5C18.5,18.5 19.5,17.5 19.5,16.5C19.5,15.5 18.5,14.5 17.5,14.5H16.5V13.5C16.5,11 14.5,9 12,9C10,9 8.5,10.5 8,12H6.5C4.5,12 2.5,14 2.5,16C2.5,18 4.5,20 6.5,20V18.5Z"/>
                            </svg>
                          )
                        },
                        { 
-                         name: 'Spark', 
+                         name: 'PySpark', 
                          icon: (
                            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
-                             <path d="M8.5,7L10.5,1L11.5,2L12.5,1L14.5,7H8.5M12,8A1,1 0 0,1 13,9A1,1 0 0,1 12,10A1,1 0 0,1 11,9A1,1 0 0,1 12,8M8.75,11.25L12,12L15.25,11.25L16,21H8L8.75,11.25M10,13V19H11V13H10M13,13V19H14V13H13Z"/>
+                             <path d="M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.46,13.97L5.82,21L12,17.27Z"/>
                            </svg>
                          )
                        },
@@ -3697,6 +3765,7 @@ export default function Home() {
               mousePosition={mousePosition}
               getSectionTransform={getSectionTransform}
               onProjectClick={handleProjectClick}
+              isMobile={isMobile}
             />
           </div>
         </section>
