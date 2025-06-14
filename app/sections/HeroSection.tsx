@@ -156,7 +156,7 @@ export const HeroSection = ({
                   src="/images/profile.jpg" 
                   alt="Elijah DeAngulo" 
                   className="w-full rounded-md object-cover shadow-sm transition-transform duration-500 group-hover:scale-105"
-                  style={{ aspectRatio: '3/5', objectPosition: 'center 13%', height: '290px', overflow: 'hidden', transform: 'scale(0.95)' }}
+                  style={{ aspectRatio: '3/5', objectPosition: 'center 13%', height: '290px', overflow: 'hidden', transform: 'scale(0.95)', willChange: 'transform', backfaceVisibility: 'hidden' }}
                   onError={(e) => {
                     e.currentTarget.src = "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=320&h=400&fit=crop&crop=face"
                   }}

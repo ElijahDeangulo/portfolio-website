@@ -3136,7 +3136,7 @@ export default function Home() {
                       src="/images/profile.jpg" 
                       alt="Elijah DeAngulo" 
                       className="w-full h-48 sm:h-56 lg:h-72 rounded-md object-cover shadow-sm transition-transform duration-500 group-hover:scale-105"
-                      style={{ objectPosition: 'center 13%', overflow: 'hidden', transform: 'scale(0.95)' }}
+                      style={{ objectPosition: 'center 13%', overflow: 'hidden', transform: 'scale(0.95)', willChange: 'transform', backfaceVisibility: 'hidden' }}
                       onError={(e) => {
                         e.currentTarget.src = "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=320&h=400&fit=crop&crop=face"
                       }}
@@ -3268,6 +3268,53 @@ export default function Home() {
               </div>
             </div>
           </div>
+
+          {/* Desktop Scroll Indicator - Subtle and Elegant */}
+          {!isMobile && (
+            <div 
+              className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10 pointer-events-none"
+              style={{
+                opacity: viewportHeight > 0 ? Math.max(1 - (scrollY / (viewportHeight * 0.3)), 0) : 1,
+                transform: `translate3d(-50%, ${scrollY * 0.1}px, 0)`,
+                willChange: 'opacity, transform',
+                backfaceVisibility: 'hidden',
+              }}
+            >
+              <div className="flex flex-col items-center gap-0.5 animate-bounce">
+                {/* Subtle text hint */}
+                <div className="text-[10px] text-muted-foreground/40 font-medium tracking-wide">
+                  Scroll to explore
+                </div>
+                
+                {/* Animated arrow */}
+                <div className="relative">
+                  <svg 
+                    className="w-3 h-3 text-muted-foreground/25 animate-pulse" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round" 
+                      strokeWidth={1.5} 
+                      d="M19 14l-7 7m0 0l-7-7m7 7V3" 
+                    />
+                  </svg>
+                  
+                  {/* Subtle glow effect */}
+                  <div className="absolute inset-0 w-3 h-3 bg-primary/6 rounded-full blur-sm animate-ping opacity-10"></div>
+                </div>
+                
+                {/* Three small dots indicating more content */}
+                <div className="flex gap-0.5">
+                  <div className="w-0.5 h-0.5 bg-muted-foreground/20 rounded-full animate-pulse" style={{ animationDelay: '0ms' }}></div>
+                  <div className="w-0.5 h-0.5 bg-muted-foreground/20 rounded-full animate-pulse" style={{ animationDelay: '200ms' }}></div>
+                  <div className="w-0.5 h-0.5 bg-muted-foreground/20 rounded-full animate-pulse" style={{ animationDelay: '400ms' }}></div>
+                </div>
+              </div>
+            </div>
+          )}
         </section>
 
         {/* Transition Buffer Zone */}

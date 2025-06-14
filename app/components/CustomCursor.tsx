@@ -16,7 +16,10 @@ export const CustomCursor = () => {
     setMounted(true)
     
     const updateMousePosition = (e: MouseEvent) => {
-      setPosition({ x: e.clientX, y: e.clientY })
+      // Safety check to prevent invalid coordinates
+      const x = isNaN(e.clientX) ? 0 : e.clientX
+      const y = isNaN(e.clientY) ? 0 : e.clientY
+      setPosition({ x, y })
     }
 
     const handleScroll = () => {
@@ -59,7 +62,10 @@ export const CustomCursor = () => {
     const animateCursor = () => {
       if (cursorRef.current) {
         const { x, y } = position
-        cursorRef.current.style.transform = `translate3d(${x}px, ${y}px, 0)`
+        // Safety check to prevent NaN values
+        const safeX = isNaN(x) ? 0 : x
+        const safeY = isNaN(y) ? 0 : y
+        cursorRef.current.style.transform = `translate3d(${safeX}px, ${safeY}px, 0)`
       }
       requestAnimationFrame(animateCursor)
     }
@@ -82,6 +88,10 @@ export const CustomCursor = () => {
 
   if (!mounted) return null
 
+  // Safety check for position values
+  const safeX = isNaN(position.x) ? 0 : position.x
+  const safeY = isNaN(position.y) ? 0 : position.y
+
   const cursorElement = (
     <div
       ref={cursorRef}
@@ -94,8 +104,9 @@ export const CustomCursor = () => {
       `}
       style={{
         borderRadius: '50%',
-        willChange: 'transform',
-        transform: `translate3d(${position.x}px, ${position.y}px, 0)`,
+        willChange: 'transform, opacity',
+        backfaceVisibility: 'hidden',
+        transform: `translate3d(${safeX}px, ${safeY}px, 0)`,
       }}
     />
   )

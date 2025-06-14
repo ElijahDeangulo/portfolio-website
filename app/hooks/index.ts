@@ -39,20 +39,27 @@ export const useParallax = (): ParallaxEffects => {
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrollY(window.scrollY)
+      // Safety check to prevent NaN values
+      const safeScrollY = isNaN(window.scrollY) ? 0 : window.scrollY
+      setScrollY(safeScrollY)
     }
 
     const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY })
+      // Safety checks to prevent invalid coordinates
+      const x = isNaN(e.clientX) ? 0 : e.clientX
+      const y = isNaN(e.clientY) ? 0 : e.clientY
+      setMousePosition({ x, y })
     }
 
     const handleResize = () => {
-      setScrollY(window.scrollY)
+      // Safety check to prevent NaN values
+      const safeScrollY = isNaN(window.scrollY) ? 0 : window.scrollY
+      setScrollY(safeScrollY)
     }
 
-    window.addEventListener('scroll', handleScroll)
-    window.addEventListener('mousemove', handleMouseMove)
-    window.addEventListener('resize', handleResize)
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    window.addEventListener('mousemove', handleMouseMove, { passive: true })
+    window.addEventListener('resize', handleResize, { passive: true })
 
     return () => {
       window.removeEventListener('scroll', handleScroll)
@@ -61,22 +68,49 @@ export const useParallax = (): ParallaxEffects => {
     }
   }, [])
 
-  const getSectionTransform = (speed: number) => ({
-    transform: `translateY(${scrollY * speed}px)`
-  })
+  const getSectionTransform = (speed: number) => {
+    // Safety check for speed parameter
+    const safeSpeed = isNaN(speed) ? 0 : speed
+    const safeScrollY = isNaN(scrollY) ? 0 : scrollY
+    
+    return {
+      transform: `translateY(${safeScrollY * safeSpeed}px)`,
+      willChange: 'transform',
+      backfaceVisibility: 'hidden' as const
+    }
+  }
 
-  const getElementTransform = (speed: number, mouseMultiplier: number = 1) => ({
-    transform: `translate(${mousePosition.x * mouseMultiplier * 0.02}px, ${mousePosition.y * mouseMultiplier * 0.02 + scrollY * speed}px)`
-  })
+  const getElementTransform = (speed: number, mouseMultiplier: number = 1) => {
+    // Safety checks for all parameters
+    const safeSpeed = isNaN(speed) ? 0 : speed
+    const safeMouseMultiplier = isNaN(mouseMultiplier) ? 1 : mouseMultiplier
+    const safeMouseX = isNaN(mousePosition.x) ? 0 : mousePosition.x
+    const safeMouseY = isNaN(mousePosition.y) ? 0 : mousePosition.y
+    const safeScrollY = isNaN(scrollY) ? 0 : scrollY
+    
+    return {
+      transform: `translate(${safeMouseX * safeMouseMultiplier * 0.02}px, ${safeMouseY * safeMouseMultiplier * 0.02 + safeScrollY * safeSpeed}px)`,
+      willChange: 'transform',
+      backfaceVisibility: 'hidden' as const
+    }
+  }
 
   const getHeroElementTransform = (direction: 'left' | 'right' | 'up' | 'down' = 'up', speed: number = 1) => {
     const windowWidth = typeof window !== 'undefined' ? window.innerWidth : 1200
     const windowHeight = typeof window !== 'undefined' ? window.innerHeight : 800
     
-    const normalizedMouseX = (mousePosition.x - windowWidth / 2) / (windowWidth / 2)
-    const normalizedMouseY = (mousePosition.y - windowHeight / 2) / (windowHeight / 2)
+    // Safety checks to prevent division by zero
+    const safeWindowWidth = windowWidth || 1200
+    const safeWindowHeight = windowHeight || 800
+    const safeSpeed = isNaN(speed) ? 1 : speed
+    const safeMouseX = isNaN(mousePosition.x) ? 0 : mousePosition.x
+    const safeMouseY = isNaN(mousePosition.y) ? 0 : mousePosition.y
+    const safeScrollY = isNaN(scrollY) ? 0 : scrollY
     
-    const maxOffset = 50 * speed
+    const normalizedMouseX = (safeMouseX - safeWindowWidth / 2) / (safeWindowWidth / 2)
+    const normalizedMouseY = (safeMouseY - safeWindowHeight / 2) / (safeWindowHeight / 2)
+    
+    const maxOffset = 50 * safeSpeed
     
     let translateX = 0
     let translateY = 0
@@ -96,8 +130,14 @@ export const useParallax = (): ParallaxEffects => {
         break
     }
     
+    // Final safety checks
+    const safeTranslateX = isNaN(translateX) ? 0 : translateX
+    const safeTranslateY = isNaN(translateY) ? 0 : translateY
+    
     return {
-      transform: `translate(${translateX}px, ${translateY + scrollY * 0.3}px)`
+      transform: `translate(${safeTranslateX}px, ${safeTranslateY + safeScrollY * 0.3}px)`,
+      willChange: 'transform',
+      backfaceVisibility: 'hidden' as const
     }
   }
 
@@ -105,65 +145,105 @@ export const useParallax = (): ParallaxEffects => {
     const windowWidth = typeof window !== 'undefined' ? window.innerWidth : 1200
     const windowHeight = typeof window !== 'undefined' ? window.innerHeight : 800
     
-    const normalizedMouseX = (mousePosition.x - windowWidth / 2) / (windowWidth / 2)
-    const normalizedMouseY = (mousePosition.y - windowHeight / 2) / (windowHeight / 2)
+    // Safety checks to prevent division by zero and NaN values
+    const safeWindowWidth = windowWidth || 1200
+    const safeWindowHeight = windowHeight || 800
+    const safeIndex = isNaN(index) ? 0 : index
+    const safeDelay = isNaN(delay) ? 0 : Math.max(0, delay)
+    const safeMouseX = isNaN(mousePosition.x) ? 0 : mousePosition.x
+    const safeMouseY = isNaN(mousePosition.y) ? 0 : mousePosition.y
+    const safeScrollY = isNaN(scrollY) ? 0 : scrollY
     
-    const scrollFactor = scrollY * 0.15
-    const mouseFactor = 15 + (index * 3)
+    const normalizedMouseX = (safeMouseX - safeWindowWidth / 2) / (safeWindowWidth / 2)
+    const normalizedMouseY = (safeMouseY - safeWindowHeight / 2) / (safeWindowHeight / 2)
+    
+    const scrollFactor = safeScrollY * 0.15
+    const mouseFactor = 15 + (safeIndex * 3)
     
     const translateX = normalizedMouseX * mouseFactor
     const translateY = normalizedMouseY * mouseFactor + scrollFactor
     
+    // Final safety checks
+    const safeTranslateX = isNaN(translateX) ? 0 : translateX
+    const safeTranslateY = isNaN(translateY) ? 0 : translateY
+    
     return {
-      transform: `translate(${translateX}px, ${translateY}px)`,
-      transition: `transform 0.${delay}s ease-out`
+      transform: `translate(${safeTranslateX}px, ${safeTranslateY}px)`,
+      transition: `transform 0.${safeDelay}s ease-out`,
+      willChange: 'transform',
+      backfaceVisibility: 'hidden' as const
     }
   }
 
   const getExperienceSectionPushTransform = () => {
-    const pushEffect = Math.max(0, (scrollY - 800) * 0.8)
+    // Safety checks
+    const safeScrollY = isNaN(scrollY) ? 0 : scrollY
+    const pushEffect = Math.max(0, (safeScrollY - 800) * 0.8)
+    const safePushEffect = isNaN(pushEffect) ? 0 : pushEffect
     
     return {
-      transform: `translateY(-${pushEffect}px)`,
-      zIndex: 10
+      transform: `translateY(-${safePushEffect}px)`,
+      zIndex: 10,
+      willChange: 'transform',
+      backfaceVisibility: 'hidden' as const
     }
   }
 
   const getHeroExitTransform = (): React.CSSProperties => {
-    const opacity = Math.max(0, 1 - (scrollY / 500))
-    const scale = Math.max(0.8, 1 - (scrollY / 2000))
-    const blur = Math.min(10, scrollY / 100)
+    // Safety checks to prevent division by zero
+    const safeScrollY = isNaN(scrollY) ? 0 : scrollY
+    const opacity = Math.max(0, 1 - (safeScrollY / 500))
+    const scale = Math.max(0.8, 1 - (safeScrollY / 2000))
+    const blur = Math.min(10, safeScrollY / 100)
+    
+    // Final safety checks
+    const safeOpacity = isNaN(opacity) ? 1 : opacity
+    const safeScale = isNaN(scale) ? 1 : scale
+    const safeBlur = isNaN(blur) ? 0 : blur
     
     return {
-      opacity,
-      transform: `scale(${scale})`,
-      filter: `blur(${blur}px)`,
-      pointerEvents: opacity > 0.1 ? 'auto' : 'none'
+      opacity: safeOpacity,
+      transform: `scale(${safeScale})`,
+      filter: `blur(${safeBlur}px)`,
+      pointerEvents: safeOpacity > 0.1 ? 'auto' as const : 'none' as const,
+      willChange: 'transform, opacity, filter',
+      backfaceVisibility: 'hidden' as const
     }
   }
 
   const getFeaturedProjectsFadeTransform = () => {
     const windowHeight = typeof window !== 'undefined' ? window.innerHeight : 800
-    const featuredProjectsOffset = windowHeight * 2
+    const safeWindowHeight = windowHeight || 800
+    const safeScrollY = isNaN(scrollY) ? 0 : scrollY
+    
+    const featuredProjectsOffset = safeWindowHeight * 2
     const fadeStart = featuredProjectsOffset - 200
     const fadeEnd = featuredProjectsOffset + 200
     
     let opacity = 1
     let transform = 'translateY(0px)'
     
-    if (scrollY < fadeStart) {
+    if (safeScrollY < fadeStart) {
       opacity = 0
       transform = 'translateY(50px)'
-    } else if (scrollY >= fadeStart && scrollY <= fadeEnd) {
-      const progress = (scrollY - fadeStart) / (fadeEnd - fadeStart)
-      opacity = progress
-      transform = `translateY(${50 * (1 - progress)}px)`
+    } else if (safeScrollY >= fadeStart && safeScrollY <= fadeEnd) {
+      const divisor = fadeEnd - fadeStart
+      const progress = divisor !== 0 ? (safeScrollY - fadeStart) / divisor : 0 // Prevent division by zero
+      const safeProgress = isNaN(progress) ? 0 : Math.max(0, Math.min(1, progress))
+      
+      opacity = safeProgress
+      transform = `translateY(${50 * (1 - safeProgress)}px)`
     }
     
+    // Final safety checks
+    const safeOpacity = isNaN(opacity) ? 1 : opacity
+    
     return {
-      opacity,
+      opacity: safeOpacity,
       transform,
-      transition: 'opacity 0.6s ease-out, transform 0.6s ease-out'
+      transition: 'opacity 0.6s ease-out, transform 0.6s ease-out',
+      willChange: 'transform, opacity',
+      backfaceVisibility: 'hidden' as const
     }
   }
 
