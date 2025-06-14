@@ -141,13 +141,22 @@ export const FeaturedProjectsCarousel = ({
   const getProjectTransform = (index: number) => {
     const offset = index - currentIndex
     const baseX = offset * 100
-    const dragOffset = isDragging ? dragX.get() / window.innerWidth * 100 : 0
+    
+    // Safety checks to prevent NaN values
+    const safeDragValue = isNaN(dragX.get()) ? 0 : dragX.get()
+    const safeWindowWidth = window.innerWidth || 1024 // Fallback width
+    const dragOffset = isDragging ? (safeDragValue / safeWindowWidth) * 100 : 0
     const finalX = baseX + dragOffset
 
+    // Safety checks for opacity and scale calculations
+    const absOffset = Math.abs(offset)
+    const safeOpacity = absOffset <= 1 ? Math.max(0, 1 - absOffset * 0.3) : 0
+    const safeScale = absOffset <= 1 ? Math.max(0.1, 1 - absOffset * 0.1) : 0.8
+
     return {
-      x: `${finalX}%`,
-      opacity: Math.abs(offset) <= 1 ? 1 - Math.abs(offset) * 0.3 : 0,
-      scale: Math.abs(offset) <= 1 ? 1 - Math.abs(offset) * 0.1 : 0.8,
+      x: `${isNaN(finalX) ? baseX : finalX}%`,
+      opacity: isNaN(safeOpacity) ? 1 : safeOpacity,
+      scale: isNaN(safeScale) ? 1 : safeScale,
     }
   }
 
@@ -214,6 +223,10 @@ export const FeaturedProjectsCarousel = ({
                   damping: 30,
                   opacity: { duration: 0.3 },
                   scale: { duration: 0.3 }
+                }}
+                style={{
+                  willChange: 'transform, opacity',
+                  backfaceVisibility: 'hidden'
                 }}
               >
                 <div 
