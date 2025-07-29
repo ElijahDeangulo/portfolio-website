@@ -327,4 +327,6 @@ export const FeaturedProjectsCarousel = ({
       </div>
     </section>
   )
-} 
+}
+
+export default FeaturedProjectsCarousel 

@@ -1,9 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 
-const resend = new Resend('re_FtcracsU_AjnFZFe7ZX31DyYfGgiuNBG8')
+// Initialize Resend with API key from environment variable
+const resend = new Resend(process.env.RESEND_API_KEY!)
 
 export async function POST(request: NextRequest) {
+  // Check for required environment variables
+  if (!process.env.RESEND_API_KEY) {
+    console.error('RESEND_API_KEY is not configured')
+    return NextResponse.json(
+      { error: 'Email service is not configured. Please contact the administrator.' },
+      { status: 500 }
+    )
+  }
+
+  if (!process.env.CONTACT_EMAIL) {
+    console.error('CONTACT_EMAIL is not configured')
+    return NextResponse.json(
+      { error: 'Contact email is not configured. Please contact the administrator.' },
+      { status: 500 }
+    )
+  }
+
   try {
     const { name, email, message } = await request.json()
 
@@ -25,7 +43,7 @@ export async function POST(request: NextRequest) {
     // Send email using Resend
     const data = await resend.emails.send({
       from: 'onboarding@resend.dev',
-      to: 'ejdeangulo@gmail.com',
+      to: process.env.CONTACT_EMAIL!,
       subject: `New Portfolio Contact from ${name}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">

@@ -1,9 +1,13 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, lazy, Suspense } from 'react'
+import dynamic from 'next/dynamic'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence, useMotionValue, useTransform, PanInfo } from 'framer-motion'
 import { resetCursorState } from './components/CustomCursor'
+
+// Note: We can add lazy loading for modals and other heavy components here
+// For now, keeping all components inline to preserve exact UI behavior
 
 // Modern Theme Toggle Component
 const ModernThemeToggle = ({ isDark, toggleDarkMode, isClient, isSpotifyExpanded }: { 

@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { MusicPlayerProps } from '../types'
+import { MusicPlayerProps } from '../../types'
 
 export const HybridMusicPlayer = ({ 
   playlistId = "37i9dQZF1DZ06evO3qQrNm",
@@ -174,6 +174,4 @@ export const HybridMusicPlayer = ({
       </div>
     </div>
   )
-}
-
-export default HybridMusicPlayer 
+} 

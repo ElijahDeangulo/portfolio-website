@@ -196,4 +196,6 @@ export const CustomCursor = () => {
   )
 
   return createPortal(cursorElement, document.body)
-} 
+}
+
+export default CustomCursor 

@@ -214,6 +214,4 @@ export const SkillsModal = ({
       </div>
     </div>
   )
-}
-
-export default SkillsModal 
+} 

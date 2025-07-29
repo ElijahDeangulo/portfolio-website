@@ -119,4 +119,6 @@ export const FloatingElements = ({ section }: FloatingElementsProps) => {
   }
 
   return null
-} 
+}
+
+export default FloatingElements 

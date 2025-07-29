@@ -42,4 +42,6 @@ export const ModernThemeToggle = ({ isDark, toggleDarkMode, isClient, isSpotifyE
       </button>
     </div>
   )
-} 
+}
+
+export default ModernThemeToggle 

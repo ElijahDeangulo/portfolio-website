@@ -7,7 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "clean": "rm -rf .next out node_modules package-lock.json && npm install",
+    "clean:build": "rm -rf .next out",
+    "clean:deps": "node scripts/clean-deps.js",
+    "setup": "./setup.sh",
+    "type-check": "tsc --noEmit"
   },
   "keywords": [],
   "author": "",

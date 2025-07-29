@@ -37,4 +37,6 @@ export const TypingAnimation = ({ texts, speed = 100, deleteSpeed = 50, pauseTim
       <span className="animate-pulse">|</span>
     </span>
   )
-} 
+}
+
+export default TypingAnimation 
