@@ -1,7 +1,10 @@
 {
   "name": "portfolio-website",
   "version": "1.0.0",
-  "main": "index.js",
+  "private": true,
+  "description": "A modern, responsive portfolio website built with Next.js, TypeScript, and Tailwind CSS",
+  "author": "Visual Life",
+  "license": "ISC",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -13,10 +16,7 @@
     "setup": "./setup.sh",
     "type-check": "tsc --noEmit"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "keywords": ["nextjs", "react", "typescript", "portfolio", "tailwindcss"],
   "dependencies": {
     "@types/node": "^22.15.29",
     "@types/react": "^19.1.6",
