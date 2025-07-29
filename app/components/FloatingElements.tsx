@@ -17,7 +17,6 @@ export const FloatingElements = ({ section }: FloatingElementsProps) => {
           style={{ 
             ...getElementTransform(0.1, 0.5),
             pointerEvents: 'none',
-            willChange: 'transform',
             backfaceVisibility: 'hidden'
           } as React.CSSProperties}
         />
@@ -26,7 +25,6 @@ export const FloatingElements = ({ section }: FloatingElementsProps) => {
           style={{ 
             ...getElementTransform(0.2, -0.3),
             pointerEvents: 'none',
-            willChange: 'transform',
             backfaceVisibility: 'hidden'
           } as React.CSSProperties}
         />
@@ -35,7 +33,6 @@ export const FloatingElements = ({ section }: FloatingElementsProps) => {
           style={{ 
             ...getElementTransform(0.15, 0.4),
             pointerEvents: 'none',
-            willChange: 'transform',
             backfaceVisibility: 'hidden'
           } as React.CSSProperties}
         />
@@ -51,7 +48,6 @@ export const FloatingElements = ({ section }: FloatingElementsProps) => {
           style={{ 
             ...getElementTransform(0.15, 0.3),
             pointerEvents: 'none',
-            willChange: 'transform',
             backfaceVisibility: 'hidden'
           } as React.CSSProperties}
         />
@@ -60,7 +56,6 @@ export const FloatingElements = ({ section }: FloatingElementsProps) => {
           style={{ 
             ...getElementTransform(0.1, -0.2),
             pointerEvents: 'none',
-            willChange: 'transform',
             backfaceVisibility: 'hidden'
           } as React.CSSProperties}
         />
@@ -76,7 +71,6 @@ export const FloatingElements = ({ section }: FloatingElementsProps) => {
           style={{ 
             ...getElementTransform(0.4, 0.2),
             pointerEvents: 'none',
-            willChange: 'transform',
             backfaceVisibility: 'hidden'
           } as React.CSSProperties}
         />
@@ -85,7 +79,6 @@ export const FloatingElements = ({ section }: FloatingElementsProps) => {
           style={{ 
             ...getElementTransform(0.35, -0.2),
             pointerEvents: 'none',
-            willChange: 'transform',
             backfaceVisibility: 'hidden'
           } as React.CSSProperties}
         />
@@ -101,7 +94,6 @@ export const FloatingElements = ({ section }: FloatingElementsProps) => {
           style={{ 
             ...getElementTransform(0.3, 0.3),
             pointerEvents: 'none',
-            willChange: 'transform',
             backfaceVisibility: 'hidden'
           } as React.CSSProperties}
         />
@@ -110,7 +102,6 @@ export const FloatingElements = ({ section }: FloatingElementsProps) => {
           style={{ 
             ...getElementTransform(0.05, -0.2),
             pointerEvents: 'none',
-            willChange: 'transform',
             backfaceVisibility: 'hidden'
           } as React.CSSProperties}
         />

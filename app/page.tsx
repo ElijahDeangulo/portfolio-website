@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, lazy, Suspense } from 'react'
 import dynamic from 'next/dynamic'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence, useMotionValue, useTransform, PanInfo } from 'framer-motion'
-import { resetCursorState } from './components/CustomCursor'
+import CustomCursorComponent, { resetCursorState } from './components/CustomCursor'
 
 // Note: We can add lazy loading for modals and other heavy components here
 // For now, keeping all components inline to preserve exact UI behavior
@@ -449,6 +449,8 @@ const LocalMusicPlayer = () => {
 }
 
 // Enhanced Professional Custom Cursor Component
+// COMMENTED OUT: Using imported CustomCursor from components/CustomCursor.tsx instead
+/*
 const CustomCursor = () => {
   const [cursorType, setCursorType] = useState('default')
   const [isHovering, setIsHovering] = useState(false)
@@ -675,19 +677,16 @@ const CustomCursor = () => {
 
   return (
     <>
-      {/* Main Cursor */}
       <div
         ref={cursorRef}
         className={`custom-cursor custom-cursor--${cursorType} ${isHovering ? 'custom-cursor--hovering' : ''} ${isPressed ? 'custom-cursor--pressed' : ''}`}
       />
       
-      {/* Trailing Effect */}
       <div
         ref={trailRef}
         className="custom-cursor-trail"
       />
       
-      {/* Cursor Dot */}
       <div
         ref={dotRef}
         className={`custom-cursor-dot custom-cursor-dot--${cursorType} ${isHovering ? 'custom-cursor-dot--hovering' : ''} ${isPressed ? 'custom-cursor-dot--pressed' : ''}`}
@@ -695,6 +694,7 @@ const CustomCursor = () => {
     </>
   )
 }
+*/
 
 // Typing Animation Component
 const TypingAnimation = ({ texts, speed = 100, deleteSpeed = 50, pauseTime = 2000 }: {
@@ -2830,7 +2830,7 @@ export default function Home() {
   return (
     <div>
       {/* Fixed positioned elements must be outside of transformed containers */}
-      <CustomCursor />
+      <CustomCursorComponent />
       
       {/* Music Player Portal - Render into viewport overlay */}
       {musicPlayerContainer && createPortal(

@@ -12,13 +12,14 @@ export const resetCursorState = () => {
 }
 
 export const CustomCursor = () => {
-  const [position, setPosition] = useState({ x: 0, y: 0 })
   const [isVisible, setIsVisible] = useState(true)
   const [isPressed, setIsPressed] = useState(false)
   const [isHovering, setIsHovering] = useState(false)
   const [mounted, setMounted] = useState(false)
 
   const cursorRef = useRef<HTMLDivElement>(null)
+  const positionRef = useRef({ x: 0, y: 0 })
+  const animationRef = useRef<number | null>(null)
 
   useEffect(() => {
     setMounted(true)
@@ -27,7 +28,7 @@ export const CustomCursor = () => {
       // Safety check to prevent invalid coordinates
       const x = isNaN(e.clientX) ? 0 : e.clientX
       const y = isNaN(e.clientY) ? 0 : e.clientY
-      setPosition({ x, y })
+      positionRef.current = { x, y }
     }
 
     const handleScroll = () => {
@@ -81,7 +82,7 @@ export const CustomCursor = () => {
       setIsPressed(false)
       // Reset hover state on mouse up to prevent stuck states
       setTimeout(() => {
-        const elementUnderCursor = document.elementFromPoint(position.x, position.y) as HTMLElement
+        const elementUnderCursor = document.elementFromPoint(positionRef.current.x, positionRef.current.y) as HTMLElement
         if (elementUnderCursor && !(
           elementUnderCursor.tagName === 'BUTTON' ||
           elementUnderCursor.tagName === 'A' ||
@@ -98,9 +99,10 @@ export const CustomCursor = () => {
       }, 50)
     }
 
-    // Force reset cursor state periodically to prevent stuck states
-    const resetCursorState = () => {
-      const elementUnderCursor = document.elementFromPoint(position.x, position.y) as HTMLElement
+    // Check cursor state on demand instead of periodically
+    const checkCursorState = () => {
+      const { x, y } = positionRef.current
+      const elementUnderCursor = document.elementFromPoint(x, y) as HTMLElement
       if (elementUnderCursor) {
         const shouldHover = !!(
           elementUnderCursor.tagName === 'BUTTON' ||
@@ -110,8 +112,7 @@ export const CustomCursor = () => {
           elementUnderCursor.closest('button') ||
           elementUnderCursor.closest('a') ||
           elementUnderCursor.closest('[role="button"]') ||
-          elementUnderCursor.closest('.cursor-pointer') ||
-          window.getComputedStyle(elementUnderCursor).cursor === 'pointer'
+          elementUnderCursor.closest('.cursor-pointer')
         )
         setIsHovering(shouldHover)
       } else {
@@ -125,19 +126,19 @@ export const CustomCursor = () => {
       setIsPressed(false)
       // Wait a bit then check if we should be hovering over current element
       setTimeout(() => {
-        resetCursorState()
+        checkCursorState()
       }, 100)
     }
 
     const animateCursor = () => {
       if (cursorRef.current) {
-        const { x, y } = position
+        const { x, y } = positionRef.current
         // Safety check to prevent NaN values
         const safeX = isNaN(x) ? 0 : x
         const safeY = isNaN(y) ? 0 : y
         cursorRef.current.style.transform = `translate3d(${safeX}px, ${safeY}px, 0)`
       }
-      requestAnimationFrame(animateCursor)
+      animationRef.current = requestAnimationFrame(animateCursor)
     }
 
     // Use event delegation for better dynamic content support
@@ -153,9 +154,7 @@ export const CustomCursor = () => {
     // Listen for global cursor reset events (triggered when modals close)
     window.addEventListener(CURSOR_RESET_EVENT, handleGlobalCursorReset)
     
-    // Reset cursor state periodically to prevent stuck states
-    const resetInterval = setInterval(resetCursorState, 500)
-
+    // Start animation loop
     animateCursor()
 
     return () => {
@@ -166,15 +165,18 @@ export const CustomCursor = () => {
       document.removeEventListener('mouseover', handleMouseOver)
       document.removeEventListener('mouseout', handleMouseOut)
       window.removeEventListener(CURSOR_RESET_EVENT, handleGlobalCursorReset)
-      clearInterval(resetInterval)
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current)
+      }
     }
-  }, [position])
+  }, [])
 
   if (!mounted) return null
 
   // Safety check for position values
-  const safeX = isNaN(position.x) ? 0 : position.x
-  const safeY = isNaN(position.y) ? 0 : position.y
+  const { x, y } = positionRef.current
+  const safeX = isNaN(x) ? 0 : x
+  const safeY = isNaN(y) ? 0 : y
 
   const cursorElement = (
     <div
@@ -188,8 +190,6 @@ export const CustomCursor = () => {
       `}
       style={{
         borderRadius: '50%',
-        willChange: 'transform, opacity',
-        backfaceVisibility: 'hidden',
         transform: `translate3d(${safeX}px, ${safeY}px, 0)`,
       }}
     />
